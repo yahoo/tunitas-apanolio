@@ -9,9 +9,16 @@ function do_curl() {
     return $e
 }
 
+function show_last_few() {
+    echo "--- the last few in $1 -------------------------------------------"
+    tail -5 $1
+}
+
 echo
 echo "--- GET -------------------------------------------"
 do_curl http://localhost:8888/apanolio
+do_curl http://localhost:8888/apanolio/
+do_curl http://localhost:8888/apanolio/123
 echo "--- POST -------------------------------------------"
 do_curl -d post-that http://localhost:8888/apanolio
 echo "--- PUT -------------------------------------------"
@@ -20,5 +27,5 @@ echo
 
 # var probably contains data files (the apanolio local storage)
 ls -als ${0%/*}/{var,logs}
-tail -2 logs/access_log
-tail -4 logs/error_log
+show_last_few logs/access_log
+show_last_few logs/error_log

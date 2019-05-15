@@ -1,0 +1,53 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import apache.httpd.status.Code
+#import apache.httpd.io
+namespace mod::apanolio::method {
+  namespace HTTP = apache::httpd::status::HTTP;
+  namespace HANDLER = apache::httpd::status::handler;
+  namespace io = apache::httpd::io;
+}
+namespace mod::apanolio::method {
+  //
+  // The method prototype (descendants only)
+  // Every method (response) captures the apache request, the specification and a url parser.
+  //
+  // Usage: see Getter, Poster, Putter
+  //
+  class Prototype;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.io.Stream
+#import apache.httpd.status.Code
+#import apache.httpd.request_rec
+#import mod.apanolio.config.Specification
+#import tunitas.apanolio.url.Parser
+class mod::apanolio::method::Prototype {
+protected:
+  ~Prototype() = default;
+public:
+  inline Prototype(apache::httpd::request_rec *, config::Specification const *);
+  // The descendant must implement (the non-virtual)
+  //   auto operator()() -> apache::httpd::status::Code;
+protected:
+  // Of course, the containing apache request record must have a longer lifetime than the method
+  apache::httpd::request_rec *req;
+  // Of course, the Specification must have a longer lifetime than the method (descendant)
+  config::Specification const *spec;
+  // ... because parsing occurs.
+  tunitas::apanolio::url::Parser uri_parser;
+  // ... because every method handler will need to respond onto an html stream.
+  apache::httpd::io::Stream rs;
+};
+#endiv
+#divert <ipp>
+mod::apanolio::method::Prototype::Prototype(apache::httpd::request_rec *req, config::Specification const *spec)
+  : req{req}
+  , spec{spec}
+  , uri_parser{spec->location_prefix.value}
+  , rs{req}
+{ }
+#endiv

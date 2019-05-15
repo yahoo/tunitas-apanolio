@@ -92,6 +92,9 @@ fi
 function set_all_defaults_no() {
     : ${with_hypogeal_twilight:=no} # ${with_hypogeal_twilight:=$with_std_scold}
     : ${with_apache_httpd_api:=no}
+    : ${with_module_boost:=no}
+    : ${with_module_c:=no}
+    : ${with_module_format:=no}
     : ${with_module_half:=no}
     : ${with_module_json:=no}
     : ${with_module_nonstd:=no}
@@ -106,6 +109,9 @@ function set_all_defaults_no() {
 function set_all_defaults_relatively() {
     : ${with_hypogeal_twilight:=$1/hypogeal-twilight}
     : ${with_apache_httpd_api:=${2:-$1}/apache-httpd-api}
+    : ${with_module_boost:=$1/module-boost}
+    : ${with_module_c:=$1/module-c}
+    : ${with_module_format:=$1/module-format}
     : ${with_module_half:=$1/module-half}
     : ${with_module_json:=$1/module-json}
     : ${with_module_nonstd:=$1/module-nonstd}
@@ -151,10 +157,12 @@ eval \
     ${with_hypogeal_twilight:+--with-hypogeal-twilight=$with_hypogeal_twilight} \
     ${with_temerarious_flagship:+--with-temerarious-flagship=$with_temerarious_flagship} \
     ${with_apache_httpd_api:+--with-apache-httpd-api=$with_apache_httpd_api} \
+    ${with_module_boost:+--with-module-boost=$with_module_boost} \
     ${with_module_c:+--with-module-c=$with_module_c} \
-    ${with_module_json:+--with-module-json=$with_module_json} \
+    ${with_module_format:+--with-module-format=$with_module_format} \
     ${with_module_half:+--with-module-half=$with_module_half} \
     ${with_nonstd_half:+--with-nonstd-half=$with_nonstd_half} \
+    ${with_module_json:+--with-module-json=$with_module_json} \
     ${with_module_nonstd:+--with-module-nonstd=$with_module_nonstd} \
     ${with_module_options:+--with-module-options=$with_module_options} \
     ${with_module_posix:+--with-module-posix=$with_module_posix} \

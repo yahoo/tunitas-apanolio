@@ -54,7 +54,7 @@ TF_WITH_NONSTD([gcc], [gcc], [a non-standard gcc, e.g. modernized gcc for C++11,
 
 TF_MSG_VERBOSE([system-side subsystems (alphabetical)])
 TF_WITH_HYPOGEAL_TWILIGHT
-TF_WITH_INCENDIARY_SOPHIST
+dnl NOT YET -----> TF_WITH_INCENDIARY_SOPHIST
 
 m4_include([ac/test-server.m4])
 APANOLIO_ENABLE_TEST_SET([server])
@@ -94,6 +94,19 @@ TF_CHECK_STD_FILESYSTEM
 
 TF_PACKAGE_VARIABLES
 
+#
+# Apache HTTPd Configuration file availability
+#
+#    <Location /apanolio>
+#         SetHandler mod_apanolio <-------- MODULE_NAME in Apache HTTPd culture traditionally begins with "mod_"
+#    </Location>
+#
+# S.C.O.L.D C++ availability in autotools::autoconf::Config<CONFIG>
+#
+#    char const *const HANDLER_NAME = autotools::autoconf::Config<CONFIG>::module_name();
+#
+AC_DEFINE_UNQUOTED([MODULE_NAME], "mod_${PACKAGE_NAME}", [The Apache HTTPd module name as seen from the andler])
+
 AC_ARG_ENABLE([storage-directory],
               AS_HELP_STRING([--enable-storage-directory=DIRECTORY],
                              [Choose the storage directory for mod_resting]),
@@ -107,6 +120,6 @@ eval storagedir="${storagedir}"
 eval storagedir="${storagedir}"
 eval storagedir="${storagedir}"
 TF_MSG_VERBOSE([STORAGE_DIRECTORY=$storagedir])
-AC_DEFINE_UNQUOTED([STORAGE_DIRECTORY], "$storagedir", [Default storage directory for mod_resting uploads])
+AC_DEFINE_UNQUOTED([STORAGE_DIRECTORY], "$storagedir", [Default storage directory for the host-local database])
 
 TF_FINALIZE

@@ -1,0 +1,67 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace mod::apanolio::method {
+  //
+  // GET / HTTP/X.Y
+  // <body is ignored>
+  //
+  // GET /{ID} HTTP/X.Y
+  // <body is ignored>
+  //
+  // Expectations of URL routing consistency are enforced
+  //
+  // Usage:
+  //   Getter getter{r, spec};
+  //   return getter();
+  //
+  class Getter;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.status.Code
+#import mod.apanolio.method.Prototype
+class mod::apanolio::method::Getter : public method::Prototype {
+  using ancestor = Prototype;
+public:
+  using ancestor::Prototype;
+  auto operator()() -> apache::httpd::status::Code;
+protected:
+  auto banner_failure(std::string const &) -> void;
+};
+#endiv
+#divert <cpp>
+#import autotools.autoconf.Config.mod.apanolio.CONFIG
+#import nonstd.exception.Unimplemented
+#import std.string
+auto mod::apanolio::method::Getter::operator()() -> apache::httpd::status::Code {
+  std::string uri{req->uri};
+  auto parsed = uri_parser(uri);
+  if (!ok(parsed)) {
+    return HTTP::BAD_REQUEST;
+  }
+  if (prefix(parsed) != spec->location_prefix.value) {
+    // How then, did this get routed here?
+    return HTTP::NOT_FOUND;
+  }
+  //
+  // [[TODO]] recover up the data item so named.
+  throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  return HANDLER::OK; // not HTTP::OK
+}
+#import apache.httpd.io.keywords
+#import autotools.autoconf.Config.mod.apanolio.CONFIG
+auto mod::apanolio::method::Getter::banner_failure(std::string const &identifier) -> void {
+  using namespace io::keywords;
+  ap_set_content_type(this->req, "text/html"); // [[FIXTHIS]] as ap::set_content_type(...)
+  rs << html << br
+     << head << autotools::autoconf::Config<CONFIG>::package_name() << _head << br
+     << body << p << "unable to recover the identifier "
+     << identifier
+     << " because "
+     << "of some really good reasons"
+     << _p << _body
+     << _html;
+}
+#endiv

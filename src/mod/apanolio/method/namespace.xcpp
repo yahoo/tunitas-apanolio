@@ -1,0 +1,17 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import apache.httpd.io
+#import apache.httpd.method.Code
+#import apache.httpd.status.Code
+namespace mod::apanolio::method {
+  using namespace apache::httpd::method;
+  namespace HTTP = apache::httpd::status::HTTP;
+  namespace HANDLER = apache::httpd::status::handler;
+  namespace io = apache::httpd::io;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.method.constants
+#endiv

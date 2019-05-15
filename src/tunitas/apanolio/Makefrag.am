@@ -13,8 +13,9 @@ lib_libtunitas_apanolio_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunita
 lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/namespace.cpp \
   obj/src/tunitas/apanolio/exception.Version.cpp \
-  $(end)
-
+  obj/src/tunitas/apanolio/url/namespace.cpp \
+  obj/src/tunitas/apanolio/url/Parser.cpp \
+  obj/src/tunitas/apanolio/url/URI.cpp \
   $(end)
 $(scold_cxxdir)/tunitas/apanolio/dependencies.mk:
 	$(AM_V_BB1ST) $(call TF_DISAGGREGATE_COMPILE, $(lib_libtunitas_apanolio_la_SOURCES))

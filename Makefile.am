@@ -97,18 +97,6 @@ TESTS = \
 #install: check
 default: all
 
-if ENABLE_SERVER_TESTS
-# defines $(tests_httpd_MAKE_OPTIONS)
-# NOT YET ---> include tests/httpd/compile.am
-check-tests/httpd distclean-tests/httpd clean-tests/httpd:
-	$(MAKE) -C tests/httpd $(patsubst %-tests/httpd,%,$@) $(tests_httpd_MAKE_OPTIONS)
-else
-check-tests/httpd distclean-tests/httpd clean-tests/httpd:
-endif
-check-local:: check-tests/httpd
-distclean-local:: distclean-tests/httpd
-clean-local:: clean-tests/httpd
-
 # REMOVE WHEN: baleful_ballad:hypogeal-twilight-0.??.? has work that supercedes this
 Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_boost_CPPFLAGS@ @nonstd_gcc_CPPFLAGS@ @nonstd_sqlite_CPPFLAGS@
 Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_boost_CFLAGS@   @nonstd_gcc_CFLAGS@   @nonstd_sqlite_CFLAGS@

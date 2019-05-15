@@ -1,0 +1,81 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace mod::apanolio::method {
+  //
+  // POST / HTTP/X.Y
+  // <body is accepted>
+  //
+  // Expectations of URL routing consistency are enforced
+  // (this is trivial and obvious for POST but not for PUT, DELETE, etc.}
+  // when the path name is the same as the configured location prefix value
+  //     /     uri
+  //     /     location_prefix.value
+  //
+  // The only thing you can do is POST into '/' (or whatever the location prefix is)
+  //
+  // Exceptions
+  //   Only if the Poster can't POST or respond with an error page.
+  //
+  // Usage:
+  //
+  //   Poster poster{r, spec};
+  //   return poster();
+  //
+  class Poster;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.status.Code
+#import mod.apanolio.method.Prototype
+class mod::apanolio::method::Poster : public method::Prototype {
+  using ancestor = method::Prototype;
+public:
+  using ancestor::Prototype;
+  auto operator()() -> apache::httpd::status::Code;
+protected:
+  auto banner_failure() -> void;
+};
+#endiv
+#divert <cpp>
+#import nonstd.exception.Unimplemented
+#import std.string
+auto mod::apanolio::method::Poster::operator()() -> apache::httpd::status::Code {
+  if (std::string{this->req->uri} != spec->location_prefix.value) {
+    // How then, did this get routed here?
+    return HTTP::NOT_FOUND;
+  }
+  throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+#if 0
+  // This will throw std:ios::failure if the tmpfile cannot be opened.
+  file::File posted(spec->storage_directory.value);
+  file::Gulp gulp(this->req, posted);
+  auto gulped = gulp();
+  if (!ok(gulped)) {
+    banner_failure_gulp(gulp, gulped);
+    auto failed = status(gulped);
+    detect_inadvertent_HTTP_OK(failed);
+    return failed;
+  }
+  io::Stream rs(this->req);
+  // Maybe this should be vomitted out in json? or xml? or other format-du-jour
+  ap_set_content_type(this->req, "text/text"); // FIXME as ap::set_content_type(...)
+  // FIXME ... should return a URI of the new resource, not just the (uuid) of the new filename
+  rs << posted.name() << ' ' << size(gulped);
+  return handler::OK; // not  HTTP::OK
+#endif
+}
+#import apache.httpd.io.keywords
+#import autotools.autoconf.Config.mod.apanolio.CONFIG
+auto mod::apanolio::method::Poster::banner_failure() -> void {
+  using namespace io::keywords;
+  ap_set_content_type(this->req, "text/html"); // [[FIXTHIS]] as ap::set_content_type(...)
+  rs << html << br
+     << head << autotools::autoconf::Config<CONFIG>::package_name() << _head << br
+     << body << p << "the POST fails"
+    // with no reason stated
+     << _p << _body
+     << _html;
+}
+#endiv
