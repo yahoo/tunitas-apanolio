@@ -1,0 +1,63 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#import apache.httpd // ............... n.b. - ::module is a C typedef in <httpd/http_config.h>
+extern ::module apanolio_module; // WATCHOUT - this has to be at global scope
+namespace mod::apanolio {
+  extern int *const aplog_module_index;
+}
+#endiv
+#divert <cpp>
+#import mod.apanolio.config
+#import mod.apanolio.config.Specification
+#import mod.apanolio.config.parse
+#import mod.apanolio.handler
+#import mod.apanolio.open_logs
+#include "httpd/httpd.h" // All their macros in all their CPP glory.
+namespace {
+
+  // https://ci.apache.org/projects/httpd/trunk/doxygen/group__APACHE__CORE__CONFIG.html
+  //
+  // Also http://www.apachetutor.org/dev/config (2005)
+  //
+  // AP_INIT_TAKE1(char const *directive,
+  //               cmd_func command_function,
+  //               unknown *argument,
+  //               int? otherwise = OR_FILEINFO,
+  //               char const *description)
+  //
+  // GAK ... cmd_func is a legacy of the C era where the function pointers didn't have args
+  // typedef const char *(*cmd_func) ();
+  //
+  command_rec const conf_directives[] = {
+    AP_INIT_NO_ARGS(mod::apanolio::config::NAME,
+                    reinterpret_cast<cmd_func>(mod::apanolio::config::parse),
+                    /* passed to parse(...) as cmd_params::info */ nullptr,
+                    EXEC_ON_READ | OR_ALL,
+                    mod::apanolio::config::DESCRIPTION),
+    AP_INIT_TAKE1(nullptr, nullptr, nullptr, 0, nullptr),
+  };
+  auto register_hooks(apr_pool_t *pool) -> void {
+    ap_hook_open_logs(mod::apanolio::open_logs, nullptr, nullptr, APR_HOOK_LAST);
+    ap_hook_handler(mod::apanolio::handler, nullptr, nullptr, APR_HOOK_LAST);
+  }
+  auto register_server_config(apr_pool_t *p, server_rec *s) ->  void * {
+    // TODO - FIXME - can this be [must this be?] allocated in the pool itself?
+    return new mod::apanolio::config::Specification();
+  }
+}
+
+// Define our module as an entity and assign a function for registering hooks
+// WATCHOUT - this has to be at global scope, otherwise the apache runtime DSO exploration won't find it.
+module AP_MODULE_DECLARE_DATA apanolio_module = {
+    STANDARD20_MODULE_STUFF,
+    nullptr, //register_directory_config .... per-directory configuration handler
+    nullptr, //register_directory_merge ..... merge for per-directory configurations
+    register_server_config, // .............. per-server configuration handler
+    nullptr, //register_server_merge ........ merge for per-server configurations
+    conf_directives, // ..................... conf file directives for httpd
+    register_hooks,  // ..................... the hook registering function
+};
+int *const mod::apanolio::aplog_module_index = &apanolio_module.module_index;
+#endiv

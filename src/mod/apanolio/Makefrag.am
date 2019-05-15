@@ -1,0 +1,35 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright 2019-2019, Oath Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+
+lib_libmod_apanolio_la = lib/libmod_apanolio.la
+lib_libmod_apanolio_la_LIBADD = \
+  $(lib_libtunitas_apanolio_la) \
+  $(lib_libautotools_autoconf_la) \
+  $(lib_libwant_la) \
+  -lapache-httpd-module \
+  -lsys-posix-module \
+  $(end)
+lib_libmod_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+$(lib_libmod_apanolio_la_OBJECTS) : CXXFLAGS+=-Wno-invalid-offsetof
+lib_libmod_apanolio_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libmod_apanolio_la_SOURCES))
+lib_libmod_apanolio_la_SOURCES = \
+  obj/src/mod/apanolio/namespace.cpp \
+  obj/src/mod/apanolio/handler.cpp \
+  obj/src/mod/apanolio/module.cpp \
+  obj/src/mod/apanolio/httpd.cpp \
+  obj/src/mod/apanolio/open_logs.cpp \
+  \
+  obj/src/mod/apanolio/config/namespace.cpp \
+  obj/src/mod/apanolio/config/parse.cpp \
+  obj/src/mod/apanolio/config/Specification.cpp \
+  $(end)
+
+$(scold_cxxdir)/mod/apanolio/dependencies.mk: Makefile
+	$(AM_V_BB1ST) $(call TF_DISAGGREGATE_COMPILE, $(lib_libmod_apanolio_la_SOURCES))
+	$(AM_V_BB2ND) $(call TF_DEPENDENCIES_COMPILE, $(lib_libmod_apanolio_la_SOURCES))
+	@test -e $@
+include $(scold_cxxdir)/mod/apanolio/dependencies.mk
+clean-local::
+	rm -f $(scold_cxxdir)/mod/apanolio/dependencies.mk

@@ -1,0 +1,27 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright 2019-2019, Oath Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+
+check_bin_unit = check/bin/unit
+check_bin_unit_LDADD = \
+  $(lib_libmod_apanolio_module_la) \
+  -lrigging-httpd-module \
+  -lrigging-bench-module \
+  $(end)
+check_bin_unit_LDFLAGS = $(CHECK_LDFLAGS_SET)
+check_bin_unit_MODULES = $(call TF_SOURCEStoMODULES, $(check_bin_unit_SOURCES))
+check_bin_unit_SOURCES = \
+  obj/src/tests/unit/namespace.cpp \
+  obj/src/tests/unit/main.cpp \
+  obj/src/tests/unit/apanolio.Fixture.cpp \
+  obj/src/tests/unit/want.Fixture.cpp \
+  $(end)
+
+$(scold_cxxdir)/tests/unit/dependencies.mk: Makefile
+	$(AM_V_BB1ST) $(call TF_DISAGGREGATE_COMPILE, $(check_bin_unit_SOURCES))
+	$(AM_V_BB2ND) $(call TF_DEPENDENCIES_COMPILE, $(check_bin_unit_SOURCES))
+	@test -e $@
+include $(scold_cxxdir)/tests/unit/dependencies.mk
+clean-local::
+	rm -f $(scold_cxxdir)/tests/unit/dependencies.mk

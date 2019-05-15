@@ -1,0 +1,59 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace mod::apanolio::config {
+  enum STORAGE_DIRECTORY { };
+  enum LOCATION_PREFIX { };
+  class Specification;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.config.Value
+#import std.string
+class mod::apanolio::config::Specification {
+public:
+  Specification();
+  //
+  // Defaults to /var/mod_apanolio
+  // Relative paths are imputed to the ServerRoot
+  //
+  apache::httpd::config::Value<STORAGE_DIRECTORY> storage_directory;
+  //
+  // Defaults to "/"
+  // Should be the same as the <Location...> in which the handler is configured
+  // e.g.
+  //     <Apanolio>
+  //        StorageDirectory /var/mod_apanolio
+  //        LocationPrefix /var/apanolio <----------------- choose wisely
+  //     </Apanolio>
+  //     <Location /apanolio> <---------------------------- choose wisely
+  //         SetHandler mod_apanolio
+  //     </Location>
+  //
+  apache::httpd::config::Value<LOCATION_PREFIX> location_prefix;
+};
+namespace apache::httpd::config {
+  template<> char const Value<mod::apanolio::config::STORAGE_DIRECTORY>::NAME[];
+  template<> char const Value<mod::apanolio::config::STORAGE_DIRECTORY>::DESCRIPTION[];
+
+  template<> char const Value<mod::apanolio::config::LOCATION_PREFIX>::NAME[];
+  template<> char const Value<mod::apanolio::config::LOCATION_PREFIX>::DESCRIPTION[];
+}
+#endiv
+#divert <cpp>
+#import autotools.autoconf.Config.mod.apanolio.CONFIG
+mod::apanolio::config::Specification::Specification()
+  : storage_directory(autotools::autoconf::Config<CONFIG>::storage_directory())
+  , location_prefix("/") {
+  ;
+}
+
+template<> char const apache::httpd::config::Value<mod::apanolio::config::STORAGE_DIRECTORY>::NAME[] = "StorageDirectory";
+template<> char const apache::httpd::config::Value<mod::apanolio::config::STORAGE_DIRECTORY>::DESCRIPTION[] =
+R"DESCRIPTION(Storage directory for uploaded blobs; e.g. /var/mod_apanolio)DESCRIPTION";
+
+template<> char const apache::httpd::config::Value<mod::apanolio::config::LOCATION_PREFIX>::NAME[] = "LocationPrefix";
+template<> char const apache::httpd::config::Value<mod::apanolio::config::LOCATION_PREFIX>::DESCRIPTION[] =
+R"DESCRIPTION(The <Location ...> prefix of the handler, defaults to "/")DESCRIPTION";
+#endiv

@@ -1,0 +1,9 @@
+#!/bin/sh
+# TODO ... move the "make check" actions up in here.
+# there can be more than one test acquired out of that running server
+
+make -C ${0%/*}/httpd check
+
+e=$?
+echo "${0##*/}: exit $e"
+exit $e

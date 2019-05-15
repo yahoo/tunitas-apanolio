@@ -1,0 +1,93 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#import mod.apanolio.httpd
+namespace mod::apanolio::config {
+  //
+  // Syntax
+  //    <Apanolio>
+  //       StorageLocation <directory>
+  //       LocationPrefix <prefix>
+  //    </Apanolio>
+  //
+  // Args defined by Apache HTTPd
+  // return (defined by Apache HTTPd
+  //    nullptr on success
+  //    a (char const *) message on failure to parse the stanza
+  //
+  auto parse(httpd::cmd_parms *cmd, void *unclear_what_this_is, char const *start_token_just_recognized) -> char const *;
+  extern char const NAME[];
+  extern char const ENDNAME[];
+  extern char const DESCRIPTION[];
+}
+#endiv
+#divert <cpp>
+char const mod::apanolio::config::NAME[] = "<Apanolio"; // missing the '>'
+char const mod::apanolio::config::ENDNAME[] = "</Apanolio>";
+char const mod::apanolio::config::DESCRIPTION[] = "The mod_apanolio Configuration Container";
+#import std.cerr
+#import std.dec
+#import apache.httpd.module_config.get
+#import apache.httpd.config.Parser
+#import apache.httpd.server.root
+#import boost.lexical_cast
+#import path.filename.workbench
+#import mod.apanolio.config.Specification
+#import mod.apanolio.module
+auto mod::apanolio::config::parse(httpd::cmd_parms *cmd, void */*???*/, char const *start_token_just_recognized) -> char const * {
+  // reminder  void *cmd_params::info contains the 2nd arg to AP_INIT_NOARGS in module.cpp
+
+  //
+  // <Apanolio>
+  //     StorageDirectory /var/apanolio
+  // </Apanolio>
+  //
+  apache::httpd::config::Parser parser(cmd, NAME, ENDNAME);
+  Specification *specification = apache::httpd::module_config::get<Specification>(cmd, apanolio_module);
+  if (nullptr == specification) {
+    return parser.pstrcat(" (internal error?) no specification object for ", &NAME[0], ">");
+  }
+
+  // Complain if the <Apanolio> directive is not well formed
+  if ( ! parser.well_formed_start(start_token_just_recognized) ) {
+    return parser.pstrcat("the directive [", start_token_just_recognized, "] is inappropriate or missing the closing '>'");
+  }
+
+  while (parser.get_line() && ! parser.at_end()) {
+    std::cerr << "line: q(" << parser.buffer.data() << ")\n";
+    if (parser.ignorable()) {
+      continue;
+    }
+
+    auto tokens = parser.split_line();
+    if (2 != tokens.size()) {
+      return parser.pstrcat("bad directive [", parser.buffer.data(), "], expected two space separated tokens, but found ", boost::lexical_cast<std::string>(tokens.size()));
+    }
+        
+    auto const &name(tokens[0]);
+    auto const &value(tokens[1]);
+
+    bool matched = false;
+    matched |= specification->storage_directory.set_if(name, value);
+    matched |= specification->location_prefix.set_if(name, value);
+    if ( ! matched ) {
+      return parser.pstrcat("bad directive [", name, "], unsupported directive name");
+    }
+  }
+  if (!parser.at_end()) {
+    return parser.pstrcat("missing end token [", ENDNAME, "]");
+  }
+
+  if ('/' != specification->storage_directory.value.front()) {
+    //
+    // CANNOT use ap::server_root_relative because it only works for files
+    // i.e. it can return nullptr; and does return nullptr if the computed relative name is a directory name 
+    // DO NOT ap::server_root_relative(cmd->pool, specification->storage_directory.value.data());
+    //
+    specification->storage_directory.value = finalize(path::filename::workbench() * apache::httpd::server::root() / specification->storage_directory.value);
+  }
+  // All is good.
+  return nullptr;
+}
+#endiv

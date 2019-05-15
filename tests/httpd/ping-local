@@ -1,0 +1,24 @@
+#!/bin/sh
+
+function do_curl() {
+    declare -a argv=(curl --trace-ascii - --header 'Host: ping.example' "$@")
+    echo "run ${argv[@]}"
+    "${argv[@]}"
+    local e=$?
+    echo "${argv[0]} exit $e"
+    return $e
+}
+
+echo
+echo "--- GET -------------------------------------------"
+do_curl http://localhost:8888/apanolio
+echo "--- POST -------------------------------------------"
+do_curl -d post-that http://localhost:8888/apanolio
+echo "--- PUT -------------------------------------------"
+do_curl -X PUT -d put-that http://localhost:8888/apanolio
+echo
+
+# var probably contains data files (the apanolio local storage)
+ls -als ${0%/*}/{var,logs}
+tail -2 logs/access_log
+tail -4 logs/error_log

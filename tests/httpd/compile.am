@@ -1,0 +1,5 @@
+# This -*- Makefile -*- fragment is included by automake in ../../Makefile.am
+# it is never ever used herein within ./Makefile (.../tests/httpd/Makefile)
+
+tests_httpd_MAKE_OPTIONS = $(none)
+

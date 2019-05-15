@@ -1,0 +1,15 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <cpp>
+#import rigging.bench.Main
+#import tests.unit.apanolio.Fixture
+#import tests.unit.want.Fixture
+auto main(int argc, char **argv) -> int {
+  using namespace rigging::bench;
+  using namespace tests::unit;
+  Main remain(apanolio::Fixture::suite(),
+              want::Fixture::suite());
+  return remain(argc, argv);
+}
+#endiv

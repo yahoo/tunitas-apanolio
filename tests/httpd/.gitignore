@@ -1,0 +1,7 @@
+# This is the httpd uber-ignore
+# Put all ignorance (sic) in here.
+# Whereas git is not feature-rich enough to preserve directory structure, the lower-level .gitignore
+# files exist merely to preserve the existence of the directory 
+#
+# yup, anything in ./var gets ignored
+var
