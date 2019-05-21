@@ -1,0 +1,39 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import apache.httpd // WATCHOUT - does #under trickery ... and we do more herein
+//
+// NASTY NASTY NASTY ...
+//
+#include <httpd/http_log.h>
+// WATCHOUT - /usr/include/httpd/ap_config_auto.h is actually just config.h for Apache HTTPd.
+// They leave littered their "PACKAGE_"-prefixed defines, which collide with ours,
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
+#import apache.httpd.cmd_parms
+#import apache.httpd.request_rec
+#import apache.httpd.server_rec
+#import apache.runtime.pool_t
+namespace mod::apanolio::httpd {
+  using apache::httpd::cmd_parms;
+  using apache::httpd::request_rec;
+  using apache::httpd::server_rec;
+  using apache::runtime::pool_t;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.status.Code
+namespace mod::apanolio::httpd {
+  // WATCHOUT - Apache HTTPd mixes its internal flow control codes (which are HANDLER::-prefixed)
+  // up with the externalized HTTP status codes (which are HTTP::-prefixed)
+  // WATCHOUT - OK is thus not 200_OK, but rather the internal code zero (0).
+  constexpr auto const OK = apache::httpd::status::handler::OK;
+  constexpr auto const DECLINED = apache::httpd::status::handler::DECLINED;
+  constexpr auto const NOT_IMPLEMENTED = apache::httpd::status::HTTP::NOT_IMPLEMENTED;
+  constexpr auto const INTERNAL_SERVER_ERROR = apache::httpd::status::HTTP::INTERNAL_SERVER_ERROR;
+}
+#endiv

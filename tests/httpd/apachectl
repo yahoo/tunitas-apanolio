@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# A controller for this server case
+#
+# ./apachectl { start | stop | restart }
+#
+# default is to restart
+#
+
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+cd ${0%/*}
+
+function invoke_httpd() {
+    local command=$1; shift
+    httpd -d $(pwd) -f conf/httpd.conf -k "$command" "$@"
+}
+
+command=${1:-hard-restart}
+case $command in
+( hard-restart)
+    invoke_httpd stop
+    sleep 3
+    invoke_httpd start
+    ;;
+( debug )
+    shift
+    httpd -d $(pwd) -f conf/httpd.conf "$@"
+    ;;
+( * )
+    invoke_httpd "$command"
+    ;;
+esac

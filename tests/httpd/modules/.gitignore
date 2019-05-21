@@ -1,0 +1,5 @@
+*~
+# this is ours, built herein; a symlink.
+mod_ndn.so
+# Any other module at all, should also be a symlink to /etc/httpd/modules/.
+*.so

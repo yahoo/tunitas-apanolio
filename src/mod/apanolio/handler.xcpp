@@ -1,0 +1,118 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#import mod.apanolio.httpd
+#import apache.httpd.status.constants
+namespace mod::apanolio {
+  //
+  // The standard handler callback interface
+  //
+  // WATCHOUT - no exceptions may leak back out to the C runtime.
+  //
+  namespace packaging::handler::function {
+    namespace HTTP = apache::httpd::status::HTTP;
+    namespace HANDLER = apache::httpd::status::handler;
+    auto handler(request_rec *) noexcept -> int;
+  }
+  using packaging::handler::function::handler;
+}
+#endiv
+#divert <cpp>
+#define __trace__ ap_log_rerror(APLOG_MARK, APLOG_TRACE4, /*status*/ 0, r, "line %d", __LINE__);
+#import apache.httpd.io.Stream
+#import apache.httpd.io.keywords
+#import apache.httpd.module_config.get
+#import autotools.autoconf.Config.mod.apanolio.CONFIG
+#import mod.apanolio.module
+#import mod.apanolio.config.Specification
+#import nonstd.exception.Unreachable
+#import mod.apanolio.method.Getter
+#import mod.apanolio.method.Poster
+#import mod.apanolio.method.Putter
+#import nonstd.exception.Unimplemented
+#import strcmp
+#import std.cerr
+#import std.exception
+#import std.runtime_error
+#import std.string
+#import want.null_maybe
+auto mod::apanolio::packaging::handler::function::handler(request_rec *r) noexcept -> int try {
+  //
+  // reminder: the word "apanolio: is the name of the declared module
+  // and appears in configuration files and also in variables herein
+  //
+  // module.conf
+  //     LoadModule apanolio_module modules/mod_apanolio.so
+  //
+  // handler_name is the soname of the library; e.g. "mod_apanolio"
+  // we find this name via the autotools' config package_name()
+  //
+  // variables herein
+  //     ::module AP_MODULE_DECLARE_DATA apanolio_module = {... }
+  //     APLOG_DECLARE_MODULE(apanolio);
+  //     APLOG_USE_MODULE(apanolio);
+  //
+  char const *const HANDLER_NAME = autotools::autoconf::Config<CONFIG>::module_name();
+  ap_log_rerror(APLOG_MARK, APLOG_TRACE4, /*status*/ 0, r, "%s (trying %s)", HANDLER_NAME, r->uri);
+  if (nullptr == r || nullptr == r->handler || 0 != strcmp(r->handler, HANDLER_NAME)) {
+    return HANDLER::DECLINED;
+  }
+  ap_log_rerror(APLOG_MARK, APLOG_TRACE4, /*status*/ 0, r, "%s (accepted %s)", HANDLER_NAME, r->uri);
+  namespace module_config = apache::httpd::module_config;
+  auto const *spec = module_config::get<config::Specification>(r->server, apanolio_module);
+  if (nullptr == spec) {
+    throw std::runtime_error("null server config");
+  }
+  namespace io = apache::httpd::io;
+  io::Stream rs(r);
+  ap_set_content_type(r, "text/html"); // FIXME as ap::set_content_type(...)
+  if (false) {
+  } else if (method::GET == r->method_number) {
+    //
+    // GET /{ID} HTTP/5.0
+    // ...stuff...
+    //
+    method::Getter GET(r, spec);
+    return GET();
+  } else if (method::POST == r->method_number) {
+    //
+    // POST / HTTP/5.0       no {ID} in the URL path
+    // ...stuff...
+    //
+    method::Poster POST(r, spec);
+    return POST();
+  } else if (method::PUT == r->method_number) {
+    //
+    // PUT /{ID} HTTP/6.7
+    // ...stuff...
+    //
+    method::Putter PUT(r, spec);
+    return PUT();
+  } else {
+    using namespace io::keywords;
+    rs << html << br
+       << head << HANDLER_NAME << _head << br
+       << body << p << want::null_maybe(r->method) << " is not supported" << _p << _body
+       << _html;
+    return HTTP::NOT_IMPLEMENTED;
+  }
+  throw nonstd::exception::Unreachable{__FUNCTION__, __FILE__, __LINE__};
+} catch (...) {
+  // WATCHOUT -- again no C++ exception can escape back out to the C runtime.
+  try {
+    throw;
+  } catch (nonstd::exception::Unimplemented const &e) {
+    // We know it is unimplemented, and there is a special code for that
+    ap_log_rerror(APLOG_MARK, APLOG_TRACE1, /*status*/ 0, r, "we know %s", e.what());
+    return HTTP::NOT_IMPLEMENTED;
+  } catch (std::exception const &e) {
+    // Ours and maybe someone else's exceptions.
+    ap_log_rerror(APLOG_MARK, APLOG_TRACE1, /*status*/ 0, r, "unexpected exception %s", e.what());
+  } catch (...) {
+    // Huh?  different only in the error message that's logged
+    ap_log_rerror(APLOG_MARK, APLOG_TRACE1, /*status*/ 0, r, "unexpected unknown exception");
+  }
+  return HTTP::INTERNAL_SERVER_ERROR;
+}
+#endiv

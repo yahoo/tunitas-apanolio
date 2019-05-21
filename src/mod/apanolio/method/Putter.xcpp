@@ -1,0 +1,75 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace mod::apanolio::method {
+  //
+  // PUT /{ID} HTTP/X.Y
+  // <body is ignored>
+  //
+  // Expectations of URL routing consistency are enforced
+  //
+  //   case 1
+  //       /{ID}         uri
+  //       /             location_prefix.value  i.e. "" followed by "/"
+  //   case 2
+  //       /prefix/{ID}  uri
+  //       /prefix/      location_prefix.value  i.e. "" followed by "/"
+  //
+  // Usage:
+  //   Putter putter{r, spec};
+  //   return putter();
+  //
+  class Putter;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.status.Code
+#import mod.apanolio.method.Prototype
+class mod::apanolio::method::Putter : public method::Prototype {
+  using ancestor = Prototype;
+public:
+  using ancestor::Prototype;
+  auto operator()() -> apache::httpd::status::Code;
+private:
+  auto banner_failure_no_such_resource() -> void;
+  auto banner_failure() -> void;
+};
+#endiv
+#divert <cpp>
+#import nonstd.exception.Unimplemented
+auto mod::apanolio::method::Putter::operator()() -> apache::httpd::status::Code {
+  auto parsed = uri_parser(this->req->uri);
+  if (!ok(parsed)) {
+    return HTTP::BAD_REQUEST;
+  }
+  if (prefix(parsed) != spec->location_prefix.value) {
+    // How then, did this get routed here?
+    return HTTP::NOT_FOUND;
+  }
+  throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+}
+#import autotools.autoconf.Config.mod.apanolio.CONFIG
+#import apache.httpd.io.keywords
+auto mod::apanolio::method::Putter::banner_failure() -> void {
+  ap_set_content_type(this->req, "text/html"); // [[FIXTHIS]] as ap::set_content_type(...)
+  using namespace io::keywords;
+  rs << html << br
+     << head << autotools::autoconf::Config<CONFIG>::package_name() << _head << br
+     << body << p << "the PUT fails"
+    // with no reason stated
+     << _p << _body
+     << _html;
+}
+auto mod::apanolio::method::Putter::banner_failure_no_such_resource() -> void {
+  ap_set_content_type(this->req, "text/html"); // [[FIXTHIS]] ibidem
+  using namespace io::keywords;
+  rs << html << br
+     << head << autotools::autoconf::Config<CONFIG>::package_name() << _head << br
+     << body << p
+     << "the PUT fails because "
+     << "there is no such resource"
+     << _p << _body
+     << _html;
+}
+#endiv

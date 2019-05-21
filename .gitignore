@@ -1,0 +1,64 @@
+# Your personal editor trash should be in ~/.config/git/ignore
+# Activate with: git config --global core.exludesfile ~/.config/git/ignore
+
+# General test trash for herein
+*.sqar
+
+# General Autotools trash
+.dirstamp
+.deps
+.libs
+
+# Ancient hypogeal-twilight trash (do not use config.settings.in)
+# Created from config.settings.in
+config.settings
+
+# Autotools trash
+aclocal.m4
+ar-lib
+autom4te.cache
+compile
+config.guess
+config.h
+config.h.in
+config.log
+config.status
+config.sub
+configure
+depcomp
+install-sh
+libtool
+ltmain.sh
+m4
+Makefile
+Makefile.in
+missing
+stamp-h1
+
+test-driver
+test-suite.log
+
+# hypogeal-twilight build system trash 
+obj
+**/*.o
+**/*.lo
+
+# ... move to ~/.config/git/ignore
+# Excessive personal trash
+
+*~
+.#*
+.#.*
+\#*#
+
+t99
+t99.*
+j99
+j99.*
+o99
+o99.*
+old
+old.*
+
+o.*.out
+#end

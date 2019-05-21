@@ -1,0 +1,162 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::url { class Parser; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tunitas.apanolio.url.Parser
+class tests::unit::url::Parser : public cppunit::test::Fixture {
+public:
+  using Subject = ::tunitas::apanolio::url::Parser;
+  auto test_empty() -> void;
+  auto test_slash() -> void;
+  auto test_more() -> void;
+  auto test_slash2() -> void;
+  auto test_slash2_prefix() -> void;
+  auto test_slash2_identifier() -> void;
+  auto test_slashprefix_empty() -> void;
+  auto test_slashprefix_slash() -> void;
+  auto test_slashprefix_perfidy() -> void;
+  auto test_slashprefix_same() -> void;
+  auto test_slashprefix_trailing_slash() -> void;
+  auto test_slashprefix_two_ok() -> void;
+  auto test_slashprefix_two_prefix() -> void;
+  auto test_slashprefix_two_identifier() -> void;
+  auto test_bad_identifier_1_with_slash() -> void;
+  auto test_bad_identifier_2_with_slash() -> void;
+  auto test_bad_identifier_3_not_isidentifier() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::url::Parser::test_empty() -> void {
+  Subject parser("/");
+  auto u = parser("");
+  CPPUNIT_ASSERT(!ok(u));
+}
+auto tests::unit::url::Parser::test_slash() -> void {
+  Subject parser("/");
+  auto u = parser("/");
+  CPPUNIT_ASSERT(!ok(u));
+}
+auto tests::unit::url::Parser::test_more() -> void {
+  Subject parser("/");
+  auto u = parser("/prefix");
+  CPPUNIT_ASSERT(ok(u));
+}
+auto tests::unit::url::Parser::test_slash2() -> void {
+  Subject parser("/");
+  auto u = parser("/2");
+  CPPUNIT_ASSERT(ok(u));
+}
+auto tests::unit::url::Parser::test_slash2_prefix() -> void {
+  Subject parser("/");
+  auto u = parser("/2");
+  std::string expected = "/";
+  std::string actual = prefix(u);
+  CPPUNIT_ASSERT_EQUAL(expected, actual);
+}
+auto tests::unit::url::Parser::test_slash2_identifier() -> void {
+  Subject parser("/");
+  auto u = parser("/2");
+  std::string expected = "2";
+  std::string actual = identifier(u);
+  CPPUNIT_ASSERT_EQUAL(expected, actual);
+ }
+auto tests::unit::url::Parser::test_slashprefix_empty() -> void {
+  Subject parser("/prefix");
+  auto u = parser("");
+  CPPUNIT_ASSERT(!ok(u));
+}
+auto tests::unit::url::Parser::test_slashprefix_slash() -> void {
+  Subject parser("/prefix");
+  auto u = parser("/");
+  CPPUNIT_ASSERT(!ok(u));
+}
+auto tests::unit::url::Parser::test_slashprefix_perfidy() -> void {
+  Subject parser("/prefix");
+  auto u = parser("/perfidy");
+  CPPUNIT_ASSERT(!ok(u));
+}
+auto tests::unit::url::Parser::test_slashprefix_same() -> void {
+  Subject parser("/prefix");
+  auto u = parser("/prefix");
+  CPPUNIT_ASSERT(!ok(u));
+}
+auto tests::unit::url::Parser::test_slashprefix_trailing_slash() -> void {
+  Subject parser("/prefix");
+  auto u = parser("/prefix/");
+  CPPUNIT_ASSERT(!ok(u));
+}
+auto tests::unit::url::Parser::test_slashprefix_two_ok() -> void {
+  Subject parser("/prefix");
+  auto u = parser("/prefix/2");
+  CPPUNIT_ASSERT(ok(u));
+}
+auto tests::unit::url::Parser::test_slashprefix_two_prefix() -> void {
+  Subject parser("/prefix");
+  auto u = parser("/prefix/2");
+  std::string expected = "/prefix";
+  std::string actual = prefix(u);
+  CPPUNIT_ASSERT_EQUAL(expected, actual);
+}
+auto tests::unit::url::Parser::test_slashprefix_two_identifier() -> void {
+  Subject parser("/prefix");
+  auto u = parser("/prefix/2");
+  std::string expected = "2";
+  std::string actual = identifier(u);
+  CPPUNIT_ASSERT_EQUAL(expected, actual);
+}
+auto tests::unit::url::Parser::test_bad_identifier_1_with_slash() -> void {
+  Subject parser("/prefix");
+  auto u = parser("/prefix/2/"); // <--- malformed identifier (contains a slash)
+  CPPUNIT_ASSERT(!ok(u));
+}
+auto tests::unit::url::Parser::test_bad_identifier_2_with_slash() -> void {
+  Subject parser("/prefix");
+  auto u = parser("/prefix/apple/banana"); // <--- malformed identifier (contains a slash)
+  CPPUNIT_ASSERT(!ok(u));
+}
+auto tests::unit::url::Parser::test_bad_identifier_3_not_isidentifier() -> void {
+  Subject parser("/prefix");
+  { auto u = parser("/prefix/!@#$%^^&*&"); // <--- malformed identifier
+    CPPUNIT_ASSERT(!ok(u)); }
+  { auto u = parser("/prefix/%20"); // <--- malformed identifier
+    CPPUNIT_ASSERT(!ok(u)); }
+  { auto u = parser("/prefix/$(date)"); // <--- malformed identifier
+    CPPUNIT_ASSERT(!ok(u)); }
+  { auto u = parser("/prefix/|date"); // <--- malformed identifier
+    CPPUNIT_ASSERT(!ok(u)); }
+  { auto u = parser("/prefix/|/home/you"); // <--- malformed identifier (with slashe)
+    CPPUNIT_ASSERT(!ok(u)); }
+}
+#import unit.rigging.suite.Stream
+#import unit.rigging.suite.add
+#import unit.rigging.suite.call
+auto tests::unit::url::Parser::suite() -> cppunit::Test * {
+  using namespace ::unit::rigging::suite;
+  Stream series("Parser");
+  series << call("empty", &Parser::test_empty)
+         << call("slash", &Parser::test_slash)
+         << call("more", &Parser::test_more)
+         << call("slash2", &Parser::test_slash2)
+         << call("slash2_prefix", &Parser::test_slash2_prefix)
+         << call("slash2_identifier", &Parser::test_slash2_identifier)
+         << call("slashprefix_empty", &Parser::test_slashprefix_empty)
+         << call("slashprefix_slash", &Parser::test_slashprefix_slash)
+         << call("slashprefix_perfidy", &Parser::test_slashprefix_perfidy)
+         << call("slashprefix_same", &Parser::test_slashprefix_same)
+         << call("slashprefix_trailing_slash", &Parser::test_slashprefix_trailing_slash)
+         << call("slashprefix_two_ok", &Parser::test_slashprefix_two_ok)
+         << call("slashprefix_two_prefix", &Parser::test_slashprefix_two_prefix)
+         << call("slashprefix_two_identifier", &Parser::test_slashprefix_two_identifier)
+         << call("bad_identifier_1_with_slash", &Parser::test_bad_identifier_1_with_slash)
+         << call("bad_identifier_2_with_slash", &Parser::test_bad_identifier_2_with_slash)
+         << call("bad_identifier_3_not_identifier", &Parser::test_bad_identifier_3_not_isidentifier)
+    ;
+  return series.release();
+}
+#endiv
