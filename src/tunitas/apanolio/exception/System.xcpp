@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::exception {
+  //
+  // An system (operating system) error was encountered.
+  // These are just system_error in the POSIX sense, but they also are "apanolio-flavored"
+  //
+  // Usage:
+  //
+  //   try {
+  //     ...
+  //     throw exception::System{errc::No_such_file_or_directory,  "some excuse"};
+  //     throw exception::System{sys::error::E::BADF,  "some excuse"};
+  //     ...
+  //   } catch (exception::Aspect const &) {
+  //     ...handle it...
+  //   } catch (std::exception const &) {
+  //     ...handle it...
+  //   }
+  //
+  class System;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.exception.Aspect
+#import std.errc
+#import std.error_category
+#import std.error_code
+#import std.system_error
+class tunitas::apanolio::exception::System : public exception::Aspect, public std::system_error {
+  struct ancestors {
+    using Aspect = apanolio::exception::Aspect;
+    using Exception = std::system_error;
+  };
+public:
+  inline System(int, std::error_category const &, std::string const &reason);
+  inline System(std::errc, std::string const &reason);
+  inline System(std::error_code, std::string const &reason);
+  auto what() const noexcept -> char const * override;
+};
+#endiv
+#divert <ipp>
+#import std.error_condition
+#import std.system_category
+namespace tunitas::apanolio::exception {
+  System::System(int code, std::error_category const &category, std::string const &reason)
+    : ancestors::Exception{std::error_code{code, category}, reason}
+  { } 
+  System::System(std::errc code, std::string const &reason)
+    : ancestors::Exception{std::error_code{std::error_condition{code}.value(), std::system_category()}, reason}
+  { }
+  System::System(std::error_code ec, std::string const &reason)
+    : ancestors::Exception{ec, reason}
+  { }
+}
+#endiv
+#divert <cpp>
+auto tunitas::apanolio::exception::System::what() const noexcept -> char const * {
+  return ancestors::Exception::what();
+}
+#endiv

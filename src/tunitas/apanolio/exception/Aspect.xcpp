@@ -1,0 +1,74 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import std.string
+#import std.is_same
+namespace tunitas::apanolio::exception {
+  //
+  // The aspect of an apanolio-flavored exception.
+  // Descendants only.
+  //
+  // This is a mixin that requires blending with the standard exception hierarchy for completion.
+  // The mixin aspect allows for matching against whole subsystems of Tunitas while still
+  // preserving the ability to work with the standard exception hierarchy
+  //
+  // Reminder: the copy constructor and operator= of exception-thrown objects must be noexcept.
+  // Taking an exception during an exception is fatal.
+  // Therefore, you must store any strings indirectly using the trickery of std::runtime_error (or do it yourself).
+  //
+  // Usage:
+  //
+  //   class my::Problem : public exception::Aspect, public std::runtime_error {
+  //   public:
+  //      Problem(...reason...);
+  //      auto what() const noexcept -> chat const * { return std::runtime_error::what(); }
+  //   };
+  //
+  //   try {
+  //     ...
+  //     throw my::Problem{...reason...};
+  //     ...
+  //   } catch (exception::Aspect const &e) {
+  //     ...complain, handle it...
+  //   } catch (std::exception const &e) {
+  //     ...complain, handle it...
+  //   }
+  //
+  class Aspect; 
+  namespace required {
+    //
+    // [[FIXTHIS]] move this over to use nonstd::required::Stringlike when such exists circa module-nonstd >= 0.3.0
+    //
+    namespace crudely {
+      template<typename STRINGLIKE> concept bool Exactly = std::is_same<STRINGLIKE, std::string>::value;
+      template<typename STRINGLIKE> concept bool Approximately = requires(STRINGLIKE stringlike, char const *pointer) {
+        { STRINGLIKE{pointer} };
+      };
+    }
+    template<typename STRINGLIKE> concept bool Stringlike = crudely::Exactly<STRINGLIKE> || crudely::Approximately<STRINGLIKE>;
+  }
+}
+#endiv
+#divert <hpp>
+#import std.string
+class tunitas::apanolio::exception::Aspect {
+protected:
+  virtual ~Aspect() = default;
+  inline auto what_happened() const -> std::string; // is NOT except 
+  template<required::Stringlike STRINGLIKE> inline auto what() const -> STRINGLIKE;
+public:
+  virtual auto what() const noexcept -> char const * = 0;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::exception {
+  template<required::Stringlike STRINGLIKE> auto Aspect::what() const -> STRINGLIKE {
+    return STRINGLIKE{what()}; // the non-template version
+  }
+  auto Aspect::what_happened() const -> std::string {
+    return what();
+  }
+}
+#endiv
+

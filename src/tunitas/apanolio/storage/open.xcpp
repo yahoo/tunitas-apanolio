@@ -1,0 +1,97 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#forward tunitas.apanolio.storage.Storage
+#forward tunitas.apanolio.storage.engine.Name
+#forward tunitas.apanolio.storage.engine.configuration.Configuration.declaration
+#import std.filesystem.path
+namespace tunitas::apanolio::storage {
+  //
+  // Open a specific sort of storage, by name and constructor arguments
+  // This is RAII so you either get the storage on return or an exception.
+  //
+  // Usage:
+  //
+  //   try {
+  //     auto storage = open(...engine-specific arguments...);
+  //     ... use and enjoy the storage...
+  //   } catch (exception::Aspect const &a) {
+  //      ...explain what happened...
+  //      cerr << e.what()
+  //   }
+  //
+  inline auto open() -> Storage;
+  //
+  template<engine::Name> auto open() -> Storage = delete;
+  template<> auto open<engine::NONE>() -> Storage;
+  template<> auto open<engine::MEMORY>() -> Storage;
+  //
+  template<engine::Name> auto open(std::filesystem::path) -> Storage = delete;
+  template<> auto open<engine::FILES>(std::filesystem::path) -> Storage;
+  template<> auto open<engine::LEVELDB>(std::filesystem::path) -> Storage;
+  template<> auto open<engine::SQLITE>(std::filesystem::path) -> Storage;
+  //
+  namespace engine::configuration {
+    // ADL will find the specializations, but not the template
+    //
+    // These other ones really are unimplemented.
+    // It is unclear how to construct each of them; each is idiosyncratically different, around the edges.
+    //
+    template<Name NAME> auto open(Configuration<NAME> const &) -> Storage = delete;
+    template<> auto open(Configuration<MYSQL> const &) -> Storage;
+    template<> auto open(Configuration<PGSQL> const &) -> Storage;
+    template<> auto open(Configuration<RAMCLOUD> const &) -> Storage;
+    template<> auto open(Configuration<FABRIC> const &) -> Storage;
+    template<> auto open(Configuration<SCARPET> const &) -> Storage;
+  }
+  using engine::configuration::open;
+}
+#endiv
+#divert <ipp>
+#import tunitas.apanolio.storage.Storage
+namespace tunitas::apanolio {
+  auto storage::open() -> Storage {
+    return open<engine::NONE>();
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.storage.Engine
+#import std.move
+namespace tunitas::apanolio::storage {
+  template<> auto open<engine::NONE>() -> Storage {
+    return Storage{new Engine<engine::NONE>{}};
+  }
+  template<> auto open<engine::MEMORY>() -> Storage {
+    return Storage{new Engine<engine::MEMORY>{}};
+  }
+  template<> auto open<engine::FILES>(std::filesystem::path storage_directory) -> Storage {
+    return Storage{new Engine<engine::FILES>{std::move(storage_directory)}};
+  }
+  template<> auto open<engine::LEVELDB>(std::filesystem::path storage_directory) -> Storage {
+    return Storage{new Engine<engine::LEVELDB>{std::move(storage_directory)}};
+  }
+  template<> auto open<engine::SQLITE>(std::filesystem::path storage_directory) -> Storage {
+    return Storage{new Engine<engine::SQLITE>{std::move(storage_directory)}};
+  }
+}
+#import nonstd.exception.Unimplemented
+namespace tunitas::apanolio::storage::engine::configuration {
+  template<> auto open(Configuration<engine::MYSQL> const &) -> Storage {
+    throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  }
+  template<> auto open(Configuration<engine::PGSQL> const &) -> Storage {
+    throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  }
+  template<> auto open(Configuration<engine::RAMCLOUD> const &) -> Storage {
+    throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  }
+  template<> auto open(Configuration<engine::FABRIC> const &) -> Storage {
+    throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  }
+  template<> auto open(Configuration<engine::SCARPET> const &) -> Storage {
+    throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  }
+}
+#endiv

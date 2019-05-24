@@ -1,0 +1,62 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::storage { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tunitas.apanolio.storage.engine.Engine
+class tests::unit::storage::Fixture : public cppunit::test::Fixture {
+public:
+  auto test_open_function() -> void;
+  using Name = ::tunitas::apanolio::storage::engine::Name;
+  template<Name ENGINE> auto test_open_template0() -> void;
+  template<Name ENGINE> auto test_open_template1() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <tpp>
+#import tunitas.apanolio.storage.open
+template<tests::unit::storage::Fixture::Name ENGINE> auto tests::unit::storage::Fixture::test_open_template0() -> void {
+  auto stoage = ::tunitas::apanolio::storage::open<ENGINE>();
+  CPPUNIT_ASSERT(true); // yup, got it!
+}
+#import std.errc
+#import sys.posix.mkdir
+template<tests::unit::storage::Fixture::Name ENGINE> auto tests::unit::storage::Fixture::test_open_template1() -> void {
+  auto const storage_directory = "/tmp/tests.unit.storage.Fixture-of-tunitas.apanolio.storage"; // [[FIXTHIS]] to use $TMPDIR and assess whether cleanup is warranted
+  auto made = sys::posix::mkdir(storage_directory, 0660);
+  CPPUNIT_ASSERT(ok(made) || std::errc::file_exists == error_code(made));
+  auto stoage = ::tunitas::apanolio::storage::open<ENGINE>(storage_directory);
+  CPPUNIT_ASSERT(true); // yup, got it!
+}
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.storage.open
+auto tests::unit::storage::Fixture::test_open_function() -> void {
+  auto stoage = ::tunitas::apanolio::storage::open();
+  CPPUNIT_ASSERT(true); // yup, got it!
+}
+#import tunitas.apanolio.storage.engine.Engine
+#import rigging.suite.io
+auto tests::unit::storage::Fixture::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("storage");
+  {
+    Stream ope("open");
+    namespace engine = ::tunitas::apanolio::storage::engine;
+    ope << call("function", &Fixture::test_open_function)
+        << call("NONE", &Fixture::test_open_template0<engine::NONE>)
+        << call("MEMORY", &Fixture::test_open_template0<engine::MEMORY>)
+        << call("FILES", &Fixture::test_open_template1<engine::FILES>)
+        << call("LEVELDB", &Fixture::test_open_template1<engine::LEVELDB>)
+        << call("SQLITE", &Fixture::test_open_template1<engine::SQLITE>)
+      // the others are not ready for testing yet
+    ;
+    series << add(ope.release());
+  }
+  return finalize(series);
+}
+#endiv

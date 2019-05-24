@@ -5,7 +5,7 @@
 
 check_bin_unit = check/bin/unit
 check_bin_unit_LDADD = \
-  $(lib_libmod_apanolio_module_la) \
+  $(lib_libmod_apanolio_la) \
   -lrigging-httpd-module \
   -lrigging-bench-module \
   $(end)
@@ -15,6 +15,20 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/namespace.cpp \
   obj/src/tests/unit/main.cpp \
   obj/src/tests/unit/apanolio.Fixture.cpp \
+  obj/src/tests/unit/engine.Fixture.cpp \
+  obj/src/tests/unit/error.Fixture.cpp \
+  obj/src/tests/unit/error.Category.cpp \
+  obj/src/tests/unit/exception.Fixture.cpp \
+  obj/src/tests/unit/exception.Fixture.Maker.declaration.cpp \
+  obj/src/tests/unit/exception.Fixture.Maker.template.cpp \
+  obj/src/tests/unit/exception.Fixture.Maker.Null.cpp \
+  obj/src/tests/unit/exception.Fixture.Maker.Storage.cpp \
+  obj/src/tests/unit/exception.Fixture.Maker.System.cpp \
+  obj/src/tests/unit/exception.Fixture.Maker.cpp \
+  obj/src/tests/unit/resource.Fixture.cpp \
+  obj/src/tests/unit/resource.Identifier.cpp \
+  obj/src/tests/unit/resource.Record.cpp \
+  obj/src/tests/unit/storage.Fixture.cpp \
   obj/src/tests/unit/url.Fixture.cpp \
   obj/src/tests/unit/url.Parser.cpp \
   obj/src/tests/unit/want.Fixture.cpp \

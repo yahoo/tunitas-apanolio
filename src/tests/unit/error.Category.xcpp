@@ -1,0 +1,93 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::error { class Category; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::error::Category : public cppunit::test::Fixture {
+public:
+  auto test_name() -> void;
+  auto test_default_error_condition_integer() -> void;
+  auto test_default_error_condition_Code() -> void;
+  auto test_equivalent_error_condition() -> void;
+  auto test_equivalent_error_code() -> void;
+  auto test_message() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.error.category
+auto tests::unit::error::Category::test_name() -> void {
+  auto const &c = ::tunitas::apanolio::error::category();
+  CPPUNIT_ASSERT(nullptr != c.name());
+}
+#import tunitas.apanolio.error.Condition
+auto tests::unit::error::Category::test_default_error_condition_integer() -> void {
+  using ::tunitas::apanolio::error::Condition;
+  auto const &c = ::tunitas::apanolio::error::category();
+  CPPUNIT_ASSERT(Condition::SUCCESS == c.default_error_condition(0));
+  CPPUNIT_ASSERT(Condition::FAILURE == c.default_error_condition(1));
+  CPPUNIT_ASSERT(Condition::FAILURE == c.default_error_condition(2));
+}
+#import tunitas.apanolio.error.Code
+#import tunitas.apanolio.error.Condition
+auto tests::unit::error::Category::test_default_error_condition_Code() -> void {
+  using ::tunitas::apanolio::error::Code;
+  using ::tunitas::apanolio::error::Condition;
+  auto const &c = ::tunitas::apanolio::error::category();
+  CPPUNIT_ASSERT(Condition::SUCCESS == c.default_error_condition((int) Code::SUCCESS));
+  CPPUNIT_ASSERT(Condition::FAILURE == c.default_error_condition((int) Code::FAILURE));
+  CPPUNIT_ASSERT(Condition::FAILURE == c.default_error_condition((int) Code::NOT_IMPLEMENTED));
+  CPPUNIT_ASSERT(Condition::FAILURE == c.default_error_condition((int) Code::NOT_AVAILABLE));
+  CPPUNIT_ASSERT(Condition::FAILURE == c.default_error_condition((int) Code::NOT_FOUND));
+  CPPUNIT_ASSERT(Condition::FAILURE == c.default_error_condition((int) Code::MISSING));
+}
+#import std.error_condition
+auto tests::unit::error::Category::test_equivalent_error_condition() -> void {
+  using ::tunitas::apanolio::error::Condition;
+  auto const &c = ::tunitas::apanolio::error::category();
+  CPPUNIT_ASSERT(c.equivalent(0, std::error_condition{Condition::SUCCESS}));
+  CPPUNIT_ASSERT(c.equivalent(1, std::error_condition{Condition::FAILURE}));
+}
+#import std.error_code
+#import tunitas.apanolio.error.Code
+auto tests::unit::error::Category::test_equivalent_error_code() -> void {
+  using ::tunitas::apanolio::error::Code;
+  auto const &c = ::tunitas::apanolio::error::category();
+  CPPUNIT_ASSERT(c.equivalent(std::error_code{Code::SUCCESS}, 0));
+  CPPUNIT_ASSERT(c.equivalent(std::error_code{Code::FAILURE}, 1));
+}
+auto tests::unit::error::Category::test_message() -> void {
+  auto const &c = ::tunitas::apanolio::error::category();
+  for (int i{-100}, e{100}; e != i; ++i) {
+    auto message = c.message(i);
+    CPPUNIT_ASSERT(!message.empty());
+  }
+}
+#import rigging.suite.io
+auto tests::unit::error::Category::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("Category");
+  series << call("name", &Category::test_name)
+    ;
+  {
+    Stream equ("default_error_condition");
+    equ << call("integer", &Category::test_default_error_condition_integer)
+        << call("code", &Category::test_default_error_condition_Code)
+      ;
+    series << add(equ.release());
+  } {
+    Stream equ("equivalent");
+    equ << call("error_condition", &Category::test_equivalent_error_condition)
+        << call("error_code", &Category::test_equivalent_error_code)
+      ;
+    series << add(equ.release());
+  }
+  series<< call("message", &Category::test_message)
+    ;
+  return finalize(series);
+}
+#endiv

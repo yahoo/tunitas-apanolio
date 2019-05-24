@@ -1,0 +1,27 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#forward tests.unit.exception.Fixture.Maker.declaration
+#import tunitas.apanolio.exception.Null
+namespace tests::unit::exception {
+  template<> struct Fixture::Maker<::tunitas::apanolio::exception::Null>;
+}
+#endiv
+#divert <hpp>
+#import std.string
+template<> struct tests::unit::exception::Fixture::Maker<tunitas::apanolio::exception::Null> {
+  using Exception = tunitas::apanolio::exception::Null;
+  explicit Maker(/*[[unused]]*/ std::string const &);
+  auto operator()() const ->  Exception;
+};
+#endiv
+#divert <cpp>
+namespace tests::unit::exception {
+  Fixture::Maker<tunitas::apanolio::exception::Null>::Maker(std::string const &)
+  { }
+  auto Fixture::Maker<tunitas::apanolio::exception::Null>::Maker::operator()() const ->  Exception {
+    return Exception{}; // There is only a default constructor for this one.
+  }
+}
+#endiv

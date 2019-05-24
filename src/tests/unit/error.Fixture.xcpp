@@ -1,0 +1,65 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::error { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::error::Fixture : public cppunit::test::Fixture {
+public:
+  auto test_Condition() -> void;
+  auto test_Code() -> void;
+  auto test_category() -> void;
+  auto test_Category() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import std.error_code
+#import tunitas.apanolio.error.Condition
+auto tests::unit::error::Fixture::test_Condition() -> void {
+  using ::tunitas::apanolio::error::Condition;
+  CPPUNIT_ASSERT(0 == (int)Condition::SUCCESS);
+  CPPUNIT_ASSERT(0 != (int)Condition::FAILURE);
+}
+#import tunitas.apanolio.error.Code
+auto tests::unit::error::Fixture::test_Code() -> void {
+  using ::tunitas::apanolio::error::Code;
+  CPPUNIT_ASSERT(0 == (int)Code::SUCCESS);
+  CPPUNIT_ASSERT(0 != (int)Code::FAILURE);
+}
+#import tunitas.apanolio.error.category
+auto tests::unit::error::Fixture::test_category() -> void {
+  using ::tunitas::apanolio::error::Code;
+  using ::tunitas::apanolio::error::category;
+  CPPUNIT_ASSERT(Code::SUCCESS == (std::error_code{0, category()}));
+  CPPUNIT_ASSERT(Code::FAILURE == (std::error_code{1, category()}));
+}
+#import std.error_condition
+#import std.error_code
+#import tunitas.apanolio.error.Category
+auto tests::unit::error::Fixture::test_Category() -> void {
+  using namespace ::tunitas::apanolio::error;
+  auto &c = category();
+  CPPUNIT_ASSERT(nullptr != c.name());
+  CPPUNIT_ASSERT(Condition::SUCCESS == c.default_error_condition(0));
+  CPPUNIT_ASSERT(c.equivalent(0, std::error_condition{Condition::SUCCESS}));
+  CPPUNIT_ASSERT(c.equivalent(std::error_code{Code::SUCCESS}, 0));
+  CPPUNIT_ASSERT(! c.message(0).empty() );
+}
+#import tests.unit.error.Category
+#import rigging.suite.io
+auto tests::unit::error::Fixture::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("error");
+  series << call("Condition", &Fixture::test_Condition)
+         << call("Code", &Fixture::test_Code)
+         << call("category", &Fixture::test_category)
+         << call("Category", &Fixture::test_Category)
+         << add(Category::suite())
+    ;
+  return finalize(series);
+}
+#endiv

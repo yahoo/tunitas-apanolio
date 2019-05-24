@@ -23,6 +23,7 @@ DEVELOPMENT_AREAS = \
   $(module_nonstd_prefix) \
   $(module_options_prefix) \
   $(module_posix_prefix) \
+  $(module_rabinpoly_prefix) \
   $(module_sqlite_prefix) \
   $(module_std_prefix) \
   $(module_slurp_prefix) \

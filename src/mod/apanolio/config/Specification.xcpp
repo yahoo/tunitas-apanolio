@@ -10,6 +10,7 @@ namespace mod::apanolio::config {
 #endiv
 #divert <hpp>
 #import apache.httpd.config.Value
+#import tunitas.apanolio.Storage
 #import std.string
 class mod::apanolio::config::Specification {
 public:
@@ -28,10 +29,14 @@ public:
   //        LocationPrefix /var/apanolio <----------------- choose wisely
   //     </Apanolio>
   //     <Location /apanolio> <---------------------------- choose wisely
-  //         SetHandler mod_apanolio
+  //         SetHandler mod_apanolio <--------------------- compiled-in from the Config<CONFIG>::module_name()
   //     </Location>
   //
   apache::httpd::config::Value<LOCATION_PREFIX> location_prefix;
+  //
+  // One among many database engines.
+  //
+  tunitas::apanolio::Storage storage;
 };
 namespace apache::httpd::config {
   template<> char const Value<mod::apanolio::config::STORAGE_DIRECTORY>::NAME[];

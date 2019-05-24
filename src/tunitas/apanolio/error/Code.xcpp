@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tunitas.apanolio.error.Condition
+namespace tunitas::apanolio::error {
+  //
+  // The detailed error code
+  //
+  enum class Code
+    { SUCCESS = (int) Condition::SUCCESS, // success is a kind of failure too; especially in an Outcome
+      FAILURE = (int) Condition::FAILURE, // generic failure with no further reification
+      NOT_IMPLEMENTED, // ..... that part of the protocol or engine is not implemented
+      NOT_AVAILABLE,  // ...... the resource is unavailable for administrative, procedural or configuration reasons
+      NOT_FOUND, // ........... gently, benignly a search was made and something was not found
+      MISSING, // ............. not benigh; with good evidence, something was supposed to be present but is missing
+    };
+}
+#import std.is_error_code_enum
+namespace std {
+  template<> struct is_error_code_enum<::tunitas::apanolio::error::Code>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+template<> struct std::is_error_code_enum<::tunitas::apanolio::error::Code> : public std::true_type { };
+#import std.error_code
+namespace tunitas::apanolio::error {
+  inline auto make_error_code(Code) -> std::error_code;
+}
+#endiv
+#divert <ipp>
+#import tunitas.apanolio.error.category
+auto tunitas::apanolio::error::make_error_code(Code code) -> std::error_code {
+  return std::error_code{(int) code, category()};
+}
+#endiv

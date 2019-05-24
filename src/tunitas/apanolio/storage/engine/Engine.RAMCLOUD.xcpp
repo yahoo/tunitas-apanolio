@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#forward tunitas.apanolio.storage.engine.Engine.declaration
+namespace tunitas::apanolio::storage::engine {
+  template<> struct Engine<RAMCLOUD>;
+}
+#endiv
+#divert <hpp>
+#import std.filesystem.path
+#import tunitas.apanolio.storage.engine.Prototype
+#import tunitas.apanolio.storage.engine.configuration.Configuration.RAMCLOUD
+#import tunitas.apanolio.storage.engine.state.State.RAMCLOUD
+namespace tunitas::apanolio::storage::engine {
+  template<> struct Engine<RAMCLOUD> : public Prototype {
+    using Configuration = configuration::Configuration<RAMCLOUD>;
+    using State = state::State<RAMCLOUD>;
+    explicit Engine(Configuration const &);
+    auto probe(Identifier const &) -> Success final;
+    auto get(Identifier const &) -> Outcome<Record> final;
+    auto set(Identifier const &, Record const &) -> Success final;
+  protected:
+    State state;
+  };
+}
+#endiv
+#divert <cpp>
+namespace tunitas::apanolio::storage::engine {
+  Engine<engine::RAMCLOUD>::Engine(Configuration const &) {
+    throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  }
+  auto Engine<engine::RAMCLOUD>::probe(Identifier const &) -> Success {
+    return Success{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  }
+  auto Engine<engine::RAMCLOUD>::get(Identifier const &) -> Outcome<Record> {
+    return Outcome<Record>{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  }
+  auto Engine<engine::RAMCLOUD>::set(Identifier const &, Record const &) -> Success {
+    return Success{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  }
+}
+#endiv

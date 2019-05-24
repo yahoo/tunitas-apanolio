@@ -1,0 +1,15 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tunitas.apanolio.storage.engine.Engine.NONE
+#import tunitas.apanolio.storage.engine.Engine.MEMORY
+#import tunitas.apanolio.storage.engine.Engine.FILES
+#import tunitas.apanolio.storage.engine.Engine.LEVELDB
+#import tunitas.apanolio.storage.engine.Engine.SQLITE
+#import tunitas.apanolio.storage.engine.Engine.MYSQL
+#import tunitas.apanolio.storage.engine.Engine.PGSQL
+#import tunitas.apanolio.storage.engine.Engine.RAMCLOUD
+#import tunitas.apanolio.storage.engine.Engine.FABRIC
+#import tunitas.apanolio.storage.engine.Engine.SCARPET
+#endiv

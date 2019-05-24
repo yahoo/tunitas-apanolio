@@ -6,13 +6,77 @@
 lib_libtunitas_apanolio_la = lib/libtunitas-apanolio.la
 lib_libtunitas_apanolio_la_LIBADD = \
   $(lib_libwant_la) \
+  -lrabinpoly-module \
   -ltunitas \
   $(end)
 lib_libtunitas_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 lib_libtunitas_apanolio_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunitas_apanolio_la_SOURCES))
 lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/namespace.cpp \
-  obj/src/tunitas/apanolio/exception.Version.cpp \
+  \
+  obj/src/tunitas/apanolio/error/namespace.cpp \
+  obj/src/tunitas/apanolio/error/Condition.cpp \
+  obj/src/tunitas/apanolio/error/Code.cpp \
+  obj/src/tunitas/apanolio/error/category.cpp \
+  obj/src/tunitas/apanolio/error/Category.cpp \
+  \
+  obj/src/tunitas/apanolio/exception/namespace.cpp \
+  obj/src/tunitas/apanolio/exception/Aspect.cpp \
+  obj/src/tunitas/apanolio/exception/Argument.cpp \
+  obj/src/tunitas/apanolio/exception/Invariant.cpp \
+  obj/src/tunitas/apanolio/exception/Null.cpp \
+  obj/src/tunitas/apanolio/exception/Storage.cpp \
+  obj/src/tunitas/apanolio/exception/System.cpp \
+  obj/src/tunitas/apanolio/exception/Version.cpp \
+  \
+  obj/src/tunitas/apanolio/resource/namespace.cpp \
+  obj/src/tunitas/apanolio/resource/Identifier.cpp \
+  obj/src/tunitas/apanolio/resource/Record.cpp \
+  \
+  obj/src/tunitas/apanolio/Storage.cpp \
+  obj/src/tunitas/apanolio/storage/namespace.cpp \
+  obj/src/tunitas/apanolio/storage/Storage.cpp \
+  obj/src/tunitas/apanolio/storage/open.cpp \
+  \
+  obj/src/tunitas/apanolio/storage/Engine.cpp \
+  obj/src/tunitas/apanolio/storage/engine/namespace.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Name.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Prototype.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.declaration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.NONE.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.MEMORY.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.FILES.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.LEVELDB.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.SQLITE.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.MYSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.PGSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.RAMCLOUD.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.FABRIC.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.SCARPET.cpp \
+  \
+  obj/src/tunitas/apanolio/storage/engine/Configuration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/namespace.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Prototype.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.declaration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.FABRIC.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.MYSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.PGSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.RAMCLOUD.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.SCARPET.cpp \
+  \
+  obj/src/tunitas/apanolio/storage/engine/State.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/namespace.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/Prototype.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.declaration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.FABRIC.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.MYSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.PGSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.RAMCLOUD.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.SCARPET.cpp \
+  \
   obj/src/tunitas/apanolio/url/namespace.cpp \
   obj/src/tunitas/apanolio/url/Parser.cpp \
   obj/src/tunitas/apanolio/url/URI.cpp \

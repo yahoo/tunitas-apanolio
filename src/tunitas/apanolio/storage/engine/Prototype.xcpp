@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::storage::engine {
+  //
+  // The prototype of a storage engine
+  // Descendants only
+  //
+  // Usage:
+  //
+  //   See the descendants Engine<NONE> ... Engine<WOWZA>
+  //
+  class Prototype;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Outcome
+#import tunitas.apanolio.resource.Identifier
+#import tunitas.apanolio.resource.Record
+class tunitas::apanolio::storage::engine::Prototype {
+public:
+  virtual ~Prototype() = default;
+protected:
+  Prototype() = default;
+public:
+  // No copy (descendats are heavy and stateful); and likely no moving either, but that is not specified here.
+  Prototype(Prototype const &) = delete;
+  auto operator=(Prototype const &) -> Prototype & = delete;
+  using Identifier = resource::Identifier;
+  using Record = resource::Record;
+  virtual auto probe(Identifier const &) -> Success = 0;
+  virtual auto get(Identifier const &) -> Outcome<Record> = 0;
+  virtual auto set(Identifier const &, Record const &) -> Success = 0;
+};
+// Every descendant will need these to implement the return types of the interface
+#import tunitas.apanolio.error.Code
+#import std.error_code
+#import nonstd.exception.Unimplemented
+#endiv

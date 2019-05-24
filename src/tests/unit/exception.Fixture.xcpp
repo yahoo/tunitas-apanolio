@@ -1,0 +1,107 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::exception { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::exception::Fixture : public cppunit::test::Fixture {
+public:
+  auto test_Argument() -> void;
+  auto test_Invariant() -> void;
+  auto test_Null() -> void;
+  auto test_Storage() -> void;
+  auto test_System() -> void;
+  template<typename EXCEPTION> auto test_Aspect() -> void;
+  static auto suite() -> cppunit::Test *;
+protected:
+  template<typename EXCEPTION> struct Maker;
+};
+#endiv
+#divert <tpp>
+#import tests.unit.exception.Fixture.Maker
+template<typename EXCEPTION> auto tests::unit::exception::Fixture::test_Aspect() -> void {
+  try {
+    Maker<EXCEPTION> maker{"something bad"};
+    throw maker();
+  } catch (::tunitas::apanolio::exception::Aspect const &) {
+    CPPUNIT_ASSERT(true);
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.exception.Argument
+auto tests::unit::exception::Fixture::test_Argument() -> void {
+  using Subject = ::tunitas::apanolio::exception::Argument;
+  Subject subject{"bad"};
+  CPPUNIT_ASSERT(nullptr != subject.what());
+}
+#import tunitas.apanolio.exception.Invariant
+auto tests::unit::exception::Fixture::test_Invariant() -> void {
+  using Subject = ::tunitas::apanolio::exception::Invariant;
+  Subject subject{"bad"};
+  CPPUNIT_ASSERT(nullptr != subject.what());
+}
+#import tunitas.apanolio.exception.Null
+auto tests::unit::exception::Fixture::test_Null() -> void {
+  using Subject = ::tunitas::apanolio::exception::Null;
+  Subject subject{};
+  CPPUNIT_ASSERT(nullptr != subject.what());
+}
+#import tunitas.apanolio.exception.Storage
+auto tests::unit::exception::Fixture::test_Storage() -> void {
+  using Subject = ::tunitas::apanolio::exception::Storage;
+  Subject subject{std::error_code{33, ::tunitas::apanolio::error::category()}};
+  CPPUNIT_ASSERT(nullptr != subject.what());
+}
+#import std.error_code
+#import tunitas.apanolio.error.Code
+#import tunitas.apanolio.exception.Storage
+auto tests::unit::exception::Fixture::test_System() -> void {
+  using ::tunitas::apanolio::error::Code;
+  using Subject = ::tunitas::apanolio::exception::System;
+  {
+    Subject subject{99, std::system_category(), "bad"};
+    CPPUNIT_ASSERT(nullptr != subject.what());
+    CPPUNIT_ASSERT(99 == subject.code().value());
+  } {
+    Subject subject{std::errc::no_such_file_or_directory, "missing"};
+    CPPUNIT_ASSERT(nullptr != subject.what());
+    CPPUNIT_ASSERT((int)std::errc::no_such_file_or_directory == subject.code().value());
+  } {
+    Subject subject{std::error_code{Code::FAILURE}, "bad bad"};
+    CPPUNIT_ASSERT(nullptr != subject.what());
+    CPPUNIT_ASSERT((int)Code::FAILURE == subject.code().value());
+  }
+}
+#import tunitas.apanolio.exception.Argument
+#import tunitas.apanolio.exception.Invariant
+#import tunitas.apanolio.exception.Null
+#import tunitas.apanolio.exception.Storage
+#import tunitas.apanolio.exception.System
+#import rigging.suite.io
+auto tests::unit::exception::Fixture::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("exception");
+  series << call("Argument", &Fixture::test_Argument)
+         << call("Invariant", &Fixture::test_Invariant)
+         << call("Null", &Fixture::test_Null)
+         << call("Storage", &Fixture::test_Storage)
+         << call("System", &Fixture::test_System)
+    ;
+  {
+    Stream asp("Aspect");
+    namespace subject = ::tunitas::apanolio::exception;
+    asp << call("Argument", &Fixture::test_Aspect<subject::Argument>)
+        << call("Invariant", &Fixture::test_Aspect<subject::Invariant>)
+        << call("Null", &Fixture::test_Aspect<subject::Null>)
+        << call("Storage", &Fixture::test_Aspect<subject::Storage>)
+        << call("System", &Fixture::test_Aspect<subject::System>)
+      ;
+    series << move(asp);
+  }
+  return finalize(series);
+}
+#endiv

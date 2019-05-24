@@ -100,6 +100,7 @@ function set_all_defaults_no() {
     : ${with_module_nonstd:=no}
     : ${with_module_options:=no}
     : ${with_module_posix:=no}
+    : ${with_module_rabinpoly:=no}
     : ${with_module_rigging:=no}
     : ${with_module_std:=no}
     : ${with_module_string:=no}
@@ -117,6 +118,7 @@ function set_all_defaults_relatively() {
     : ${with_module_nonstd:=$1/module-nonstd}
     : ${with_module_options:=$1/module-options}
     : ${with_module_posix:=$1/module-posix}
+    : ${with_module_rabinpoly:=$1/module-rabinpoly}
     : ${with_module_rigging:=$1/module-rigging}
     : ${with_module_std:=$1/module-std}
     : ${with_module_string:=$1/module-string}
@@ -166,6 +168,7 @@ eval \
     ${with_module_nonstd:+--with-module-nonstd=$with_module_nonstd} \
     ${with_module_options:+--with-module-options=$with_module_options} \
     ${with_module_posix:+--with-module-posix=$with_module_posix} \
+    ${with_module_rabinpoly:+--with-module-rabinpoly=$with_module_rabinpoly} \
     ${with_module_rigging:+--with-module-rigging=$with_module_rigging} \
     ${with_module_std:+--with-module-std=$with_module_std} \
     ${with_module_string:+--with-module-string=$with_module_string} \

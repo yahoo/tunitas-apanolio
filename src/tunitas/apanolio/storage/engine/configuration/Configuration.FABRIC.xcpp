@@ -1,0 +1,25 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#forward tunitas.apanolio.storage.engine.configuration.Configuration.declaration
+namespace tunitas::apanolio::storage::engine::configuration {
+  //
+  // The configuration specification for Hyperledger Fabric
+  //
+  template<> struct Configuration<FABRIC>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.storage.engine.configuration.Prototype
+#import std.string
+#import std.optional
+namespace tunitas::apanolio::storage::engine::configuration {
+  template<> class Configuration<engine::FABRIC> : public Prototype {
+    using ancestor = Prototype;
+  public:
+    Configuration() = default;
+    std::optional<std::string> user, pass, host, port, ca, crt, key, database;
+  };
+}
+#endiv

@@ -1,0 +1,10 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tests.unit.exception.Fixture.Maker.declaration
+#import tests.unit.exception.Fixture.Maker.template
+#import tests.unit.exception.Fixture.Maker.Null
+#import tests.unit.exception.Fixture.Maker.Storage
+#import tests.unit.exception.Fixture.Maker.System
+#endiv

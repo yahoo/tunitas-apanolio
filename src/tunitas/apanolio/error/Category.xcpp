@@ -1,0 +1,64 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::error {
+  //
+  // The error category description.
+  // A singleton
+  //
+  // Usage:
+  //
+  //   auto const &c = category();
+  //   c.name();
+  //   c.default_error_category();
+  //   c.message();
+  //
+  class Category;
+}
+#endiv
+#divert <hpp>
+#import std.error_category
+#import tunitas.apanolio.error.category
+#import std.error_condition
+#import std.string
+class tunitas::apanolio::error::Category : public std::error_category {
+  using ancestor = std::error_category;
+  friend auto category() -> Category const &;
+  Category() = default;
+public:
+  auto name() const noexcept -> char const * final;
+  auto default_error_condition(int code) const noexcept -> std::error_condition;
+  auto message(int code) const -> std::string;
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.error.Code
+#import std.to_string
+namespace tunitas::apanolio::error {
+  auto Category::name() const noexcept -> char const * {
+    return "apanolio";
+  }
+  auto Category::default_error_condition(int code) const noexcept -> std::error_condition {
+    return std::error_condition{0 != code, *this};
+  }
+  auto Category::message(int code) const -> std::string {
+    switch (Code(code)) {
+    case Code::SUCCESS:
+      return "success";
+    case Code::FAILURE:
+      return "failure"; // abstractly, a generalized failure
+    case Code::NOT_IMPLEMENTED:
+      return "not implemented";
+    case Code::NOT_AVAILABLE:
+      return "not available";
+    case Code::NOT_FOUND:
+      return "not found";
+    case Code::MISSING:
+      return "missing";
+    default:
+      return "error code " + std::to_string(code);
+    }
+  }
+}
+#endiv

@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::storage {
+  //
+  // The abstraction of the storage (engine).
+  // Storage engines are constructed by RAII; either you get it or you have an exception. 
+  //
+  // Usage:
+  //
+  //   auto engine = ...somehow...
+  //   Storage storage = construct(engine);
+  //
+  class Storage;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.storage.engine.Name
+#import tunitas.apanolio.storage.engine.Prototype
+#import tunitas.apanolio.storage.open
+#import tunitas.apanolio.resource.Identifier
+#import tunitas.apanolio.resource.Record
+#import std.unique_ptr
+class tunitas::apanolio::storage::Storage {
+public:
+  using Identifier = resource::Identifier;
+  using Record = resource::Record;
+  Storage() = default;
+  Storage(Storage const &) = delete;
+  auto operator=(Storage const &) -> Storage & = delete;
+  inline auto GET(Identifier const &) -> Outcome<Record>;
+  inline auto SET(Identifier const &, Record const &) -> Success;
+protected:
+  using Engine = std::unique_ptr<engine::Prototype>;
+  Engine engine;
+  inline explicit Storage(engine::Prototype *);
+  friend auto storage::open() -> Storage;
+  template<engine::Name NAME> friend auto storage::open() -> Storage;
+  template<engine::Name NAME> friend auto storage::open(std::filesystem::path) -> Storage;
+  template<engine::Name NAME> friend auto storage::engine::configuration::open(Configuration<NAME> const &) -> Storage;
+private:
+  inline auto guarded_get() -> Engine::pointer;
+  inline auto guarded_get() const -> Engine::element_type const *;
+  template<typename ENGINE> inline static auto gettable(ENGINE &engine) -> decltype(engine.get());
+};
+#endiv
+#divert <ipp>
+#import tunitas.apanolio.exception.Null
+namespace tunitas::apanolio::storage {
+  Storage::Storage(engine::Prototype *pointer)
+    : engine{pointer}
+  { }
+  template<typename ENGINE> auto Storage::gettable(ENGINE &engine) -> decltype(engine.get()) {
+    auto got = engine.get(); // engine->get(identifier) is unsafe because the engine may be nullptr
+    if (!got) {
+      throw exception::Null{};
+    }
+    return got;
+  }
+  auto Storage::guarded_get() -> Engine::pointer { return gettable(engine); }
+  auto Storage::guarded_get() const -> Engine::element_type const * { return gettable(engine); }
+  auto Storage::GET(Identifier const &identifier) -> Outcome<Record> { return guarded_get()->get(identifier); }
+  auto Storage::SET(Identifier const &identifier, Record const &record) -> Success { return guarded_get()->set(identifier, record); }
+}
+#endiv

@@ -1,0 +1,32 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resource {
+  //
+  // A resource record is a smallish ranges of bytes.
+  // Smallish meaning "no bigger than a breadbox," ahem, too much humor.
+  // Smallish meaning something that can conveniently hold an IAB TCF
+  //   or can conveniently fit in a DNS extended text record; see Engine<SCARPET>
+  //
+  // These things are, at present, pretty opaque.
+  //
+  class Record;
+}
+#endiv
+#divert <hpp>
+#import std.byte
+#import std.vector
+class tunitas::apanolio::resource::Record : private std::vector<std::byte> {
+  using ancestor = std::vector<std::byte>;
+public:
+  Record() = default;
+  using ancestor::vector;
+  using ancestor::empty;
+  using ancestor::size;
+  using ancestor::iterator;
+  using ancestor::const_iterator;
+  using ancestor::begin;
+  using ancestor::end;
+};
+#endiv

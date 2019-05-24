@@ -1,0 +1,69 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resource { class Identifier; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tunitas.apanolio.resource.Identifier
+class tests::unit::resource::Identifier : public cppunit::test::Fixture {
+public:
+  using Subject = ::tunitas::apanolio::resource::Identifier;
+  using Underlying = ::tunitas::apanolio::resource::identifier::Underlying;
+  auto test_Underlying() -> void;
+  auto test_constructor_enum() -> void;
+  auto test_constructor_fingerprint() -> void;
+  auto test_constructor_uuid() -> void;
+  auto test_constructor_generate() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::resource::Identifier::test_Underlying() -> void {
+  auto subject = Subject{99};
+  Underlying underlying = (Underlying) subject;
+  CPPUNIT_ASSERT(99 == underlying);
+}
+auto tests::unit::resource::Identifier::test_constructor_enum() -> void {
+  auto subject = Subject{99};
+  Underlying underlying = (Underlying) subject;
+  CPPUNIT_ASSERT(99 == underlying);
+}
+#import rabinpoly.fingerprint
+auto tests::unit::resource::Identifier::test_constructor_fingerprint() -> void {
+  auto subject = ::tunitas::apanolio::resource::identifier::construct(rabinpoly::fingerprint(999'999'999'999'999lu));
+  Underlying underlying = (Underlying) subject;
+  CPPUNIT_ASSERT(0 != underlying);
+}
+#import uuid.generate.random
+auto tests::unit::resource::Identifier::test_constructor_uuid() -> void {
+  auto subject = ::tunitas::apanolio::resource::identifier::construct(::uuid::generate::random());
+  Underlying underlying = (Underlying) subject;
+  CPPUNIT_ASSERT(0 != underlying);
+}
+auto tests::unit::resource::Identifier::test_constructor_generate() -> void {
+  auto subject0 = construct(::tunitas::apanolio::resource::identifier::GENERATE);
+  auto subject1 = construct(::tunitas::apanolio::resource::identifier::GENERATE);
+  CPPUNIT_ASSERT(0 != (Underlying) subject0);
+  CPPUNIT_ASSERT(subject0 != subject1);
+}
+#import rigging.suite.io
+auto tests::unit::resource::Identifier::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("Identifier");
+  series << call("Underlying", &Identifier::test_Underlying)
+    ;
+  {
+    Stream con("construct");
+    con << call("enum", &Identifier::test_constructor_enum)
+       << call("fingerprint", &Identifier::test_constructor_fingerprint)
+       << call("uuid", &Identifier::test_constructor_uuid)
+       << call("generate", &Identifier::test_constructor_generate)
+      ;
+    series << add(con.release());
+  }
+  return finalize(series);
+}
+#endiv

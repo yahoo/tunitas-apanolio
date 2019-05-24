@@ -1,0 +1,57 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::exception {
+  //
+  // A data invariant has failed.
+  //
+  // n.b. on the use of the Invariant exception
+  //
+  // The typical wisdom here [[cite something]] is that one should not throw exceptions in the face of data
+  // invariant failures.  The data will never change. Instead, handle it as a reasonable outcome with a negative
+  // connotation.  Fair enough.
+  //
+  // However, you'd use this exception to remove control from a function that can no longer accomplish its mission
+  // due to the controlling invariant failure.  The other alternative is to abort the entire process, which
+  // is, of course, a choice which is always open to you.  The Invariant exception gives you a more graceful
+  // alternative.
+  //
+  // Usage:
+  //
+  //   try {
+  //     ...
+  //     throw Invariant{"not good"};
+  //     ...
+  //   } catch (exception::Aspect const &) {
+  //     ...handle it...
+  //   } catch (std::exception const &) {
+  //     ...handle it...
+  //   }
+  //
+  class Invariant;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.exception.Aspect
+#import std.invalid_argument
+class tunitas::apanolio::exception::Invariant : public exception::Aspect, public std::invalid_argument {
+  struct ancestors {
+    using Aspect = apanolio::exception::Aspect;
+    using Exception = std::invalid_argument;
+  };
+public:
+  inline explicit Invariant(std::string const &reason);
+  auto what() const noexcept -> char const * override;
+};
+#endiv
+#divert <ipp>
+tunitas::apanolio::exception::Invariant::Invariant(std::string const &reason)
+  : ancestors::Exception{reason}
+{ }
+#endiv
+#divert <cpp>
+auto tunitas::apanolio::exception::Invariant::what() const noexcept -> char const * {
+  return ancestors::Exception::what();
+}
+#endiv
