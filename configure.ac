@@ -25,8 +25,8 @@ TF_MSG_VERBOSE([development subsystems (Apache)])
 TF_WITH_SUBSYSTEM([apache-httpd-api], [apache_httpd_api], [Apache HTTPd API])
 
 TF_MSG_VERBOSE([development subsystems (Hyperledger Fabric)])
-TF_WITH_SUBSYSTEM([hyperledger], [hyperledger], [Hyperledger API])
-TF_WITH_SUBSYSTEM([hyperledger-fabric], [hyperledger_fabric], [Hyperledger Fabric CA C++ API])
+dnl TF_WITH_SUBSYSTEM([hyperledger], [hyperledger], [Hyperledger API])
+dnl TF_WITH_SUBSYSTEM([hyperledger-fabric], [hyperledger_fabric], [Hyperledger Fabric CA C++ API])
 TF_WITH_SUBSYSTEM([hyperledger-fabric-ca], [hyperledger_fabric_ca], [Hyperledger Fabric CA C++ API])
 TF_WITH_SUBSYSTEM([hyperledger-fabric-db], [hyperledger_fabric_db], [Hyperledger Fabric DB C++ API])
 
@@ -45,6 +45,7 @@ TF_WITH_MODULE([posix])
 TF_WITH_MODULE([rabinpoly])
 TF_WITH_MODULE([ramcloud])
 TF_WITH_MODULE([slurp])
+TF_WITH_MODULE([sqlite])
 TF_WITH_MODULE([std])
 TF_WITH_MODULE([string])
 TF_WITH_MODULE([sys])
@@ -122,7 +123,7 @@ TF_PACKAGE_VARIABLES
 #
 #    char const *const HANDLER_NAME = autotools::autoconf::Config<CONFIG>::module_name();
 #
-AC_DEFINE_UNQUOTED([MODULE_NAME], "mod_${PACKAGE_NAME}", [The Apache HTTPd module name as seen from the andler])
+AC_DEFINE_UNQUOTED([MODULE_NAME], "mod_${PACKAGE_NAME}", [The Apache HTTPd module name as seen from the handler])
 
 AC_ARG_ENABLE([storage-directory],
               AS_HELP_STRING([--enable-storage-directory=DIRECTORY],

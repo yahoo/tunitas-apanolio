@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright 2019-2019, Oath Inc.
 # Licensed under the terms of the Apache-2.0 license.
-# See the LICENSE file in https://github.com/yahoo/tunitas-butano/blob/master/LICENSE for terms.
+# See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #
 # the full end-to-end build using the "nearby" development trees
 #
@@ -79,7 +79,7 @@ elif [[ -d ${PWD%/*/*/*}/hyperledger ]] ; then
     : ${with_fabricating:=${with_hyping?}/fabric}
 elif [[ -d /build/state-space ]] ; then
     : ${with_hyping:=/build/state-space}
-    : ${with_fabricating:=${with_hyping?}/state-space}
+    : ${with_fabricating:=${with_hyping?}}
 elif [[ -d /build/hyperledger ]] ; then
     : ${with_hyping:=/build/hyperledger}
     : ${with_fabricating:=${with_hyping}/fabric}
@@ -171,10 +171,12 @@ function set_all_defaults_relatively() {
             : ${with_hyperledger_fabric_ca:=yes}
         fi
     fi
+set -xv
     : ${with_hyperledger_fabric_ca:=yes}
     : ${with_hyperledger_fabric_db:=yes}
     : ${with_hyperledger_fabric:=${with_hyperledger_fabric_db%/*}}
-    : ${with_hyperledger:=${with_hyperledger_fabric%/*}}
+    : ${with_hyperledger:=${with_hyperledger_fabric?}} # ${with_hyperledger_fabric%/*}}
+set +xv
     : ${with_apache_httpd_api:=${2:-$1}/apache-httpd-api}
     : ${with_module_boost:=$1/module-boost}
     : ${with_module_c:=$1/module-c}
@@ -215,7 +217,8 @@ fi
 # ${with_nonstd_jsoncpp:=/opt/nonstd/jsoncpp} # ............... OPTIONAL
 : ${with_temerarious_flagship:=${with_siblings?}/temerarious-flagship}
 : ${with_tunitas_basics:=${with_siblings?}/basics}
-: ${with_tunitas_scarpet:=${with_siblings?}/scarpet}
+: ${with_scarpet:=${with_siblings?}/scarpet}
+: ${with_butano:=${with_siblings?}/butano}
 eval \
     ${prefix:+prefix=$prefix} \
     ${with_hypogeal_twilight:+with_hypogeal_twilight=$with_hypogeal_twilight} \
@@ -232,6 +235,7 @@ eval \
     ${with_hypogeal_twilight:+--with-hypogeal-twilight=$with_hypogeal_twilight} \
     ${with_temerarious_flagship:+--with-temerarious-flagship=$with_temerarious_flagship} \
     ${with_apache_httpd_api:+--with-apache-httpd-api=$with_apache_httpd_api} \
+    ${with_butano:+--with-butano=$with_butano} \
     ${with_hyperledger:+--with-hyperledger=$with_hyperledger} \
     ${with_hyperledger_fabric:+--with-hyperledger-fabric=$with_hyperledger_fabric} \
     ${with_hyperledger_fabric_ca:+--with-hyperledger-fabric-ca=$with_hyperledger_fabric_ca} \
@@ -257,6 +261,7 @@ eval \
     ${with_module_string:+--with-module-string=$with_module_string} \
     ${with_module_sys:+--with-module-sys=$with_module_sys} \
     ${with_module_uuid:+--with-module-uuid=$with_module_uuid} \
+    ${with_scarpet:+--with-scarpet=$with_scarpet} \
     ${with_tunitas_basics:+--with-tunitas-basics=$with_tunitas_basics} \
     ${with_std_tunitas:+--with-std-tunitas=$with_std_tunitas} \
     ${with_std_scold:+--with-std-scold=$with_std_scold} \

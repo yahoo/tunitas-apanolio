@@ -13,7 +13,7 @@ dnl The default is to do nothing, each test acquires its own signal
 dnl
 dnl put this in the library of ./ac, when possible.
 AC_DEFUN([APANOLIO_ENABLE_ALL_TESTS], [
-    AC_REQUIRE([SCOLD_ENABLE_CONFIGURE_VERBOSE])
+    AC_REQUIRE([TF_ENABLE_CONFIGURE_VERBOSE])
     AC_ARG_ENABLE([tests-requiring-a-running-server],
                   [AS_HELP_STRING([--disable-tests-requiring-a-running-server],
                                   [Disable the all tests that require a live server])],
@@ -21,7 +21,7 @@ AC_DEFUN([APANOLIO_ENABLE_ALL_TESTS], [
                   [ enableval=unspecified ])
     case $enableval in
     ( yes | no )
-        SCOLD_MSG_VERBOSE([setting enabled=$enableval for all tests requiring a database connection])
+        TF_MSG_VERBOSE([setting enabled=$enableval for all tests requiring a database connection])
         enable_server_tests=$enableval
         : enable_this_tests=$enableval
         : enable_that_tests=$enableval
@@ -63,7 +63,7 @@ dnl $1 is, e.g., 'server-tests'
 dnl $2 is, e.g., 'server_tests'
 dnl $3 is, e.g., 'SERVER_TESTS'
 AC_DEFUN([APANOLIO_ENABLE__NAMED__TEST_SET], [
-    AC_REQUIRE([SCOLD_ENABLE_CONFIGURE_VERBOSE])
+    AC_REQUIRE([TF_ENABLE_CONFIGURE_VERBOSE])
     AC_ARG_ENABLE([$1],
                   [AS_HELP_STRING([--disable-$1],
                                   [Disable the HTTPd $1 tests, they require a live Apache HTTPd server])],
@@ -73,7 +73,7 @@ AC_DEFUN([APANOLIO_ENABLE__NAMED__TEST_SET], [
                       # Policy decision: testing is on by default, because testing is good for you.
                       enable_$2=yes
                       test_how="defaults"
-                      SCOLD_MSG_VERBOSE([an omitted --disable-$1 behaves as --enable-$1=${enable_$2?}])
+                      TF_MSG_VERBOSE([an omitted --disable-$1 behaves as --enable-$1=${enable_$2?}])
                   ])
     case "${enable_$2?}" in
     (yes) test_value=1; test_word="enabled";;
@@ -85,6 +85,6 @@ AC_DEFUN([APANOLIO_ENABLE__NAMED__TEST_SET], [
     AC_MSG_NOTICE([$1 ${test_how?} to ${test_word?}.])
     AM_CONDITIONAL([ENABLE_$3], [test x${test_value?} = x1])
     dnl use HT_MSG_DEBUG, when available
-    SCOLD_MSG_VERBOSE([enable_$2=${enable_$2:-(unset)}])
+    TF_MSG_VERBOSE([enable_$2=${enable_$2:-(unset)}])
     AM_COND_IF([ENABLE_$3], [: ok ])
 ])
