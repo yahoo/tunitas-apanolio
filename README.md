@@ -25,7 +25,7 @@ The main body of documentation for the Tunitas family of components and services
 
 ## Background
 
-The Apanolio implements the "Northbound API" of the  Interactive Advertising Bureau's (IAB) [Transparency and Consent Framework (TCF)](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework).  Depending on which database backends are configured into the system, various levels of scalability, redundancy and persistenc will be obtained.  There are drivers for in memory operation, "shared nothing" NoSQL databases, traditional multi-tier SQL as well as more exotic data base systems.  Not all of the potential storage systems are implemented at this point
+The Apanolio implements the "Northbound API" of the  Interactive Advertising Bureau's (IAB) [PrivacyChain](https://github.com/InteractiveAdvertisingBureau/PrivacyChain).  Depending on which database backends are configured into the system, various levels of scalability, redundancy and persistenc will be obtained.  There are drivers for in memory operation, "shared nothing" NoSQL databases, traditional multi-tier SQL as well as more exotic data base systems.  Not all of the potential storage systems are implemented at this point
 
 Potential storage technologies are:
 * LevelDB
