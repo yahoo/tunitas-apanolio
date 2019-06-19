@@ -1,6 +1,6 @@
 # Required Packages
 
-This document contains an estimate of the tools, components their versions which you will need to build this repository.  More details can be found upstream the documentation for the lead repository, the Tunitas [Packaging](https://github.com/yahoo/tunitas-packaging/blob/master/PACKAGES.md), as well as the Tunitas Build System, [Temerarious Flagship](https://github.com/yahoo/temerarious-flagship/blob/master/README.md).  The mentions in this document pertain only to this repository, _Tunitas Apanolio_.
+This document contains an estimate of the tools, components their versions which you will need to build this repository.  More details can be found upstream in the the documentation for the lead repository, the Tunitas [Packaging](https://github.com/yahoo/tunitas-packaging/blob/master/PACKAGES.md), as well as the Tunitas Build System, [Temerarious Flagship](https://github.com/yahoo/temerarious-flagship/blob/master/README.md).  The mentions in this document pertain only to this repository, _Tunitas Apanolio_.
 
 ## Tunitas
 
