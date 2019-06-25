@@ -78,13 +78,13 @@ auto tests::unit::error::Category::suite() -> cppunit::Test * {
     equ << call("integer", &Category::test_default_error_condition_integer)
         << call("code", &Category::test_default_error_condition_Code)
       ;
-    series << add(equ.release());
+    series << move(equ);
   } {
     Stream equ("equivalent");
     equ << call("error_condition", &Category::test_equivalent_error_condition)
         << call("error_code", &Category::test_equivalent_error_code)
       ;
-    series << add(equ.release());
+    series << move(equ);
   }
   series<< call("message", &Category::test_message)
     ;

@@ -15,7 +15,23 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/namespace.cpp \
   obj/src/tests/unit/main.cpp \
   obj/src/tests/unit/apanolio.Fixture.cpp \
+  obj/src/tests/unit/concurrent.Fixture.cpp \
   obj/src/tests/unit/engine.Fixture.cpp \
+  obj/src/tests/unit/engine.Record_Generator.cpp \
+  obj/src/tests/unit/engine.Temporary_Data_Base.cpp \
+  obj/src/tests/unit/engine.Temporary_Directory.cpp \
+  obj/src/tests/unit/engine.Engine.declaration.cpp \
+  obj/src/tests/unit/engine.Engine.NONE.cpp \
+  obj/src/tests/unit/engine.Engine.MEMORY.cpp \
+  obj/src/tests/unit/engine.Engine.FILES.cpp \
+  obj/src/tests/unit/engine.Engine.LEVELDB.cpp \
+  obj/src/tests/unit/engine.Engine.SQLITE.cpp \
+  obj/src/tests/unit/engine.Engine.MYSQL.cpp \
+  obj/src/tests/unit/engine.Engine.PGSQL.cpp \
+  obj/src/tests/unit/engine.Engine.FABRIC.cpp \
+  obj/src/tests/unit/engine.Engine.RAMCLOUD.cpp \
+  obj/src/tests/unit/engine.Engine.SCARPET.cpp \
+  obj/src/tests/unit/engine.Engine.cpp \
   obj/src/tests/unit/error.Fixture.cpp \
   obj/src/tests/unit/error.Category.cpp \
   obj/src/tests/unit/exception.Fixture.cpp \
@@ -29,9 +45,16 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/resource.Identifier.cpp \
   obj/src/tests/unit/resource.Record.cpp \
   obj/src/tests/unit/storage.Fixture.cpp \
+  obj/src/tests/unit/temporary.Prototype.cpp \
+  obj/src/tests/unit/temporary.Directory.declaration.cpp \
+  obj/src/tests/unit/temporary.Directory.FILES.cpp \
+  obj/src/tests/unit/temporary.Directory.LEVELDB.cpp \
+  obj/src/tests/unit/temporary.Directory.SQLITE.cpp \
+  obj/src/tests/unit/temporary.Directory.cpp \
   obj/src/tests/unit/url.Fixture.cpp \
   obj/src/tests/unit/url.Parser.cpp \
   obj/src/tests/unit/want.Fixture.cpp \
+  obj/src/tests/unit/want.rigging.exception.Fixture.cpp \
   $(end)
 
 $(scold_cxxdir)/tests/unit/dependencies.mk: Makefile

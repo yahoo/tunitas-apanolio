@@ -7,12 +7,18 @@ lib_libtunitas_apanolio_la = lib/libtunitas-apanolio.la
 lib_libtunitas_apanolio_la_LIBADD = \
   $(lib_libwant_la) \
   -lrabinpoly-module \
-  -ltunitas \
+  -llevel-module \
+  -ltunitas-app \
   $(end)
 lib_libtunitas_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 lib_libtunitas_apanolio_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunitas_apanolio_la_SOURCES))
 lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/namespace.cpp \
+  \
+  obj/src/tunitas/apanolio/concurrent/namespace.cpp \
+  obj/src/tunitas/apanolio/concurrent/Guardian.cpp \
+  obj/src/tunitas/apanolio/concurrent/Conditions.cpp \
+  obj/src/tunitas/apanolio/concurrent/Operation.cpp \
   \
   obj/src/tunitas/apanolio/error/namespace.cpp \
   obj/src/tunitas/apanolio/error/Condition.cpp \
@@ -31,6 +37,8 @@ lib_libtunitas_apanolio_la_SOURCES = \
   \
   obj/src/tunitas/apanolio/resource/namespace.cpp \
   obj/src/tunitas/apanolio/resource/Identifier.cpp \
+  obj/src/tunitas/apanolio/resource/to_string.cpp \
+  obj/src/tunitas/apanolio/resource/identifier.construct.cpp \
   obj/src/tunitas/apanolio/resource/Record.cpp \
   \
   obj/src/tunitas/apanolio/Storage.cpp \
@@ -54,6 +62,12 @@ lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/storage/engine/Engine.RAMCLOUD.cpp \
   obj/src/tunitas/apanolio/storage/engine/Engine.FABRIC.cpp \
   obj/src/tunitas/apanolio/storage/engine/Engine.SCARPET.cpp \
+  \
+  obj/src/tunitas/apanolio/storage/engine/level/namespace.cpp \
+  obj/src/tunitas/apanolio/storage/engine/level/db2.Sink.cpp \
+  obj/src/tunitas/apanolio/storage/engine/level/db2.Recorder.declaration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/level/db2.Recorder.Record.cpp \
+  obj/src/tunitas/apanolio/storage/engine/level/db2.Recorder.cpp \
   \
   obj/src/tunitas/apanolio/storage/engine/Configuration.cpp \
   obj/src/tunitas/apanolio/storage/engine/configuration/namespace.cpp \

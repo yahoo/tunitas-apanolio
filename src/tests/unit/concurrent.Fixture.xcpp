@@ -1,0 +1,80 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::concurrent { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::concurrent::Fixture : public cppunit::test::Fixture {
+public:
+  auto test_usage_Conditions() -> void;
+  auto test_usage_Guardian_readable() -> void;
+  auto test_usage_Guardian_writable() -> void;
+  auto test_usage_Guardian_many() -> void;
+  auto test_usage_Operation() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.concurrent.Conditions
+auto tests::unit::concurrent::Fixture::test_usage_Conditions() -> void {
+  ::tunitas::apanolio::concurrent::Conditions subject;
+  CPPUNIT_ASSERT(0 == subject.readers.count);
+  CPPUNIT_ASSERT(0 == subject.writers.count);
+}
+#import tunitas.apanolio.concurrent.Guardian
+auto tests::unit::concurrent::Fixture::test_usage_Guardian_readable() -> void {
+  ::tunitas::apanolio::concurrent::Conditions conditions;
+  ::tunitas::apanolio::concurrent::Guardian subject{conditions, conditions.readable()};
+  CPPUNIT_ASSERT(1 == conditions.readers.count);
+  CPPUNIT_ASSERT(0 == conditions.writers.count);
+}
+auto tests::unit::concurrent::Fixture::test_usage_Guardian_writable() -> void {
+  ::tunitas::apanolio::concurrent::Conditions conditions;
+  ::tunitas::apanolio::concurrent::Guardian subject{conditions, conditions.writable()};
+  CPPUNIT_ASSERT(0 == conditions.readers.count);
+  CPPUNIT_ASSERT(1 == conditions.writers.count);
+}
+auto tests::unit::concurrent::Fixture::test_usage_Guardian_many() -> void {
+  ::tunitas::apanolio::concurrent::Conditions conditions;
+  for (auto i{0u}, e{100u}; e != i; ++i) {
+    if (0 == i % 2) {
+      ::tunitas::apanolio::concurrent::Guardian subject{conditions, conditions.writable()};
+      CPPUNIT_ASSERT(0 == conditions.readers.count);
+      CPPUNIT_ASSERT(1 == conditions.writers.count);
+    } else {
+      ::tunitas::apanolio::concurrent::Guardian subject{conditions, conditions.readable()};
+      CPPUNIT_ASSERT(1 == conditions.readers.count);
+      CPPUNIT_ASSERT(0 == conditions.writers.count);
+    }
+  }
+}
+#import tunitas.apanolio.concurrent.Operation
+auto tests::unit::concurrent::Fixture::test_usage_Operation() -> void {
+  // We already tested this in usage_Guardian
+  CPPUNIT_ASSERT(true);
+}
+#import rigging.suite.io
+auto tests::unit::concurrent::Fixture::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("concurrent");
+  {
+    Stream use("usage");
+    use << call("Conditions", &Fixture::test_usage_Conditions)
+      ;
+    {
+      Stream gua("Guardian");
+      gua << call("readable", &Fixture::test_usage_Guardian_readable)
+          << call("writable", &Fixture::test_usage_Guardian_writable)
+          << call("many", &Fixture::test_usage_Guardian_many)
+        ;
+    }
+    series << call("Operation", &Fixture::test_usage_Operation)
+      ;
+    series << move(use);
+  }
+  return finalize(series);
+}
+#endiv

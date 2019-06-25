@@ -1,6 +1,6 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright 2019-2019, Oath Inc.
-// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
 #forward tunitas.apanolio.storage.engine.Engine.declaration
 namespace tunitas::apanolio::storage::engine {
@@ -31,15 +31,47 @@ namespace tunitas::apanolio::storage::engine {
 }
 #endiv
 #divert <cpp>
+#import errno
+#import nonstd.span
+#import slurp.file.read
+#import std.move
+#import std.system_category
+#import sys.posix.exists
+#import sys.posix.open
+#import sys.posix.write
+#import tunitas.apanolio.error.Code
+#import tunitas.apanolio.resource.to_string
 namespace tunitas::apanolio::storage::engine {
-  auto Engine<FILES>::probe(Identifier const &) -> Success {
-    return Success{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  auto Engine<FILES>::probe(Identifier const &identifier) -> Success {
+    auto filepath = storage_directory / to_string(identifier);
+    return sys::posix::exists(filepath) ? Success{SUCCESS} : Success{std::error_code{error::Code::NOT_FOUND}};
   }
-  auto Engine<FILES>::get(Identifier const &) -> Outcome<Record> {
-    return Outcome<Record>{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  auto Engine<FILES>::get(Identifier const &identifier) -> Outcome<Record> {
+    auto filepath = storage_directory / to_string(identifier);
+    auto slurped = slurp::file::read<std::vector<std::byte>>(std::nothrow, filepath);
+    return ok(slurped) ? Outcome<Record>{Record{value(std::move(slurped))}} : Outcome<Record>{std::error_code{errno, std::system_category()}};
   }
-  auto Engine<FILES>::set(Identifier const &, Record const &) -> Success {
-    return Success{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  auto Engine<FILES>::set(Identifier const &identifier, Record const &record) -> Success {
+    auto filepath = storage_directory / to_string(identifier);
+    using Span = nonstd::span<char const>;
+    auto span = Span{reinterpret_cast<char const *>(record.data()), record.size()};
+#warning [[FIXTHIS]] go low and use sys::posix::open, sys::fd::Descriptor, sys::posix::write
+    auto write = [&filepath](Span span) -> bool {
+                 std::ofstream outbound{filepath};
+                 // https://en.cppreference.com/w/cpp/io/basic_ostream/write
+                 // either 
+                 //   exactly count characters are inserted
+                 //   the sequence fails (in which case setstate(badbit) is called)
+                 // failbit can never be set.
+                 //
+                 // <quote>
+                 //    When using a non-converting locale (the default locale is non-converting),
+                 //    the overrider of this function in std::basic_ofstream may be optimized for zero-copy bulk I/O (by means of overriding std::streambuf::xsputn) 
+                 // </quote>
+                 //
+                 return outbound && outbound.write(span.data(), span.size());
+               };
+    return write(span) ? Success{SUCCESS} : Success{std::error_code{errno, std::system_category()}};
   }
 }
 #endiv

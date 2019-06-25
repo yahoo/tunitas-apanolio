@@ -1,34 +1,102 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright 2019-2019, Oath Inc.
-// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
 #forward tunitas.apanolio.storage.engine.Engine.declaration
 namespace tunitas::apanolio::storage::engine {
+  //
+  // An (ephemeral) in-memory storage engine.
+  // There is an optional maximum capacity setting.
+  // Else you'll take the C++ runtime (operating system defined) exception
+  // std::bad_alloc which usually has the unsubtle response of process fatality.
+  // Else know your limits and declare them.
+  //
+  // Exceptions:
+  //   yes, on out-of-memory
+  //
+  // Usage:
+  //
+  //   auto store = storage::open<MEMORY>();
+  //
   template<> struct Engine<MEMORY>;
 }
 #endiv
 #divert <hpp>
 #import tunitas.apanolio.storage.engine.Prototype
+#import tunitas.apanolio.concurrent.Guardian
+#import tunitas.apanolio.concurrent.Conditions
+#import std.map
+#import std.optional
+#import std.uintmax_t
 namespace tunitas::apanolio::storage::engine {
   template<> struct Engine<MEMORY> : public Prototype {
     using ancestor = Prototype;
   public:
+    // The default constructor must exist so that storage::open() can do its magic.
+    // It is not helpful to have a configuration constructor; e.g. Engine(Count)
+    Engine() = default;
+    // And because of the mutex conditions, neither move nor copy semantics is available
+    Engine(Engine const &) = delete;
+    auto operator=(Engine const &) -> Engine & = delete;
+    Engine(Engine &&) = delete;
+    auto operator=(Engine &&) -> Engine & = delete;
+    using Count = std::uintmax_t;
+    inline auto capacity(Count) -> void;
+    inline auto capacity(std::optional<Count>) -> void;
+    inline auto capacity() const -> Count;
     auto probe(Identifier const &) -> Success final;
     auto get(Identifier const &) -> Outcome<Record> final;
     auto set(Identifier const &, Record const &) -> Success final;
+  protected:
+    using Map = std::map<Identifier, Record>;
+    std::optional<std::uintmax_t> configured_capacity;
+    // A gentle reminder that none of these values are persistent
+    Map ephemeral_data;
+    using Guardian = concurrent::Guardian;
+    using Conditions = concurrent::Conditions;
+    Conditions conditions;
   };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::storage::engine {
+  auto Engine<MEMORY>::capacity(Count newbie) -> void { configured_capacity = newbie; }
+  auto Engine<MEMORY>::capacity(std::optional<Count> newbie) -> void { configured_capacity = newbie; }
+  auto Engine<MEMORY>::capacity() const -> Count { return configured_capacity ? *configured_capacity : ephemeral_data.max_size(); }
 }
 #endiv
 #divert <cpp>
 namespace tunitas::apanolio::storage::engine {
-  auto Engine<MEMORY>::probe(Identifier const &) -> Success {
-    return Success{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  auto Engine<MEMORY>::probe(Identifier const &identifier) -> Success {
+    Guardian guardian{conditions, conditions.readable()};
+#if 8 < __GNUC__ // C++-2a has this, surely gcc9 will have -std=c++2a
+    auto const ok = ephemeral_data.contains(identifier);
+#else
+    auto const ok = ephemeral_data.end() != ephemeral_data.find(identifier);
+#endif
+    return ok ? Success{SUCCESS} : Success{std::error_code{error::Code::NOT_FOUND}};
   }
-  auto Engine<MEMORY>::get(Identifier const &) -> Outcome<Record> {
-    return Outcome<Record>{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  auto Engine<MEMORY>::get(Identifier const &identifier) -> Outcome<Record> {
+    Guardian guard{conditions, conditions.readable()};
+    auto const found = ephemeral_data.find(identifier);
+    auto const end = ephemeral_data.end();
+    if (end == found) {
+      return Outcome<Record>{std::error_code{error::Code::NOT_FOUND}};
+    } else {
+      return Outcome<Record>{found->second}; // yup, it copies the record.
+    }
   }
-  auto Engine<MEMORY>::set(Identifier const &, Record const &) -> Success {
-    return Success{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  auto Engine<MEMORY>::set(Identifier const &identifier, Record const &record) -> Success {
+    Guardian guardian{conditions, conditions.writable()};
+    if (configured_capacity && ephemeral_data.size() >= *configured_capacity) {
+      return Success{std::error_code{error::Code::FULL}};
+    } else {
+      auto inserted = ephemeral_data.insert(Map::value_type{identifier, record});
+      if (!inserted.second) {
+        inserted.first->second = record;
+      }
+      return Success{SUCCESS};
+    }
   }
 }
 #endiv

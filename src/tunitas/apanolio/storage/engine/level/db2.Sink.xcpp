@@ -1,0 +1,33 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::storage::engine::level::db2 {
+  //
+  // A LevelDB Value container that doesn't hold anything.
+  // This makes probe(...) cheap and allocation-free
+  //
+  // WATCHOUT - these things are GUARANTEED to store nothing at all.
+  //
+  // Usage: see Engine<LEVELDB>::probe(...)
+  //
+  class Sink;
+}
+#endiv
+#divert <hpp>
+#import level.db2.Value
+class tunitas::apanolio::storage::engine::level::db2::Sink : public level::db2::Value {
+  using ancestor = level::db2::Value;
+public:
+  Sink() = default;
+  auto assign(char const *data, size_t size) -> Value & final;
+};
+#endiv
+#divert <cpp>
+namespace tunitas::apanolio::storage::engine::level::db2 {
+  auto Sink::assign(char const *data, size_t size) -> Value & {
+    //  Yup, does nothing.
+    return *this;
+  }
+}
+#endiv

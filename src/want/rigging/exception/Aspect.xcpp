@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace want::rigging::exception {
+  //
+  // The aspect of a (test) rigging exception
+  // Descendants only.
+  // This is a mixin which allows the normal exception hierarchy to be used.
+  //
+  // This exception series signals a meta-problem with the test rigging.
+  // For example a problem in Fixture::setUp() or Fixture::tearDown()
+  //
+  // Usage:
+  //
+  //   class my::Problem : public rigging::exception::Aspect, public std::runtime_error {
+  //     Problem(std::string const &reason)
+  //     auto what() const noexcept -> char const * final;
+  //   };
+  //
+  //   try {
+  //     ...
+  //     throw SetUp{"could not setUp() because ... reasons..."};
+  //   } catch (rigging::exception::Aspect const &a) {
+  //     cerr << "bad because " << a.what();
+  //   }
+  //
+  class Aspect;
+}
+#endiv
+#divert <hpp>
+#import std.string
+class want::rigging::exception::Aspect {
+protected:
+  virtual ~Aspect() = default;
+public:
+  Aspect() = default;
+  inline auto reason() const -> std::string;
+  virtual auto what() const noexcept -> char const * = 0;
+};
+#endiv
+#divert <ipp>
+namespace want::rigging::exception {
+  auto Aspect::reason() const -> std::string {
+    return std::string{what()};
+  }
+}
+#endiv

@@ -1,6 +1,6 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright 2019-2019, Oath Inc.
-// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
 #import tunitas.apanolio.error.Condition
 namespace tunitas::apanolio::error {
@@ -14,6 +14,7 @@ namespace tunitas::apanolio::error {
       NOT_AVAILABLE,  // ...... the resource is unavailable for administrative, procedural or configuration reasons
       NOT_FOUND, // ........... gently, benignly a search was made and something was not found
       MISSING, // ............. not benigh; with good evidence, something was supposed to be present but is missing
+      FULL, // ................ could not set(...) because the storage at capacity
     };
 }
 #import std.is_error_code_enum

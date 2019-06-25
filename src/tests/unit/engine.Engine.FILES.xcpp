@@ -1,0 +1,107 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tests.unit.engine.Engine.declaration
+namespace tests::unit::engine { template<> class Engine<FILES>; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tunitas.apanolio.storage.engine.Engine.FILES
+#import tests.unit.engine.Temporary_Directory
+#import tests.unit.engine.Record_Generator
+namespace tests::unit::engine {
+  template<> class Engine<FILES> : public cppunit::test::Fixture, private Temporary_Directory, private Record_Generator {
+  public:
+    using Subject = ::tunitas::apanolio::storage::engine::Engine<FILES>;
+    auto directory_suffix() const -> std::string final;
+    auto engine_name() const -> std::string final;
+    auto setUp() -> void final;
+    auto tearDown() -> void final;
+    auto test_constructor() -> void;
+    auto test_nocopy() -> void;
+    auto test_nomove() -> void;
+    auto test_probe() -> void;
+    auto test_get() -> void;
+    auto test_set() -> void;
+    auto test_reget() -> void;
+    static auto suite() -> cppunit::Test *;
+  };
+}
+#endiv
+#divert <cpp>
+#import std.is_copy_constructible
+#import std.is_copy_constructible
+#import std.is_move_assignable
+#import std.is_move_constructible
+#import std.equal
+#import std.move
+namespace tests::unit::engine {
+  auto Engine<FILES>::directory_suffix() const -> std::string { return "d"; }
+  auto Engine<FILES>::engine_name() const -> std::string { return "FILES"; }
+  auto Engine<FILES>::setUp() -> void { Temporary_Directory::setUp(); }
+  auto Engine<FILES>::tearDown() -> void { Temporary_Directory::tearDown(); }
+  auto Engine<FILES>::test_constructor() -> void {
+    Subject subject{*TEMPORARY_DIRECTORY};
+    //
+    // That's it ... it constructs.
+    //
+    CPPUNIT_ASSERT(sizeof (subject));
+  }
+  auto Engine<FILES>::test_nocopy() -> void {
+    CPPUNIT_ASSERT(!std::is_copy_constructible<Subject>::value);
+    CPPUNIT_ASSERT(!std::is_copy_assignable<Subject>::value);
+  }
+  auto Engine<FILES>::test_nomove() -> void {
+    CPPUNIT_ASSERT(!std::is_move_constructible<Subject>::value);
+    CPPUNIT_ASSERT(!std::is_move_assignable<Subject>::value);
+  }
+  auto Engine<FILES>::test_probe() -> void {
+    Subject subject{*TEMPORARY_DIRECTORY};
+    auto const zero = Subject::Identifier{0};
+    auto probed = subject.probe(zero);
+    CPPUNIT_ASSERT(!ok(probed));
+  }
+  auto Engine<FILES>::test_get() -> void {
+    Subject subject{*TEMPORARY_DIRECTORY};
+    auto const zero = Subject::Identifier{0};
+    auto got = subject.get(zero);
+    CPPUNIT_ASSERT(!ok(got));
+  }
+  auto Engine<FILES>::test_set() -> void {
+    Subject subject{*TEMPORARY_DIRECTORY};
+    auto const zero = Subject::Identifier{0};
+    auto const record = Subject::Record{};
+    auto sat = subject.set(zero, record);
+    CPPUNIT_ASSERT(ok(sat));
+  }
+  auto Engine<FILES>::test_reget() -> void {
+    Subject subject{*TEMPORARY_DIRECTORY};
+    auto const one = Subject::Identifier{1};
+    auto const specimen = generate_record();
+    auto sat = subject.set(one, specimen);
+    CPPUNIT_ASSERT(ok(sat));
+    auto got = subject.get(one);
+    CPPUNIT_ASSERT(ok(got));
+    auto recovered = value(std::move(got));
+    CPPUNIT_ASSERT(std::equal(specimen.begin(), specimen.end(), recovered.begin(), recovered.end()));
+  }
+}
+#import rigging.suite.io
+namespace tests::unit::engine {
+  auto Engine<FILES>::suite() -> cppunit::Test * {
+    using namespace ::rigging::suite;
+    Stream series("Engine<FILES>");
+    series << call("constructor", &Engine::test_constructor)
+           << call("nocopy", &Engine::test_nocopy)
+           << call("nomove", &Engine::test_nomove)
+           << call("probe", &Engine::test_probe)
+           << call("get", &Engine::test_get)
+           << call("set", &Engine::test_set)
+           << call("reget", &Engine::test_reget)
+      ;
+    return finalize(series);
+  }
+}
+#endiv

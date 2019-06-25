@@ -17,12 +17,19 @@ public:
 auto tests::unit::want::Fixture::test_something() -> void {
   CPPUNIT_ASSERT(true);
 }
+#import tests.unit.want.rigging.exception.Fixture
 #import rigging.suite.io
 auto tests::unit::want::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("want");
   series << call("something", &Fixture::test_something)
     ;
+  {
+    Stream rig("rigging");
+    rig << add<rigging::exception::Fixture>()
+      ;
+    series << move(rig);
+  }
   return finalize(series);
 }
 #endiv

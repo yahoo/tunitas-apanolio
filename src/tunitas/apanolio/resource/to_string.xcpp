@@ -1,0 +1,33 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#import tunitas.apanolio.resource.Identifier
+#import std.string
+namespace tunitas::apanolio::resource {
+  //
+  // Convert an Identifier to a printable string representation
+  // A canonical hexidecimal representation is used.
+  //
+  // Usage:
+  //
+  //   auto iden = Identifier{...somehow...};
+  //   auto iden = identifier::construct(...somehow...);
+  //   auto str = to_string(iden);  
+  //
+  inline auto to_string(Identifier) -> std::string;
+}
+#endiv
+#divert <ipp>
+#import nonstd.int128.ostream.unsigned
+#import std.hex
+#import std.setw
+#import std.setfill
+auto tunitas::apanolio::resource::to_string(Identifier identifier) -> std::string {
+  using nonstd::int128::operator<<;
+  std::ostringstream buf;
+  auto const FULL_WIDE_WIDTH = 2*sizeof (identifier); // hex uses 2 characters per byte to represent; e.g. 00 -> ff
+  buf << std::hex << std::setw(FULL_WIDE_WIDTH) << std::setfill('0') << identifier::Underlying(identifier);
+  return buf.str();
+}
+#endiv
