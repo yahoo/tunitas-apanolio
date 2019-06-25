@@ -1,6 +1,6 @@
 # Tunitas Apanolio
 
-This repository contains a reference implementation of the "Northbound API service for the Interactive Advertising Bureau's (IAB) [Transparency and Consent Framework (TCF)](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework). It is an an application hosted within the [Apache HTTPd](https://httpd.apache.org/) server.  As such, it is a "<em>macro</em>service" approach to delivering the north-facing API services.
+This repository contains a reference implementation of the "North-Facing" API service for the Interactive Advertising Bureau's (IAB) [PrivacyChain](https://github.com/InteractiveAdvertisingBureau/PrivacyChain). It is an an application hosted within the [Apache HTTPd](https://httpd.apache.org/) server.  As such, it is a "<em>macro</em>service" approach to delivering the north-facing API services.
 
 The main body of documentation for the Tunitas family of components and services can be found with the [packaging](https://github.com/yahoo/tunitas-packaging) and with [build system](https://github.com/yahoo/temerarious-flagship]).  The overview and administrative declarations herein are necessarily summary in nature. The declarations and definitions in the packaging and build system areas are complete and should be interpreted as superceding these when the two are in conflict.
 
