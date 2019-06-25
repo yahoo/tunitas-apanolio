@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::concurrent {
+  //
+  // The operation of the conditions (condition- & state- variables)
+  //
+  // Usage:
+  //
+  //   See Conditions, Guardian
+  //
+  class Operation;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.concurrent.Conditions
+namespace tunitas::apanolio {
+  class concurrent::Operation {
+    using Tier = Conditions::Tier Conditions::*;
+    using Test = bool (Conditions::*)() const;
+  public:
+    inline Operation(Tier tier, Test test);
+    Tier tier;
+    Test test;
+    inline auto increment(Conditions &) -> void;
+    inline auto decrement(Conditions &) -> void;   
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::concurrent {
+  Operation::Operation(Tier tier, Test test)
+    : tier{tier}
+    , test{test}
+  { }
+  auto Operation::increment(Conditions &conditions) -> void { ++(conditions.*tier).count; }
+  auto Operation::decrement(Conditions &conditions) -> void { --(conditions.*tier).count; }
+}
+#endiv
+

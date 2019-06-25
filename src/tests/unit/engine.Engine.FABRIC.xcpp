@@ -1,0 +1,88 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tests.unit.engine.Engine.declaration
+namespace tests::unit::engine { template<> class Engine<FABRIC>; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tunitas.apanolio.storage.engine.configuration.Configuration.FABRIC
+#import tunitas.apanolio.storage.engine.Engine.FABRIC
+namespace tests::unit::engine {
+  template<> class Engine<FABRIC> : public cppunit::test::Fixture {
+  public:
+    using Configuration = ::tunitas::apanolio::storage::engine::configuration::Configuration<FABRIC>;
+    using Subject = ::tunitas::apanolio::storage::engine::Engine<FABRIC>;
+    auto test_constructor() -> void;
+    auto test_nocopy() -> void;
+    auto test_nomove() -> void;
+    auto test_probe() -> void;
+    auto test_get() -> void;
+    auto test_set() -> void;
+    static auto suite() -> cppunit::Test *;
+  };
+}
+#endiv
+#divert <cpp>
+#import std.is_copy_constructible
+#import std.is_copy_constructible
+#import std.is_move_assignable
+#import std.is_move_constructible
+namespace tests::unit::engine {
+  auto Engine<FABRIC>::test_constructor() -> void {
+    Configuration cfg{};
+    Subject subject{cfg};
+    //
+    // That's it ... it constructs.
+    //
+    CPPUNIT_ASSERT(sizeof (subject));
+  }
+  auto Engine<FABRIC>::test_nocopy() -> void {
+    CPPUNIT_ASSERT(!std::is_copy_constructible<Subject>::value);
+    CPPUNIT_ASSERT(!std::is_copy_assignable<Subject>::value);
+  }
+  auto Engine<FABRIC>::test_nomove() -> void {
+    CPPUNIT_ASSERT(!std::is_move_constructible<Subject>::value);
+    CPPUNIT_ASSERT(!std::is_move_assignable<Subject>::value);
+  }
+  auto Engine<FABRIC>::test_probe() -> void {
+    Configuration cfg{};
+    Subject subject{cfg};
+    auto const zero = Subject::Identifier{0};
+    auto probed = subject.probe(zero);
+    CPPUNIT_ASSERT(!ok(probed));
+  }
+  auto Engine<FABRIC>::test_get() -> void {
+    Configuration cfg{};
+    Subject subject{cfg};
+    auto const zero = Subject::Identifier{0};
+    auto got = subject.get(zero);
+    CPPUNIT_ASSERT(!ok(got));
+  }
+  auto Engine<FABRIC>::test_set() -> void {
+    Configuration cfg{};
+    Subject subject{cfg};
+    auto const zero = Subject::Identifier{0};
+    auto const record = Subject::Record{};
+    auto sat = subject.set(zero, record);
+    CPPUNIT_ASSERT(ok(sat));
+  }
+}
+#import rigging.suite.io
+namespace tests::unit::engine {
+  auto Engine<FABRIC>::suite() -> cppunit::Test * {
+    using namespace ::rigging::suite;
+    Stream series("Engine<FABRIC>");
+    series << call("constructor", &Engine::test_constructor)
+           << call("nocopy", &Engine::test_nocopy)
+           << call("nomove", &Engine::test_nomove)
+           << call("probe", &Engine::test_probe)
+           << call("get", &Engine::test_get)
+           << call("set", &Engine::test_set)
+      ;
+    return finalize(series);
+  }
+}
+#endiv

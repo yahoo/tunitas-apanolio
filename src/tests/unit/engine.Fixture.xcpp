@@ -17,11 +17,24 @@ public:
 auto tests::unit::engine::Fixture::test_something() -> void {
   CPPUNIT_ASSERT(true);
 }
+#import tunitas.apanolio.storage.Engine
+#import tests.unit.engine.Engine
 #import rigging.suite.io
 auto tests::unit::engine::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("engine");
+  namespace testing = tests::unit::engine;
+  namespace subject = ::tunitas::apanolio::storage::engine;
   series << call("something", &Fixture::test_something)
+         << add<testing::Engine<subject::NONE>>()
+         << add<testing::Engine<subject::MEMORY>>()
+         << add<testing::Engine<subject::FILES>>()
+         << add<testing::Engine<subject::SQLITE>>()
+         << add<testing::Engine<subject::LEVELDB>>()
+         << add<testing::Engine<subject::MYSQL>>()
+         << add<testing::Engine<subject::PGSQL>>()
+         << add<testing::Engine<subject::RAMCLOUD>>()
+         << add<testing::Engine<subject::SCARPET>>()
     ;
   return finalize(series);
 }

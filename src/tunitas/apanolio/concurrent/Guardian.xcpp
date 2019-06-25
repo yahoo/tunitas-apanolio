@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::concurrent {
+  //
+  // The condition(s) guardian
+  // By RAII, establish the condition (operate lock) under the supplied operation.
+  // Operations established modes: shared-multiple-reader, exclusive-single-writer.
+  //
+  // Usage:
+  //
+  //   { Guardian guardian{condition, condition.no_writers()};
+  //     ...do readonly stuff... }
+  //
+  //   { Guardian guardian{condition, condition.no_others()};
+  //     ...do writeful CRUD stuff... }
+  //
+  class Guardian;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.apanolio.concurrent.Conditions
+#import tunitas.apanolio.concurrent.Operation
+class tunitas::apanolio::concurrent::Guardian {
+public:
+  inline Guardian(Conditions &, Operation);
+  inline ~Guardian() noexcept(false);
+  Guardian(Guardian const &) = delete;
+  auto operator=(Guardian const &) -> Guardian & = delete;
+  Guardian(Guardian &&) = delete;
+  auto operator=(Guardian &&) -> Guardian & = delete;
+protected:
+  Conditions &conditions;
+  Operation operation;
+};
+#endiv
+#divert <ipp>
+#import tunitas.apanolio.concurrent.Conditions
+namespace tunitas::apanolio::concurrent {
+  Guardian::Guardian(Conditions &conditions, Operation operation)
+    : conditions{conditions}
+    , operation{operation} {
+      conditions.exclusive.lock(); // Because Conditions used std::defer_lock
+    auto condition = [this]() -> bool { return (this->conditions.*this->operation.test)(); };
+    (conditions.*operation.tier).condition.wait(conditions.exclusive, condition);
+    // We now have the condition, and we're in the critical section.
+    operation.increment(conditions);
+  }
+  Guardian::~Guardian() noexcept(false) {
+    // We are still in the critical section; we need to unwind the condition.
+    operation.decrement(conditions);
+    conditions.readers.condition.notify_one();
+    conditions.writers.condition.notify_one();
+    conditions.exclusive.unlock();
+  }
+}
+#endiv

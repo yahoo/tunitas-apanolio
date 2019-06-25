@@ -16,6 +16,7 @@ namespace tunitas::apanolio::storage::engine {
 #endiv
 #divert <hpp>
 #import tunitas.Outcome
+#import tunitas.Success
 #import tunitas.apanolio.resource.Identifier
 #import tunitas.apanolio.resource.Record
 class tunitas::apanolio::storage::engine::Prototype {

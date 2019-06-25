@@ -4,6 +4,14 @@
 #divert <fpp>
 #forward tunitas.apanolio.storage.engine.Engine.declaration
 namespace tunitas::apanolio::storage::engine {
+  //
+  // It's trivial storage engine which always fails with NOT_AVAILABLE.
+  // You need an explanation here?  Rly?
+  //
+  // Usage:
+  //
+  //   auto store = storage::open<NONE>();
+  //
   template<> struct Engine<NONE>;
 }
 #endiv
@@ -22,13 +30,22 @@ namespace tunitas::apanolio::storage::engine {
 #divert <cpp>
 namespace tunitas::apanolio::storage::engine {
   auto Engine<NONE>::probe(Identifier const &) -> Success {
-    return Success{std::error_code{error::Code::NOT_IMPLEMENTED}};
+    //
+    // Implemented as: the service is unavailable for every possible identifer-record combination
+    //
+    return Success{std::error_code{error::Code::NOT_AVAILABLE}};
   }
   auto Engine<NONE>::get(Identifier const &) -> Outcome<Record> {
-    return Outcome<Record>{std::error_code{error::Code::NOT_IMPLEMENTED}};
+    //
+    // Ibidem.
+    //
+    return Outcome<Record>{std::error_code{error::Code::NOT_AVAILABLE}};
   }
   auto Engine<NONE>::set(Identifier const &, Record const &) -> Success {
-    return Success{std::error_code{error::Code::NOT_IMPLEMENTED}};
+    //
+    // Ibidem.
+    //
+    return Success{std::error_code{error::Code::NOT_AVAILABLE}};
   }
 }
 #endiv

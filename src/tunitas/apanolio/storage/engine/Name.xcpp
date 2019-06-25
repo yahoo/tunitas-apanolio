@@ -3,7 +3,9 @@
 // Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
 namespace tunitas::apanolio::storage::engine {
-  enum Name
+  // the namespace will make it easy to import elsewhere
+  inline namespace name {
+    enum Name
     { NONE,
       MEMORY,
       FILES,
@@ -14,5 +16,6 @@ namespace tunitas::apanolio::storage::engine {
       RAMCLOUD,
       FABRIC,
       SCARPET };
+  }
 }
 #endiv

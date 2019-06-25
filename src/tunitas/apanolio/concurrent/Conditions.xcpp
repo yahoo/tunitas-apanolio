@@ -1,0 +1,62 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::concurrent {
+  //
+  // The condition (variables) of the service.
+  //
+  // These are all the thread synchronization primitives all in one place.
+  // Depending upon needs and the counts, the Predicate will switch between the two Condition variables.
+  // This gives a multiple-readers-single-writer effect.
+  // 
+  // Reminder: std::mutex is neither copyable nor movable; and so are the Conditions.
+  //
+  // Usage: see Guardian
+  //
+  struct Conditions;
+}
+#endiv
+#divert <hpp>
+#import std.condition_variable
+#import std.mutex
+#import std.uintmax_t
+#import std.unique_lock
+#forward tunitas.apanolio.concurrent.Guardian
+#forward tunitas.apanolio.concurrent.Operation
+class tunitas::apanolio::concurrent::Conditions {
+  using Mutex = std::mutex;
+  Mutex mutex;
+public:
+  using Count = std::uintmax_t;
+  using Exclusive = std::unique_lock<Mutex>;
+  using Condition = std::condition_variable;
+  inline Conditions();
+  Exclusive exclusive;
+  struct Tier {
+    inline Tier();
+    Count count;
+    Condition condition;
+  } readers, writers;
+  inline auto readable() -> Operation;
+  inline auto writable() -> Operation;
+private:
+  inline auto no_writers() const -> bool;
+  inline auto no_others() const -> bool;
+};
+#endiv
+#divert <ipp>
+#import tunitas.apanolio.concurrent.Operation
+namespace tunitas::apanolio::concurrent {
+  // WATCHOUT -                               /--------- the Guardian is the only place where this lock is acquired
+  //                                          |
+  //                                          |
+  //                                          v
+  Conditions::Conditions() : exclusive{mutex, std::defer_lock} { }
+  Conditions::Tier::Tier() : count{Count{}} { }
+  auto Conditions::readable() -> Operation { return Operation{&Conditions::readers, &Conditions::no_writers}; }
+  auto Conditions::writable() -> Operation { return Operation{&Conditions::writers, &Conditions::no_others}; }
+  auto Conditions::no_writers() const -> bool { return 0 == writers.count; }
+  auto Conditions::no_others() const -> bool { return 0 == readers.count && 0 == writers.count; }
+}
+#endiv

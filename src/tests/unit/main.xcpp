@@ -4,6 +4,7 @@
 #divert <cpp>
 #import rigging.bench.Main
 #import tests.unit.apanolio.Fixture
+#import tests.unit.concurrent.Fixture
 #import tests.unit.engine.Fixture
 #import tests.unit.error.Fixture
 #import tests.unit.exception.Fixture
@@ -15,6 +16,7 @@ auto main(int argc, char **argv) -> int {
   using namespace rigging::bench;
   using namespace tests::unit;
   Main remain(apanolio::Fixture::suite(),
+              concurrent::Fixture::suite(),
               engine::Fixture::suite(),
               error::Fixture::suite(),
               exception::Fixture::suite(),

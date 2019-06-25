@@ -8,6 +8,8 @@ namespace tests::unit::storage { class Fixture; }
 #import cppunit.Test
 #import cppunit.test.Fixture
 #import tunitas.apanolio.storage.engine.Engine
+#import tunitas.apanolio.exception.Storage
+#import nonstd.exception.Unimplemented
 class tests::unit::storage::Fixture : public cppunit::test::Fixture {
 public:
   auto test_open_function() -> void;
@@ -15,35 +17,58 @@ public:
   template<Name ENGINE> auto test_open_template0() -> void;
   template<Name ENGINE> auto test_open_template1() -> void;
   static auto suite() -> cppunit::Test *;
+protected:
+  struct exception {
+    using Storage = ::tunitas::apanolio::exception::Storage;
+    using Unimplemented = ::nonstd::exception::Unimplemented;
+  };
 };
 #endiv
 #divert <tpp>
 #import tunitas.apanolio.storage.open
 template<tests::unit::storage::Fixture::Name ENGINE> auto tests::unit::storage::Fixture::test_open_template0() -> void {
-  auto stoage = ::tunitas::apanolio::storage::open<ENGINE>();
-  CPPUNIT_ASSERT(true); // yup, got it!
+  try {
+    auto stoage = ::tunitas::apanolio::storage::open<ENGINE>();
+    CPPUNIT_ASSERT(true); // yup, got it!
+  } catch (exception::Storage const &e) {
+    std::cerr <<  "failed to open ENGINE=" << (int)ENGINE << " because " << e.what() << '\n';
+    CPPUNIT_ASSERT(false); // did not expect this to fail
+  } catch (exception::Unimplemented const &) {
+    CPPUNIT_ASSERT(true); // ok never mind then
+  }
 }
-#import std.errc
-#import sys.posix.mkdir
+#import tests.unit.temporary.Directory
 template<tests::unit::storage::Fixture::Name ENGINE> auto tests::unit::storage::Fixture::test_open_template1() -> void {
-  auto const storage_directory = "/tmp/tests.unit.storage.Fixture-of-tunitas.apanolio.storage"; // [[FIXTHIS]] to use $TMPDIR and assess whether cleanup is warranted
-  auto made = sys::posix::mkdir(storage_directory, 0660);
-  CPPUNIT_ASSERT(ok(made) || std::errc::file_exists == error_code(made));
-  auto stoage = ::tunitas::apanolio::storage::open<ENGINE>(storage_directory);
-  CPPUNIT_ASSERT(true); // yup, got it!
+  temporary::Directory<ENGINE> tmpdir{"tests::unit::storage::Fixture"};
+  try {
+    auto storage = ::tunitas::apanolio::storage::open<ENGINE>((std::filesystem::path const &) tmpdir);
+    CPPUNIT_ASSERT(true); // yup, got it!
+  } catch (exception::Storage const &e) {
+    std::cerr <<  "failed to open ENGINE=" << (int)ENGINE << " on " << (std::filesystem::path const &)tmpdir << " because " << e.what() << '\n';
+    CPPUNIT_ASSERT(true); // no, that was a surprise
+  } catch (exception::Unimplemented const &) {
+    CPPUNIT_ASSERT(true); // ok never mind then
+  }
 }
 #endiv
 #divert <cpp>
 #import tunitas.apanolio.storage.open
 auto tests::unit::storage::Fixture::test_open_function() -> void {
-  auto stoage = ::tunitas::apanolio::storage::open();
-  CPPUNIT_ASSERT(true); // yup, got it!
+  try {
+    auto stoage = ::tunitas::apanolio::storage::open();
+    CPPUNIT_ASSERT(true); // yup, got it!
+  } catch (exception::Storage const &e) {
+    std::cerr <<  "failed to open() on noargs because " << e.what() << '\n';
+    CPPUNIT_ASSERT(true); // no, that was a surprise
+  } catch (exception::Unimplemented const &) {
+    CPPUNIT_ASSERT(true); // ok never mind then
+  }
 }
 #import tunitas.apanolio.storage.engine.Engine
 #import rigging.suite.io
 auto tests::unit::storage::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
-  Stream series("storage");
+  Stream series{"storage"};
   {
     Stream ope("open");
     namespace engine = ::tunitas::apanolio::storage::engine;
@@ -55,7 +80,7 @@ auto tests::unit::storage::Fixture::suite() -> cppunit::Test * {
         << call("SQLITE", &Fixture::test_open_template1<engine::SQLITE>)
       // the others are not ready for testing yet
     ;
-    series << add(ope.release());
+    series << move(ope);
   }
   return finalize(series);
 }

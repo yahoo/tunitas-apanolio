@@ -32,6 +32,7 @@ auto tests::unit::resource::Identifier::test_constructor_enum() -> void {
   CPPUNIT_ASSERT(99 == underlying);
 }
 #import rabinpoly.fingerprint
+#import tunitas.apanolio.resource.identifier.construct
 auto tests::unit::resource::Identifier::test_constructor_fingerprint() -> void {
   auto subject = ::tunitas::apanolio::resource::identifier::construct(rabinpoly::fingerprint(999'999'999'999'999lu));
   Underlying underlying = (Underlying) subject;

@@ -1,0 +1,110 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::temporary {
+  //
+  // The internals of the temporary directory maker/manager/owner/dunder
+  // Descendants only
+  //
+  // See the commentariat in tests.unit.temporary.Directory.declaration
+  //
+  // Usage:
+  //
+  //   By inheritance.
+  //   See Directory<FILES>, Directory<LEVELDB>, Directory<SQLITE>
+  //
+  class Prototype;
+}
+#endiv
+#divert <hpp>
+#import std.filesystem.path
+#import std.mutex
+#import std.optional
+#import std.string
+namespace tests::unit {
+  class temporary::Prototype {
+  protected:
+    virtual ~Prototype() noexcept(false);
+  public:
+    Prototype() = default;
+    Prototype(Prototype const &) = delete;
+    auto operator=(Prototype const &) -> Prototype & = delete;
+    virtual auto engine_name() const -> std::string = 0;
+    // Of course this will throw bad_optional if there is no filesystem path in here.
+    inline explicit operator std::filesystem::path const &() const { return *temporary_directory; }
+  protected:
+    std::optional<std::filesystem::path> temporary_directory;
+    // Once constructed, the descendant can call this to do the needful.
+    // The result, upon success, is stored in temporary_directory, for use in the destructor.
+    auto make_or_throw(std::string const &) -> void;
+  private:
+    auto generate(std::string const &test_name) -> std::filesystem::path;
+    static std::mutex exclusive;
+    static unsigned per_process_serial_number_for_even_more_guaranted_uniqueness__yes_yes_even_more_unique;
+  };
+}
+#endiv
+#divert <cpp>
+#import std.ostringstream
+#import sys.posix.rmdir
+#import std.errc
+#import want.rigging.exception.TearDown
+namespace tests::unit::temporary {
+  std::mutex Prototype::exclusive;
+  unsigned Prototype::per_process_serial_number_for_even_more_guaranted_uniqueness__yes_yes_even_more_unique{};
+  Prototype::~Prototype() noexcept(false) {
+    if (temporary_directory) {
+      // It was made with mkdirs(3), so (try to) remove it with rmdir(2)
+      auto unlinked = sys::posix::rmdir(*temporary_directory);
+      if (!ok(unlinked)) {
+        auto ec = error_code(unlinked);
+        if (std::errc::no_such_file_or_directory != ec && std::errc::directory_not_empty != ec) {
+          std::ostringstream buf;
+          // Of course it is an error ... we are throwing an exception about it.
+          // Don't throw the exception if you just want it to be aa gentle admonishment (a mere warning).
+          constexpr auto THROWING = true;
+          buf << (THROWING ? "Error" : "Warning");
+          buf << ": could remove " << *temporary_directory << " because " << ec.message() << '\n';
+          auto message = buf.str();
+          std::cerr << message << '\n';
+          if (THROWING) {
+            throw want::rigging::exception::TearDown{message};
+          }
+        }
+      }
+    }
+  }
+}
+#import getpid
+#import ish.shell.TMPDIR
+#import std.lock_guard
+#import std.ostringstream
+#import sys.posix.mkdirp
+#import want.rigging.exception.SetUp
+namespace tests::unit::temporary {
+  auto Prototype::generate(std::string const &test_name) -> std::filesystem::path {
+    // Worry about multithreading here, (are these test drivers multithreaded nowadays?)
+    std::lock_guard<std::mutex> guard{exclusive};
+    auto ith = ++per_process_serial_number_for_even_more_guaranted_uniqueness__yes_yes_even_more_unique;
+    std::ostringstream buf;
+    buf << test_name << "["s << getpid() << '.' << ith << "]<"s + engine_name() + ">"s;
+    return ish::shell::TMPDIR<std::filesystem::path>() / buf.str();
+  }
+  auto Prototype::make_or_throw(std::string const &test_name) -> void {
+    auto tmpdir = generate(test_name);
+    auto made = sys::posix::mkdirp(tmpdir, 0777);
+    if (!ok(made)) {
+      auto ec = error_code(made);
+      if (std::errc::file_exists != ec) {
+        std::ostringstream buf;
+        buf << "Error: the test rigging fails to make " << tmpdir << " because " << ec.message();
+        auto message = buf.str();
+        std::cerr << message << '\n';
+        throw want::rigging::exception::SetUp{message};
+      }
+    }
+    temporary_directory = tmpdir;
+  }
+}
+#endiv

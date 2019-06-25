@@ -1,0 +1,88 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tests.unit.engine.Engine.declaration
+namespace tests::unit::engine { template<> class Engine<NONE>; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tunitas.apanolio.storage.engine.Engine.NONE
+#import tunitas.apanolio.error.Code
+namespace tests::unit::engine {
+  template<> class Engine<NONE> : public cppunit::test::Fixture {
+  public:
+    using Subject = ::tunitas::apanolio::storage::engine::Engine<NONE>;
+    auto test_constructor() -> void;
+    auto test_nocopy() -> void;
+    auto test_nomove() -> void;
+    auto test_probe() -> void;
+    auto test_get() -> void;
+    auto test_set() -> void;
+    static auto suite() -> cppunit::Test *;
+  protected:
+    inline static auto const NOT_AVAILABLE = ::tunitas::apanolio::error::Code::NOT_AVAILABLE;
+  };
+}
+#endiv
+#divert <cpp>
+#import std.is_copy_constructible
+#import std.is_copy_constructible
+#import std.is_move_assignable
+#import std.is_move_constructible
+namespace tests::unit::engine {
+  auto Engine<NONE>::test_constructor() -> void {
+    Subject subject;
+    //
+    // That's it ... it constructs.
+    //
+    CPPUNIT_ASSERT(sizeof (subject));
+  }
+  auto Engine<NONE>::test_nocopy() -> void {
+    CPPUNIT_ASSERT(!std::is_copy_constructible<Subject>::value);
+    CPPUNIT_ASSERT(!std::is_copy_assignable<Subject>::value);
+  }
+  auto Engine<NONE>::test_nomove() -> void {
+    CPPUNIT_ASSERT(!std::is_move_constructible<Subject>::value);
+    CPPUNIT_ASSERT(!std::is_move_assignable<Subject>::value);
+  }
+  auto Engine<NONE>::test_probe() -> void {
+    Subject subject;
+    auto const zero = Subject::Identifier{0};
+    auto probed = subject.probe(zero);
+    CPPUNIT_ASSERT(!ok(probed));
+    CPPUNIT_ASSERT(NOT_AVAILABLE == error_code(probed));
+  }
+  auto Engine<NONE>::test_get() -> void {
+    Subject subject;
+    auto const zero = Subject::Identifier{0};
+    auto got = subject.get(zero);
+    CPPUNIT_ASSERT(!ok(got));
+    CPPUNIT_ASSERT(NOT_AVAILABLE == error_code(got));
+  }
+  auto Engine<NONE>::test_set() -> void {
+    Subject subject;
+    auto const zero = Subject::Identifier{0};
+    auto const record = Subject::Record{};
+    auto sat = subject.set(zero, record);
+    CPPUNIT_ASSERT(!ok(sat));
+    CPPUNIT_ASSERT(NOT_AVAILABLE == error_code(sat));
+  }
+}
+#import rigging.suite.io
+namespace tests::unit::engine {
+  auto Engine<NONE>::suite() -> cppunit::Test * {
+    using namespace ::rigging::suite;
+    Stream series("Engine<NONE>");
+    series << call("constructor", &Engine::test_constructor)
+           << call("nocopy", &Engine::test_nocopy)
+           << call("nomove", &Engine::test_nomove)
+           << call("probe", &Engine::test_probe)
+           << call("get", &Engine::test_get)
+           << call("set", &Engine::test_set)
+      ;
+    return finalize(series);
+  }
+}
+#endiv

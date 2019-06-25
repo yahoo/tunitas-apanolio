@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace want::rigging::exception {
+  //
+  // A problem in Fixture::setUp() of the test rigging
+  // Also, a problem in the continued actions towards setup in an individual test
+  //
+  // Usage:
+  //
+  //   struct something::someting::dark_side::Fixture {
+  //     auto setUp() -> void final;
+  //     auto test_force_level() -> void;
+  //   };
+  //
+  //   auto something::something::dark_side::Fixture::setUp() -> void {
+  //     throw rigging::exception::SetUp{"could not setUp()"};
+  //   };
+  //   auto something::something::dark_side::Fixture::test_force_level() -> void try {
+  //     ...
+  //     throw rigging::exception::SetUp{"could not setup the force()"};
+  //     ...
+  //   } catch (rigging::exception::Aspect const &e) {
+  //     std::cerr << "failed to setup the test because " << e.what() << '\n';
+  //     throw;
+  //   }
+  //
+  class SetUp;
+}
+#endiv
+#divert <hpp>
+#import std.runtime_error
+#import want.rigging.exception.Aspect
+class want::rigging::exception::SetUp : public Aspect, public std::runtime_error {
+  struct ancestors {
+    using Aspect = rigging::exception::Aspect;
+    using Exception = std::runtime_error;
+  };
+public:
+  inline SetUp(std::string const &reason);
+  auto what() const noexcept -> char const * override;
+};
+#endiv
+#divert <ipp>
+namespace want::rigging::exception {
+  SetUp::SetUp(std::string const &reason) : ancestors::Exception{reason} { }
+}
+#endiv
+#divert <cpp>
+namespace want::rigging::exception {
+  auto SetUp::what() const noexcept -> char const * {
+    return ancestors::Exception::what();
+  }
+}
+#endiv

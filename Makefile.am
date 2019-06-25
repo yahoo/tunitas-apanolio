@@ -17,13 +17,21 @@ include @temerarious_flagship_datadir@/am/build.am
 
 DEVELOPMENT_AREAS = \
   $(apache_httpd_api_prefix) \
+  $(hyperledger_prefix) \
+  $(hyperledger_fabric_prefix) \
+  $(hyperledger_fabric_ca_prefix) \
+  $(hyperledger_fabric_db_prefix) \
   $(module_boost_prefix) \
   $(module_c_prefix) \
   $(module_format_prefix) \
+  $(module_leveldb_prefix) \
+  $(module_mysql_prefix) \
   $(module_nonstd_prefix) \
   $(module_options_prefix) \
   $(module_posix_prefix) \
+  $(module_pgsql_prefix) \
   $(module_rabinpoly_prefix) \
+  $(module_ramcloud_prefix) \
   $(module_sqlite_prefix) \
   $(module_std_prefix) \
   $(module_slurp_prefix) \
@@ -32,6 +40,7 @@ DEVELOPMENT_AREAS = \
   $(module_uuid_prefix) \
   $(tunitas_basics_prefix) \
   $(tunitas_butano_prefix) \
+  $(tunitas_scarpet_prefix) \
   $(end)
 TESTING_AREAS = \
   $(module_cppunit_prefix) \
@@ -110,8 +119,8 @@ Makefile_nonstd_CHECK_LDFLAGS_SET    = @nonstd_cppunit_LDFLAGS@
 
 Makefile_COMPILER_CPPFLAGS_SET = @CPPFLAGS_gcc@ 
 Makefile_COMPILER_CFLAGS_SET   =   @CFLAGS_gcc@   @CFLAGS_gdb@
-Makefile_COMPILER_CXXFLAGS_SET = @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
-Makefile_COMPILER_LDFLAGS_SET  =  @LDFLAGS_gcc@  @LDFLAGS_gdb@ @libstd_filesystem@
+Makefile_COMPILER_CXXFLAGS_SET = @CXXFLAGS_gcc@ @CXXFLAGS_gdb@ -pthread
+Makefile_COMPILER_LDFLAGS_SET  =  @LDFLAGS_gcc@  @LDFLAGS_gdb@ @libstd_filesystem@ -lpthread
 Makefile_PACKAGE_CPPFLAGS_SET  = @CPPFLAGS_httpd@ @CPPFLAGS_apr@ @CPPFLAGS_apreq@ @CPPFLAGS_sqlite@ @CPPFLAGS_uuid@
 Makefile_PACKAGE_CFLAGS_SET    =   @CFLAGS_httpd@   @CFLAGS_apr@   @CFLAGS_apreq@   @CFLAGS_sqlite@   @CFLAGS_uuid@
 Makefile_PACKAGE_CXXFLAGS_SET  = @CXXFLAGS_httpd@ @CXXFLAGS_apr@ @CXXFLAGS_apreq@ @CXXFLAGS_sqlite@ @CXXFLAGS_uuid@

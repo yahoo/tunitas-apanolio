@@ -2,6 +2,7 @@ tests_unit_TESTS = \
   tests/unit/list.test \
   \
   tests/unit/apanolio.test \
+  tests/unit/concurrent.test \
   tests/unit/engine.test \
   tests/unit/error.test \
   tests/unit/exception.test \

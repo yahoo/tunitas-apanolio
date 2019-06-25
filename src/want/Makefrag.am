@@ -9,6 +9,10 @@ lib_libwant_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 lib_libwant_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libwant_la_SOURCES))
 lib_libwant_la_SOURCES = \
   obj/src/want/namespace.cpp \
+  obj/src/want/rigging/exception/namespace.cpp \
+  obj/src/want/rigging/exception/Aspect.cpp \
+  obj/src/want/rigging/exception/SetUp.cpp \
+  obj/src/want/rigging/exception/TearDown.cpp \
   $(end)
 
 $(scold_cxxdir)/want/dependencies.mk: Makefile

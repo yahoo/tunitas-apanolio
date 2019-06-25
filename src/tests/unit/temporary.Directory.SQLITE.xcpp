@@ -1,0 +1,17 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tests.unit.temporary.Directory.declaration
+namespace tests::unit::temporary {
+  template<> struct Directory<engine::Name::SQLITE>;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit::temporary {
+  template<> struct Directory<engine::Name::SQLITE> : public Prototype {
+    Directory(std::string const &test_name) { make_or_throw(test_name); }
+    auto engine_name() const -> std::string final { return "SQLITE"; }
+  };
+}
+#endiv

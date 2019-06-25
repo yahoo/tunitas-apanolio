@@ -1,0 +1,118 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tests.unit.engine.Engine.declaration
+namespace tests::unit::engine { template<> class Engine<SQLITE>; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tests.unit.engine.Temporary_Data_Base
+#import tests.unit.engine.Record_Generator
+#import tunitas.apanolio.storage.engine.Engine.SQLITE
+#import tunitas.apanolio.error.Code
+namespace tests::unit::engine {
+  template<> class Engine<SQLITE> : public cppunit::test::Fixture, private Temporary_Data_Base, private Record_Generator {
+  public:
+    using Error = ::tunitas::apanolio::error::Code;
+    using Subject = ::tunitas::apanolio::storage::engine::Engine<SQLITE>;
+    auto file_suffix() const -> std::string final;
+    auto directory_suffix() const -> std::string final;
+    auto engine_name() const -> std::string final;
+    auto setUp() -> void final;
+    auto tearDown() -> void final;
+    auto test_constructor() -> void;
+    auto test_nocopy() -> void;
+    auto test_nomove() -> void;
+    auto test_probe() -> void;
+    auto test_get() -> void;
+    auto test_set() -> void;
+    auto test_reget() -> void;
+    static auto suite() -> cppunit::Test *;
+  };
+}
+#endiv
+#divert <cpp>
+#import std.is_copy_constructible
+#import std.is_copy_constructible
+#import std.is_move_assignable
+#import std.is_move_constructible
+#import std.equal
+#import std.move
+namespace tests::unit::engine {
+  auto Engine<SQLITE>::file_suffix() const -> std::string { return "sqlite"; }
+  auto Engine<SQLITE>::directory_suffix() const -> std::string { return "sqlite"; }
+  auto Engine<SQLITE>::engine_name() const -> std::string { return "SQLITE"; }
+  auto Engine<SQLITE>::setUp() -> void { return Temporary_Directory::setUp(); }
+  auto Engine<SQLITE>::tearDown() -> void { return Temporary_Directory::tearDown(); }
+  auto Engine<SQLITE>::test_constructor() -> void {
+    Subject subject{*TEMPORARY_DATA_BASE};
+    //
+    // That's it ... it constructs.
+    //
+    CPPUNIT_ASSERT(sizeof (subject));
+  }
+  auto Engine<SQLITE>::test_nocopy() -> void {
+    CPPUNIT_ASSERT(!std::is_copy_constructible<Subject>::value);
+    CPPUNIT_ASSERT(!std::is_copy_assignable<Subject>::value);
+  }
+  auto Engine<SQLITE>::test_nomove() -> void {
+    CPPUNIT_ASSERT(!std::is_move_constructible<Subject>::value);
+    CPPUNIT_ASSERT(!std::is_move_assignable<Subject>::value);
+  }
+  auto Engine<SQLITE>::test_probe() -> void {
+    Subject subject{*TEMPORARY_DATA_BASE};
+    auto const zero = Subject::Identifier{0};
+    auto probed = subject.probe(zero);
+    CPPUNIT_ASSERT(!ok(probed));
+    CPPUNIT_ASSERT(Error::NOT_IMPLEMENTED == error_code(probed));
+  }
+  auto Engine<SQLITE>::test_get() -> void {
+    Subject subject{*TEMPORARY_DATA_BASE};
+    auto const zero = Subject::Identifier{0};
+    auto got = subject.get(zero);
+    CPPUNIT_ASSERT(!ok(got));
+    CPPUNIT_ASSERT(Error::NOT_IMPLEMENTED == error_code(got));
+  }
+  auto Engine<SQLITE>::test_set() -> void {
+    Subject subject{*TEMPORARY_DATA_BASE};
+    auto const zero = Subject::Identifier{0};
+    auto const record = Subject::Record{};
+    auto sat = subject.set(zero, record);
+    CPPUNIT_ASSERT(!ok(sat));
+    CPPUNIT_ASSERT(Error::NOT_IMPLEMENTED == error_code(sat));
+  }
+  auto Engine<SQLITE>::test_reget() -> void {
+    Subject subject{*TEMPORARY_DATA_BASE};
+    auto const one = Subject::Identifier{1};
+    auto const specimen = generate_record();
+    auto sat = subject.set(one, specimen);
+    CPPUNIT_ASSERT(!ok(sat));
+    CPPUNIT_ASSERT(Error::NOT_IMPLEMENTED == error_code(sat));
+    auto got = subject.get(one);
+    CPPUNIT_ASSERT(!ok(got));
+    CPPUNIT_ASSERT(Error::NOT_IMPLEMENTED == error_code(got));
+    if (ok(got)) {
+      auto recovered = value(std::move(got));
+      CPPUNIT_ASSERT(std::equal(specimen.begin(), specimen.end(), recovered.begin(), recovered.end()));
+    }
+  }
+}
+#import rigging.suite.io
+namespace tests::unit::engine {
+  auto Engine<SQLITE>::suite() -> cppunit::Test * {
+    using namespace ::rigging::suite;
+    Stream series("Engine<SQLITE>");
+    series << call("constructor", &Engine::test_constructor)
+           << call("nocopy", &Engine::test_nocopy)
+           << call("nomove", &Engine::test_nomove)
+           << call("probe", &Engine::test_probe)
+           << call("get", &Engine::test_get)
+           << call("set", &Engine::test_set)
+           << call("reget", &Engine::test_reget)
+      ;
+    return finalize(series);
+  }
+}
+#endiv

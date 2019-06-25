@@ -58,7 +58,7 @@ auto tests::unit::error::Fixture::suite() -> cppunit::Test * {
          << call("Code", &Fixture::test_Code)
          << call("category", &Fixture::test_category)
          << call("Category", &Fixture::test_Category)
-         << add(Category::suite())
+         << add<Category>()
     ;
   return finalize(series);
 }

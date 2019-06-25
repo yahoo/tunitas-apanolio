@@ -1,0 +1,64 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::engine {
+  //
+  // Generate some records with some stuff in them.
+  // Descendants only; this is a mixin; specifically to be mixed in against the cppunit::test::Fixture
+  // (Hipster) Ipsum Lorem
+  //
+  // Usage:
+  //
+  //    class my::Fixture : public cppunit::test::Fixture, private Record_Generator {
+  //      auto test_something() -> void {
+  //        auto record = generate_record();
+  //      }
+  //    };
+  //
+  class Record_Generator;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.resource.Record
+#import std.string
+#import std.size_t
+class tests::unit::engine::Record_Generator {
+protected:
+  ~Record_Generator() = default;
+  inline Record_Generator();
+public:
+  using Record = ::tunitas::apanolio::resource::Record;
+  auto generate_record() -> Record;
+private:
+  unsigned round_robin_serial;
+  static std::string const CORPUS_ARCANUM[];
+  static std::size_t const CORPUS_SIZE;
+};
+#endiv
+#divert <ipp>
+namespace tests::unit::engine {
+  Record_Generator::Record_Generator() : round_robin_serial{0} { }
+}
+#endiv
+#divert <cpp>
+#import std.byte
+#import std.transform
+#import std.back_inserter
+namespace tests::unit::engine {
+  auto Record_Generator::generate_record() -> Record {
+    auto index = round_robin_serial++ % CORPUS_SIZE;
+    auto const &line{CORPUS_ARCANUM[index]};
+    std::vector<std::byte> prepared;
+    std::transform(line.begin(), line.end(), std::back_inserter(prepared), [](auto c) { return std::byte(c); });
+    return Record{std::move(prepared)};
+  }
+  std::string const Record_Generator::CORPUS_ARCANUM[]{"Lorem ipsum dolor amet microdosing irony hell of crucifix jianbing enamel pin taxidermy proident photo booth typewriter bushwick reprehenderit ethical. Prism celiac hella twee brunch. Shabby chic copper mug distillery, heirloom swag adaptogen franzen jean shorts selvage post-ironic hell of. Craft beer everyday carry try-hard tattooed VHS. Oh. You need a little dummy text for your mockup? How quaint. I bet you’re still using Bootstrap too…"s,
+      "Lorem ipsum dolor amet live-edge ethical deep v four dollar toast waistcoat wayfarers portland. Literally yr man bun put a bird on it hexagon YOLO kale chips hell of PBR&B waistcoat tofu +1 venmo art party deep v. Flexitarian wolf hella semiotics. Poke brunch copper mug, PBR&B lomo ramps paleo master cleanse single-origin coffee franzen typewriter. Oh. You need a little dummy text for your mockup? How quaint. I bet you’re still using Bootstrap too…"s,
+      "Lorem ipsum dolor amet hot chicken paleo craft beer, beard mumblecore austin art party helvetica plaid post-ironic ethical four loko etsy. Microdosing coloring book chillwave mumblecore chambray wolf actually. Pok pok vice farm-to-table humblebrag la croix post-ironic viral swag artisan. Yr church-key pabst la croix kogi pork belly wayfarers. Lomo yuccie next level schlitz, enamel pin glossier ugh meh brunch deep v forage cliche lyft activated charcoal echo park. Oh. You need a little dummy text for your mockup? How quaint. I bet you’re still using Bootstrap too…"s,
+      "Lorem ipsum dolor amet whatever helvetica tumeric raclette copper mug actually. Stumptown ennui keffiyeh, pork belly raw denim trust fund kinfolk. Tumblr franzen meggings copper mug raclette. Yuccie chia four dollar toast, distillery mumblecore disrupt chillwave tacos tofu. Letterpress keffiyeh drinking vinegar lumbersexual polaroid cornhole occupy. Disrupt 8-bit man braid, austin woke VHS truffaut. Oh. You need a little dummy text for your mockup? How quaint. I bet you’re still using Bootstrap too…"s,
+      "Lorem ipsum dolor amet jean shorts fixie hoodie, gluten-free flexitarian organic franzen chillwave celiac twee. Organic skateboard coloring book jianbing lomo kombucha before they sold out woke enamel pin forage chia ramps tousled green juice photo booth. Keffiyeh truffaut hoodie, aesthetic trust fund beard vice meggings chia celiac tattooed blog. Bicycle rights tote bag migas street art ramps, craft beer trust fund vaporware austin locavore cornhole. Art party copper mug post-ironic, distillery +1 kogi 90's mixtape live-edge lyft. Knausgaard lo-fi pour-over tumblr deep v bespoke. Oh. You need a little dummy text for your mockup? How quaint. I bet you’re still using Bootstrap too…"s,
+      "Lorem ipsum dolor amet distillery shoreditch yr green juice bushwick. Godard scenester post-ironic gentrify jean shorts, helvetica portland sriracha blog live-edge salvia next level hammock. Mumblecore waistcoat bicycle rights, gluten-free crucifix umami chartreuse flannel pok pok tilde pop-up photo booth single-origin coffee kickstarter small batch. Chartreuse master cleanse raclette forage. Microdosing ennui hella offal glossier mixtape, taiyaki keffiyeh leggings raclette gluten-free drinking vinegar cliche adaptogen. IPhone single-origin coffee small batch, taxidermy poke disrupt food truck pop-up thundercats. Oh. You need a little dummy text for your mockup? How quaint. I bet you’re still using Bootstrap too…"};
+  std::size_t const Record_Generator::CORPUS_SIZE{sizeof(CORPUS_ARCANUM)/sizeof (CORPUS_ARCANUM[0])};
+}
+#endiv

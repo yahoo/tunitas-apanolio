@@ -1,0 +1,145 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tests.unit.engine.Engine.declaration
+namespace tests::unit::engine { template<> class Engine<LEVELDB>; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tests.unit.engine.Temporary_Data_Base
+#import tests.unit.engine.Record_Generator
+#import tunitas.apanolio.storage.engine.Engine.LEVELDB
+#import tunitas.apanolio.error.Code
+namespace tests::unit::engine {
+  template<> class Engine<LEVELDB> : public cppunit::test::Fixture, private Temporary_Data_Base, private Record_Generator {
+  public:
+    using Error = ::tunitas::apanolio::error::Code;
+    using Subject = ::tunitas::apanolio::storage::engine::Engine<LEVELDB>;
+    auto file_suffix() const -> std::string final;
+    auto directory_suffix() const -> std::string final;
+    auto engine_name() const -> std::string final;
+    auto setUp() -> void final;
+    auto tearDown() -> void final;
+    auto test_constructor() -> void;
+    auto test_nocopy() -> void;
+    auto test_nomove() -> void;
+    auto test_probe() -> void;
+    auto test_get0() -> void;
+    auto test_get1() -> void;
+    auto test_get99() -> void;
+    auto test_set() -> void;
+    auto test_reget() -> void;
+    static auto suite() -> cppunit::Test *;
+  protected:
+  };
+}
+#endiv
+#divert <cpp>
+#import getpid
+#import ish.shell.TMPDIR
+#import std.cerr
+#import std.is_copy_constructible
+#import std.is_copy_constructible
+#import std.is_move_assignable
+#import std.is_move_constructible
+#import std.equal
+#import std.move
+#import std.to_string
+#import sys.posix.mkdirp
+#import sys.posix.rmdir
+#import sys.posix.unlink
+namespace tests::unit::engine {
+  auto Engine<LEVELDB>::file_suffix() const -> std::string { return "leveldb"; }
+  auto Engine<LEVELDB>::directory_suffix() const -> std::string { return "leveldb"; }
+  auto Engine<LEVELDB>::engine_name() const -> std::string { return "LEVELDB"; }
+  auto Engine<LEVELDB>::setUp() -> void {
+    return Temporary_Data_Base::setUp();
+    CPPUNIT_ASSERT(TEMPORARY_DATA_BASE && !TEMPORARY_DATA_BASE->empty());
+  }
+  auto Engine<LEVELDB>::tearDown() -> void { return Temporary_Data_Base::tearDown(); }
+  auto Engine<LEVELDB>::test_constructor() -> void {
+    Subject subject{*TEMPORARY_DIRECTORY};
+    //
+    // That's it ... it constructs.
+    //
+    CPPUNIT_ASSERT(sizeof (subject));
+  }
+  auto Engine<LEVELDB>::test_nocopy() -> void {
+    CPPUNIT_ASSERT(!std::is_copy_constructible<Subject>::value);
+    CPPUNIT_ASSERT(!std::is_copy_assignable<Subject>::value);
+  }
+  auto Engine<LEVELDB>::test_nomove() -> void {
+    CPPUNIT_ASSERT(!std::is_move_constructible<Subject>::value);
+    CPPUNIT_ASSERT(!std::is_move_assignable<Subject>::value);
+  }
+  auto Engine<LEVELDB>::test_probe() -> void {
+    CPPUNIT_ASSERT(TEMPORARY_DATA_BASE && !TEMPORARY_DATA_BASE->empty());
+    Subject subject{*TEMPORARY_DATA_BASE};
+    auto const zero = Subject::Identifier{0};
+    auto probed = subject.probe(zero);
+    CPPUNIT_ASSERT(!ok(probed));
+  }
+  auto Engine<LEVELDB>::test_get0() -> void {
+    CPPUNIT_ASSERT(TEMPORARY_DATA_BASE && !TEMPORARY_DATA_BASE->empty());
+    Subject subject{*TEMPORARY_DATA_BASE};
+    auto const zero = Subject::Identifier{0};
+    auto got = subject.get(zero);
+    if (!ok(got)) {
+      std::cerr << "get0 fails with " << error_code(got).message() << '\n';
+    }
+    CPPUNIT_ASSERT(!ok(got));
+  }
+  auto Engine<LEVELDB>::test_get1() -> void {
+    CPPUNIT_ASSERT(TEMPORARY_DATA_BASE && !TEMPORARY_DATA_BASE->empty());
+    Subject subject{*TEMPORARY_DATA_BASE};
+    auto const one = Subject::Identifier{1};
+    auto got = subject.get(one);
+    CPPUNIT_ASSERT(!ok(got));
+  }
+  auto Engine<LEVELDB>::test_get99() -> void {
+    CPPUNIT_ASSERT(TEMPORARY_DATA_BASE && !TEMPORARY_DATA_BASE->empty());
+    Subject subject{*TEMPORARY_DATA_BASE};
+    auto const nnn = Subject::Identifier{99};
+    auto got = subject.get(nnn);
+    CPPUNIT_ASSERT(!ok(got));
+  }
+  auto Engine<LEVELDB>::test_set() -> void {
+    Subject subject{*TEMPORARY_DATA_BASE};
+    auto const zero = Subject::Identifier{0};
+    auto const record = Subject::Record{};
+    auto sat = subject.set(zero, record);
+    CPPUNIT_ASSERT(ok(sat));
+  }
+  auto Engine<LEVELDB>::test_reget() -> void {
+    Subject subject{*TEMPORARY_DATA_BASE};
+    auto const one = Subject::Identifier{1};
+    auto const specimen = generate_record();
+    auto sat = subject.set(one, specimen);
+    CPPUNIT_ASSERT(ok(sat));
+    auto got = subject.get(one);
+    CPPUNIT_ASSERT(ok(got));
+    auto recovered = value(std::move(got));
+    CPPUNIT_ASSERT(std::equal(specimen.begin(), specimen.end(), recovered.begin(), recovered.end()));
+  }
+}
+#import rigging.suite.io
+namespace tests::unit::engine {
+  auto Engine<LEVELDB>::suite() -> cppunit::Test * {
+    using namespace ::rigging::suite;
+    Stream series("Engine<LEVELDB>");
+    series << call("constructor", &Engine::test_constructor)
+           << call("nocopy", &Engine::test_nocopy)
+           << call("nomove", &Engine::test_nomove)
+           << call("probe", &Engine::test_probe)
+           << call("get0", &Engine::test_get0)
+           << call("get1", &Engine::test_get1)
+           << call("get99", &Engine::test_get99)
+           << call("set", &Engine::test_set)
+           << call("reget", &Engine::test_reget)
+      ;
+    return finalize(series);
+  }
+}
+#endiv

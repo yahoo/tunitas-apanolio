@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#forward tunitas.apanolio.storage.engine.level.db2.Recorder.declaration
+#forward tunitas.apanolio.resource.Record
+namespace tunitas::apanolio::storage::engine::level::db2 {
+  //
+  // The way to record the payload without multiple copies.
+  //
+  // Usage: see Engine<LEVELDB>::get(...)
+  // As such:
+  //
+  //   Record found;
+  //   Recorder<Record> recorder;
+  //   auto got = db.Get(key, &recorder);
+  //
+  template<> class Recorder<resource::Record>;
+}
+#endiv
+#divert <hpp>
+#import level.db2.Value
+namespace tunitas::apanolio::storage::engine::level::db2 {
+  template<> class Recorder<resource::Record> : public level::db2::Value {
+    using ancestor = level::db2::Value;
+  public:
+    inline explicit Recorder(resource::Record &filled);
+    auto assign(char const *data, size_t size) -> Value & final;
+  protected:
+    resource::Record &filled;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::storage::engine::level::db2 {
+  Recorder<resource::Record>::Recorder(resource::Record &filled) : filled{filled} { }
+}
+#divert <cpp>
+#import tunitas.apanolio.resource.Record
+#import std.back_inserter
+#import std.copy
+#import std.transform
+namespace tunitas::apanolio::storage::engine::level::db2 {
+  auto Recorder<resource::Record>::assign(char const *data, size_t size) -> Value & {
+    filled.clear();
+    filled.reserve(size);
+    std::transform(data, data+size, std::back_inserter(filled), [](auto c) { return std::byte(c); });
+    return *this;
+  }
+}
+#endiv

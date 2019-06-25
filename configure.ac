@@ -19,18 +19,34 @@ TF_WITH_STD([tunitas])
 TF_WITH_SUBSYSTEM([temerarious-flagship], [], [The Tunitas Build System])
 TF_WITH_SUBSYSTEM([tunitas-basics], [], [The Tunitas Basics])
 TF_WITH_SUBSYSTEM([butano], [], [The Tunitas TCF Components])
+TF_WITH_SUBSYSTEM([scarpet], [], [The Tunitas DID Resolver])
 
-TF_MSG_VERBOSE([development subsystems (alphabetical)])
+TF_MSG_VERBOSE([development subsystems (Apache)])
 TF_WITH_SUBSYSTEM([apache-httpd-api], [apache_httpd_api], [Apache HTTPd API])
+
+TF_MSG_VERBOSE([development subsystems (Hyperledger Fabric)])
+TF_WITH_SUBSYSTEM([hyperledger], [hyperledger], [Hyperledger API])
+TF_WITH_SUBSYSTEM([hyperledger-fabric], [hyperledger_fabric], [Hyperledger Fabric CA C++ API])
+TF_WITH_SUBSYSTEM([hyperledger-fabric-ca], [hyperledger_fabric_ca], [Hyperledger Fabric CA C++ API])
+TF_WITH_SUBSYSTEM([hyperledger-fabric-db], [hyperledger_fabric_db], [Hyperledger Fabric DB C++ API])
+
+TF_MSG_VERBOSE([development subsystems (S.C.O.L.D.)])
 TF_WITH_MODULE([boost])
 TF_WITH_MODULE([c])
 TF_WITH_MODULE([format])
+TF_WITH_MODULE([leveldb])
+TF_WITH_MODULE([half]) dnl mentioned in module-nonstd but you will not need it
+TF_WITH_MODULE([json])
+TF_WITH_MODULE([mysql])
 TF_WITH_MODULE([nonstd])
 TF_WITH_MODULE([options])
+TF_WITH_MODULE([pgsql])
 TF_WITH_MODULE([posix])
 TF_WITH_MODULE([rabinpoly])
+TF_WITH_MODULE([ramcloud])
 TF_WITH_MODULE([slurp])
 TF_WITH_MODULE([std])
+TF_WITH_MODULE([string])
 TF_WITH_MODULE([sys])
 TF_WITH_MODULE([uuid])
 
@@ -110,9 +126,9 @@ AC_DEFINE_UNQUOTED([MODULE_NAME], "mod_${PACKAGE_NAME}", [The Apache HTTPd modul
 
 AC_ARG_ENABLE([storage-directory],
               AS_HELP_STRING([--enable-storage-directory=DIRECTORY],
-                             [Choose the storage directory for mod_resting]),
+                             [Choose the storage directory for mod_apanolio]),
               [if test xno = x$enable_storage_directory; then
-                  AC_MSG_ERROR([--disable-storage-directory is not meaningful, for mod_resting])
+                  AC_MSG_ERROR([--disable-storage-directory is not meaningful, for mod_apanolio])
                fi],
               [
                enable_storage_directory="${t_prefix}/var"])

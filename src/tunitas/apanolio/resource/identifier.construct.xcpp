@@ -1,0 +1,34 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#import tunitas.apanolio.resource.Identifier
+#import uuid.generate.random
+namespace tunitas::apanolio::resource::identifier {
+  inline auto construct(Fingerprint) -> Identifier;
+  inline auto construct(uuid::Container) -> Identifier;
+  // So that ADL can find it conveniently
+  inline constexpr auto GENERATE = Generate{};
+  inline auto construct(Generate) -> Identifier;
+}
+#endiv
+#divert <ipp>
+#import nonstd.uninitialized.copy
+#import uuid.generate.random
+namespace tunitas::apanolio::resource {
+  auto identifier::construct(rabinpoly::Fingerprint precursor) -> Identifier {
+    // Reminder ... this moves a 64-bit quantity into a 128-bit quantity.
+    // [[FIXTHIS]]  use folly::Fingerprint<128> to get it done "right."
+    return Identifier(precursor);
+  }
+  auto identifier::construct(uuid::Container precursor) -> Identifier {
+    Identifier ret;
+    static_assert(sizeof (Identifier) == sizeof (uuid::Container));
+    nonstd::uninitialized::copy(reinterpret_cast<Identifier const *>(&precursor), 1, &ret);
+    return ret;
+  }
+  auto identifier::construct(Generate) -> Identifier {
+    return construct(uuid::generate::random());
+  }
+}
+#endiv

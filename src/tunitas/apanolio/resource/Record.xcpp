@@ -22,11 +22,27 @@ class tunitas::apanolio::resource::Record : private std::vector<std::byte> {
 public:
   Record() = default;
   using ancestor::vector;
+  inline explicit Record(ancestor const &);
+  inline explicit Record(ancestor &&);
+  using Value = ancestor::value_type; // ... New School
+  using value_type = Value; // ............. old_school
   using ancestor::empty;
   using ancestor::size;
+  using ancestor::data;
   using ancestor::iterator;
   using ancestor::const_iterator;
   using ancestor::begin;
   using ancestor::end;
+  using ancestor::clear;
+  using ancestor::push_back; // need std::copy to work
+  using ancestor::reserve;
+  using ancestor::resize;
 };
+#endiv
+#divert <ipp>
+#import std.forward
+namespace tunitas::apanolio::resource {
+  Record::Record(ancestor const &a) : ancestor{a} { }
+  Record::Record(ancestor &&a) : ancestor{std::forward<ancestor>(a)} { }
+}
 #endiv

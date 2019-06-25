@@ -8,7 +8,9 @@ namespace tunitas::apanolio::storage::engine {
 }
 #endiv
 #divert <hpp>
-#import std.filesystem.path
+#import tunitas.apanolio.storage.engine.level // cascade the namespaces
+#import level.db2.State
+#import level.db2.Slice
 #import tunitas.apanolio.storage.engine.Prototype
 namespace tunitas::apanolio::storage::engine {
   template<> class Engine<LEVELDB> : public Prototype {
@@ -19,27 +21,66 @@ namespace tunitas::apanolio::storage::engine {
     auto get(Identifier const &) -> Outcome<Record> final;
     auto set(Identifier const &, Record const &) -> Success final;
   protected:
-    std::filesystem::path storage_directory;
+    level::db2::State db;
+    inline static auto enslice(Identifier const &) -> level::db1::Slice;
+    inline static auto enslice(Record const &) -> level::db1::Slice;
   };
 }
 #endiv
 #divert <ipp>
+#import std.byte
+#import level.db2.as
 namespace tunitas::apanolio::storage::engine {
-  Engine<LEVELDB>::Engine(std::filesystem::path storage_directory)
-    : storage_directory{storage_directory}
-  { }
+  auto Engine<LEVELDB>::enslice(Identifier const &identifier) -> level::db1::Slice {
+    using namespace level;
+    return db2::as<db1::Slice>(db2::Slice{reinterpret_cast<std::byte const *>(&identifier), sizeof (identifier)});
+  }
+  auto Engine<LEVELDB>::enslice(Record const &record) -> level::db1::Slice {
+    using namespace level;
+    return db2::as<db1::Slice>(db2::Slice{record.data(), record.size()});
+  }
+}
+#import level.db2.open
+#import level.db2.options.Open
+#import tunitas.apanolio.exception.Storage
+namespace tunitas::apanolio::storage::engine {
+  Engine<LEVELDB>::Engine(std::filesystem::path storage_directory) {
+    auto options = level::db2::options::Open{};
+    options.create_if_missing = true;
+    auto opened = level::db2::open(storage_directory, options);
+     if (ok(opened)) {
+       db = value(std::move(opened));
+     } else {
+       // [[FIXTHIS?]] super-terse, but exceptions aren't a fullly formatted error message
+       throw exception::Storage{error_code(opened), storage_directory};
+     }
+  }
 }
 #endiv
 #divert <cpp>
+#import level.db2.options.Read
+#import level.db2.options.Write
+#import level.db2.Slice
+#import tunitas.apanolio.storage.engine.level.db2.Sink
+#import tunitas.apanolio.storage.engine.level.db2.Recorder
 namespace tunitas::apanolio::storage::engine {
-  auto Engine<LEVELDB>::probe(Identifier const &) -> Success {
-    return Success{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  auto Engine<LEVELDB>::probe(Identifier const &identifier) -> Success {
+    auto const options = level::db2::options::Read{};
+    level::db2::Sink sink;
+    auto got = db->Get(options, enslice(identifier), &sink);
+    return ok(got) ? Success{SUCCESS} : Success{error_code(got)};
   }
-  auto Engine<LEVELDB>::get(Identifier const &) -> Outcome<Record> {
-    return Outcome<Record>{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  auto Engine<LEVELDB>::get(Identifier const &identifier) -> Outcome<Record> {
+    auto const options = level::db2::options::Read{};
+    Record found;
+    level::db2::Recorder<Record> recorder{found};
+    auto got = db->Get(options, enslice(identifier), &recorder);
+    return ok(got) ? Outcome<Record>{Record{std::move(found)}} : Outcome<Record>{error_code(got)};
   }
-  auto Engine<LEVELDB>::set(Identifier const &, Record const &) -> Success {
-    return Success{std::error_code{error::Code::NOT_IMPLEMENTED}};
+  auto Engine<LEVELDB>::set(Identifier const &identifier, Record const &record) -> Success {
+    auto const options = level::db2::options::Write{};
+    auto put = db->Put(options, enslice(identifier), enslice(record));
+    return ok(put) ? Success{SUCCESS} : Success{error_code(put)};
   }
 }
 #endiv

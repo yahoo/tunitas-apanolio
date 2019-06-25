@@ -1,0 +1,60 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::engine {
+  //
+  // A temporary file in the temporary directory ... for testing
+  // Descendants only; specifically, descendants in a test::Fixture
+  // in setUp(), tearDown()
+  //
+  // Usage: by ancestry in the nearby Engine (Fixture)
+  //
+  struct Temporary_Data_Base;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.engine.Temporary_Directory
+#import std.filesystem.path
+#import std.optional
+class tests::unit::engine::Temporary_Data_Base : public Temporary_Directory {
+protected:
+  virtual ~Temporary_Data_Base() = default;
+public:
+  //
+  // Again the suffix on the files, as needed
+  //   "leveldb" LEVELDB
+  //   "sqlite"  SQLITE
+  //
+  virtual auto file_suffix() const -> std::string = 0;
+  virtual auto setUp() -> void override;
+  virtual auto tearDown() -> void override;
+protected:
+  std::optional<std::filesystem::path> TEMPORARY_DATA_BASE;
+};
+#endiv
+#divert <cpp>
+#import cppunit.test.Assert // CPPUNIT_ASSERT
+#import getpid
+#import std.to_string
+auto tests::unit::engine::Temporary_Data_Base::setUp() -> void {
+  Temporary_Directory::setUp();
+  CPPUNIT_ASSERT((bool) TEMPORARY_DIRECTORY);
+  TEMPORARY_DATA_BASE = *TEMPORARY_DIRECTORY / ("base."s + std::to_string(getpid()) + ""s);
+}
+#import std.cerr
+#import sys.posix.unlink
+auto tests::unit::engine::Temporary_Data_Base::tearDown() -> void {
+  if (TEMPORARY_DATA_BASE) {
+    // DO NOT perform the moral equivalent of "rm -rf TEMPORARY_DATA_BASE"
+    // if that goes wrong then you may wind up removing your whole system, and the NFS-linked files next door.
+    auto removed = sys::posix::unlink(*TEMPORARY_DATA_BASE);
+    if (!ok(removed)) {
+      // Why? (likely: directory not empty)
+      std::cerr << "Warning: cannot remove " << *TEMPORARY_DATA_BASE << " because " << error_code(removed).message() << '\n';
+    }
+  }
+  TEMPORARY_DATA_BASE.reset();
+  Temporary_Directory::tearDown();
+}
+#endiv

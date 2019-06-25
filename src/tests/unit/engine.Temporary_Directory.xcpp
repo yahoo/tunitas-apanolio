@@ -1,0 +1,91 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::engine {
+  //
+  // A temporary directory ... for testing
+  // Descendants only; specifically, descendants in a test::Fixture
+  // in setUp(), tearDown()
+  //
+  // Usage: by ancestry in the nearby Engine (Fixture)
+  //
+  struct Temporary_Directory;
+}
+#endiv
+#divert <hpp>
+#import std.filesystem.path
+#import std.optional
+class tests::unit::engine::Temporary_Directory {
+protected:
+  virtual ~Temporary_Directory() = default;
+public:
+  //
+  // The directory_suffix an affection of a suffix on the final level directory for branding among the databases.
+  // See setUp()
+  //
+  //   "d"       FILES
+  //   "leveldb" LEVELDB
+  //   "sqlite"  SQLITE
+  //
+  virtual auto directory_suffix() const -> std::string = 0;
+  //
+  // The engine_name is an affection of a suffix on the mid-level directory for branding among the databases.
+  // See setUp()
+  //
+  //   "FILES"   FILES
+  //   "LEVELDB" LEVELDB
+  //   "SQLITE"  SQLITE
+  //
+  virtual auto engine_name() const -> std::string = 0;
+  virtual auto setUp() -> void;
+  virtual auto tearDown() -> void;
+protected:
+  std::optional<std::filesystem::path> TEMPORARY_DIRECTORY;
+  static unsigned per_process_serial_number_for_even_more_guaranted_uniqueness__yes_yes_even_more_unique;
+  static std::string const TEMPORARY_DIRECTORY_BASIS;
+};
+#endiv
+#divert <cpp>
+//
+// WATCHOUT - tests are run concurrently, so DO NOT use one common test area
+//
+// Practice Concept: put all the junk directories in a subdirectory.   In case they pile up and we don't clean
+// them up (enough) then they can all be removed confidently in one swipe with unsubtle means in 'make distclean'.
+//
+namespace tests::unit::engine {
+  std::string const Temporary_Directory::TEMPORARY_DIRECTORY_BASIS{"t99.tests.unit.engine.Engine"};
+  unsigned Temporary_Directory::per_process_serial_number_for_even_more_guaranted_uniqueness__yes_yes_even_more_unique{};
+}
+#import cppunit.test.Assert // CPPUNIT_ASSERT
+#import getpid
+#import ish.shell.TMPDIR
+#import std.ostringstream
+#import sys.posix.mkdirp
+auto tests::unit::engine::Temporary_Directory::setUp() -> void {
+  // [[FIXTHIS]] this should use temporary::Directory<SOMETHING> as the ancestor, somehow.
+  auto ith = ++per_process_serial_number_for_even_more_guaranted_uniqueness__yes_yes_even_more_unique;
+  auto unique_name = [this, ith]() -> std::string {
+                       std::ostringstream buf;
+                       buf << TEMPORARY_DIRECTORY_BASIS << '.' << getpid() << '.' << ith << '.' << directory_suffix();
+                       return buf.str();
+                     }();
+  auto tmpdir = ish::shell::TMPDIR<std::filesystem::path>() / ("t99.Engine."s + this->engine_name()) / unique_name;
+  auto made = sys::posix::mkdirp(tmpdir, 0777);
+  CPPUNIT_ASSERT(ok(made));
+  TEMPORARY_DIRECTORY = tmpdir;
+}
+#import sys.posix.rmdir
+#import std.cerr
+auto tests::unit::engine::Temporary_Directory::tearDown() -> void {
+  if (TEMPORARY_DIRECTORY) {
+    // DO NOT perform the moral equivalent of "rm -rf TEMPORARY_DIRECTORY"
+    auto removed = sys::posix::rmdir(*TEMPORARY_DIRECTORY);
+    if (!ok(removed)) {
+      // Likely it is not empty.  We need to be more diligent about cleaning up the internals.
+      std::cerr << "Warning: cannot remove " << *TEMPORARY_DIRECTORY << " because " << error_code(removed).message() << '\n';
+    }
+  }
+  TEMPORARY_DIRECTORY.reset();
+}
+#endiv

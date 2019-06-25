@@ -56,6 +56,8 @@ namespace tunitas::apanolio::error {
       return "not found";
     case Code::MISSING:
       return "missing";
+    case Code::FULL:
+      return "full";
     default:
       return "error code " + std::to_string(code);
     }

@@ -13,42 +13,20 @@ namespace tunitas::apanolio::resource {
   //
   // The identifiers are expected to be globally unique across time and space.
   //
+  // Usage:
+  //
+  //   #import tunitas.apanolio.resource.identifier.construct
+  //   auto iden = identifier::construct(...somehow...);
+  //
+  //   #import tunitas.apanolio.resource.to_string
+  //   cout << to_string(iden);
+  //
   enum Identifier : nonstd::uint128_t;
   namespace identifier {
     using Underlying = std::underlying_type<Identifier>::type;
     enum Generate { };
     // [[FIXTHIS]] move to 128-bit bundles with folly::Fingerprint<128>, c.f. https://github.com/facebook/folly/blob/master/folly/Fingerprint.h
     using Fingerprint = rabinpoly::Fingerprint;
-  }
-}
-#endiv
-#divert <hpp>
-#import uuid.generate.random
-namespace tunitas::apanolio::resource::identifier {
-  inline auto construct(Fingerprint) -> Identifier;
-  inline auto construct(uuid::Container) -> Identifier;
-  // So that ADL can find it conveniently
-  inline constexpr auto GENERATE = Generate{};
-  inline auto construct(Generate) -> Identifier;
-}
-#endiv
-#divert <ipp>
-#import nonstd.uninitialized.copy
-#import uuid.generate.random
-namespace tunitas::apanolio::resource {
-  auto identifier::construct(rabinpoly::Fingerprint precursor) -> Identifier {
-    // Reminder ... this moves a 64-bit quantity into a 128-bit quantity.
-    // [[FIXTHIS]]  use folly::Fingerprint<128> to get it done "right."
-    return Identifier(precursor);
-  }
-  auto identifier::construct(uuid::Container precursor) -> Identifier {
-    Identifier ret;
-    static_assert(sizeof (Identifier) == sizeof (uuid::Container));
-    nonstd::uninitialized::copy(reinterpret_cast<Identifier const *>(&precursor), 1, &ret);
-    return ret;
-  }
-  auto identifier::construct(Generate) -> Identifier {
-    return construct(uuid::generate::random());
   }
 }
 #endiv

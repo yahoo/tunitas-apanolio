@@ -14,6 +14,7 @@ namespace tunitas::apanolio::error {
       NOT_AVAILABLE,  // ...... the resource is unavailable for administrative, procedural or configuration reasons
       NOT_FOUND, // ........... gently, benignly a search was made and something was not found
       MISSING, // ............. not benigh; with good evidence, something was supposed to be present but is missing
+      FULL, // ................ could not set(...) because the storage at capacity
     };
 }
 #import std.is_error_code_enum
