@@ -44,8 +44,8 @@ namespace tests::unit::engine {
   auto Engine<SQLITE>::file_suffix() const -> std::string { return "sqlite"; }
   auto Engine<SQLITE>::directory_suffix() const -> std::string { return "sqlite"; }
   auto Engine<SQLITE>::engine_name() const -> std::string { return "SQLITE"; }
-  auto Engine<SQLITE>::setUp() -> void { return Temporary_Directory::setUp(); }
-  auto Engine<SQLITE>::tearDown() -> void { return Temporary_Directory::tearDown(); }
+  auto Engine<SQLITE>::setUp() -> void { return Temporary_Data_Base::setUp(); }
+  auto Engine<SQLITE>::tearDown() -> void { return Temporary_Data_Base::tearDown(); }
   auto Engine<SQLITE>::test_constructor() -> void {
     Subject subject{*TEMPORARY_DATA_BASE};
     //

@@ -55,7 +55,7 @@ INSTALLATION_AREAS = \
   $(std_scold_prefix) \
   $(end)
 
-module_SOURCE_SET = \
+module_BB_SOURCE_SET = \
   $(lib_libautotools_autoconf_la_SOURCES) \
   $(lib_libmod_apanolio_la_SOURCES) \
   $(lib_libtunitas_apanolio_la_SOURCES) \
@@ -74,9 +74,11 @@ noinst_LTLIBRARIES = \
   $(lib_libautotools_autoconf_la) \
   $(lib_libwant_la) \
   $(end)
+# WATCHOUT - these MUST be listed in this order so that the sequential install rule will allow the linker to process.
+#            libtool linking of libmod_apanolio.la MUST see the installed libtunitas-apanolio.la in order to be "finished"
 lib_LTLIBRARIES = \
-  $(lib_libmod_apanolio_la) \
   $(lib_libtunitas_apanolio_la) \
+  $(lib_libmod_apanolio_la) \
   $(end)
 check_PROGRAMS = \
   $(check_bin_unit) \

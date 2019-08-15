@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright 2019, Oath Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# See the LICENSE file in https://github.com/yahoo/temerarious-flagship/blob/master/LICENSE for terms.
 
 cd ${0%/*} || exit 70
 # the minimum needed to get autotools to allow configure to check the rest
@@ -35,7 +38,7 @@ function do_buildconf() {
     # WATCHOUT - you must do it in multiple steps because --system-acdir is a singleton option
     # WATCHOUT - the order is important here, "outside in"
     rm -rf m4
-    if ! { run aclocal --install -I m4 --system-acdir=${temerarious_flagship_prefix?}/m4 -I ${hypogeal_twilight_datadir_ac?} &&
+    if ! { run aclocal --install -I m4 --system-acdir=${temerarious_flagship_datadir_ac?} -I ${hypogeal_twilight_datadir_ac?} &&
 	   run aclocal --install -I m4 --system-acdir=${hypogeal_twilight_datadir_ac?} && 
            run aclocal --install -I m4 ; } ; then
 	echo "${NAME}: error, failing at aclocal"
@@ -170,12 +173,12 @@ if [[ -d ${with_temerarious_flagship?}/ac ]] ; then
     # in devel, paths are crushed up by one
     temerarious_flagship_prefix=${with_temerarious_flagship?}
     temerarious_flagship_datadir=${with_temerarious_flagship?}
-    temerarious_flagship_datadir_ac=${with_temerarious_flagship?}/ac
+    temerarious_flagship_datadir_ac=${temerarious_flagship_datadir?}/ac
 else
     # assume installed, in production
     temerarious_flagship_prefix=${with_temerarious_flagship?}
     temerarious_flagship_datadir=${with_temerarious_flagship?}/share/temerarious-flagship
-    temerarious_flagship_datadir_ac=${with_temerarious_flagship?}/ac
+    temerarious_flagship_datadir_ac=${temerarious_flagship_datadir?}/ac
 fi
 
 trap do_failure ERR
@@ -199,15 +202,6 @@ else
         --include=${temerarious_flagship_datadir_ac?} \
         --include=${hypogeal_twilight_datadir_ac?} \
         ${end} || exit $?
-    if [[ -f config.settings.in ]] ; then
-        # config.settings is the "standard one" ... which is always instantiated.
-        # the caller has the option of choosing another one (but that would be unwise) 
-        export CONFIG_SITE=${CONFIG_SITE:-config.settings}
-        # provides its own chatter
-        run establish-config-settings
-        # provides its own chatter
-        run insert-config-settings-in-configure
-    fi
 fi
 
 echo "${NAME}: notice, good."
