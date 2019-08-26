@@ -55,18 +55,32 @@ INSTALLATION_AREAS = \
   $(std_scold_prefix) \
   $(end)
 
-module_BB_SOURCE_SET = \
-  $(lib_libautotools_autoconf_la_SOURCES) \
-  $(lib_libmod_apanolio_la_SOURCES) \
-  $(lib_libtunitas_apanolio_la_SOURCES) \
-  $(lib_libwant_la_SOURCES) \
-  $(end)
-
 include src/autotools/autoconf/Makefrag.am
 include src/mod/apanolio/Makefrag.am
 include src/tunitas/apanolio/Makefrag.am
 include src/want/Makefrag.am
 include src/tests/unit/Makefrag.am
+
+#
+# The following three definitions must be consistent
+#
+# Makefile.am module_SOURCE_SET    (future)         the modules (cut & paste header files)
+# Makefile.am module_BB_SOURCE_SET (deprecating)    them.
+# Makefile.am lib_LTLIBRARIES      (current)        the DSO & static libraries
+# tunitas-apanolio.spec the '%files devel' stanza must list the 
+#
+# [[FIXTHIS]] the plurality here is problematic ... done multiple ways
+lib_libtunitas_apanolio_la_MODULE_SOURCES_SET = \
+  $(lib_libautotools_autoconf_la_SOURCES) \
+  $(lib_libmod_apanolio_la_SOURCES) \
+  $(lib_libtunitas_apanolio_la_SOURCES) \
+  $(lib_libwant_la_SOURCES) \
+  $(end)
+module_SOURCE_SET = # NO NOT READY YET ---> $(lib_libtunitas_scarpet_la_MODULE_SOURCES_SET)
+module_BB_SOURCE_SET = \
+  $(warning module_BB_SOURCE_SET should be deprecating real soon now, move to use module_SOURCE_SET, whenever it is ready) \
+  $(lib_libtunitas_apanolio_la_MODULE_SOURCES_SET) \
+  $(end)
 
 bin_PROGRAMS = \
   $(end)
@@ -110,11 +124,11 @@ TESTS = \
 #install: check
 default: all
 
-# REMOVE WHEN: baleful_ballad:hypogeal-twilight-0.??.? has work that supercedes this
-Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_boost_CPPFLAGS@ @nonstd_gcc_CPPFLAGS@ @nonstd_sqlite_CPPFLAGS@
-Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_boost_CFLAGS@   @nonstd_gcc_CFLAGS@   @nonstd_sqlite_CFLAGS@
-Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_boost_CXXFLAGS@ @nonstd_gcc_CXXFLAGS@ @nonstd_sqlite_CXXFLAGS@
-Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_boost_LDFLAGS@  @nonstd_gcc_LDFLAGS@  @nonstd_sqlite_LDFLAGS@
+# [[REMOVEWHEN]] hypogeal-twilight has work that subsumes this, think hypogeal-twilight >= 0.47.0 (or when the sun grows cold)
+Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_boost_CPPFLAGS@ @nonstd_gcc_CPPFLAGS@ @nonstd_leveldb_CPPFLAGS@ @nonstd_sqlite_CPPFLAGS@
+Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_boost_CFLAGS@   @nonstd_gcc_CFLAGS@   @nonstd_leveldb_CFLAGS@   @nonstd_sqlite_CFLAGS@
+Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_boost_CXXFLAGS@ @nonstd_gcc_CXXFLAGS@ @nonstd_leveldb_CXXFLAGS@ @nonstd_sqlite_CXXFLAGS@
+Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_boost_LDFLAGS@  @nonstd_gcc_LDFLAGS@  @nonstd_leveldb_LDFLAGS@  @nonstd_sqlite_LDFLAGS@
 Makefile_nonstd_CHECK_CPPFLAGS_SET   = @nonstd_cppunit_CPPFLAGS@
 Makefile_nonstd_CHECK_CFLAGS_SET     = @nonstd_cppunit_CFLAGS@
 Makefile_nonstd_CHECK_CXXFLAGS_SET   = @nonstd_cppunit_CXXFLAGS@
@@ -124,10 +138,10 @@ Makefile_COMPILER_CPPFLAGS_SET = @CPPFLAGS_gcc@
 Makefile_COMPILER_CFLAGS_SET   =   @CFLAGS_gcc@   @CFLAGS_gdb@
 Makefile_COMPILER_CXXFLAGS_SET = @CXXFLAGS_gcc@ @CXXFLAGS_gdb@ -pthread
 Makefile_COMPILER_LDFLAGS_SET  =  @LDFLAGS_gcc@  @LDFLAGS_gdb@ @libstd_filesystem@ -lpthread
-Makefile_PACKAGE_CPPFLAGS_SET  = @CPPFLAGS_httpd@ @CPPFLAGS_apr@ @CPPFLAGS_apreq@ @CPPFLAGS_sqlite@ @CPPFLAGS_uuid@
-Makefile_PACKAGE_CFLAGS_SET    =   @CFLAGS_httpd@   @CFLAGS_apr@   @CFLAGS_apreq@   @CFLAGS_sqlite@   @CFLAGS_uuid@
-Makefile_PACKAGE_CXXFLAGS_SET  = @CXXFLAGS_httpd@ @CXXFLAGS_apr@ @CXXFLAGS_apreq@ @CXXFLAGS_sqlite@ @CXXFLAGS_uuid@
-Makefile_PACKAGE_LDFLAGS_SET   =  @LDFLAGS_httpd@  @LDFLAGS_apr@  @LDFLAGS_apreq@  @LDFLAGS_sqlite@  @LDFLAGS_uuid@
+Makefile_PACKAGE_CPPFLAGS_SET  = @CPPFLAGS_httpd@ @CPPFLAGS_apr@ @CPPFLAGS_apreq@ @CPPFLAGS_leveldb@ @CPPFLAGS_sqlite@ @CPPFLAGS_uuid@
+Makefile_PACKAGE_CFLAGS_SET    =   @CFLAGS_httpd@   @CFLAGS_apr@   @CFLAGS_apreq@   @CFLAGS_leveldb@   @CFLAGS_sqlite@   @CFLAGS_uuid@
+Makefile_PACKAGE_CXXFLAGS_SET  = @CXXFLAGS_httpd@ @CXXFLAGS_apr@ @CXXFLAGS_apreq@ @CXXFLAGS_leveldb@ @CXXFLAGS_sqlite@ @CXXFLAGS_uuid@
+Makefile_PACKAGE_LDFLAGS_SET   =  @LDFLAGS_httpd@  @LDFLAGS_apr@  @LDFLAGS_apreq@  @LDFLAGS_leveldb@  @LDFLAGS_sqlite@  @LDFLAGS_uuid@
 Makefile_CHECK_CPPFLAGS_SET    = @CPPFLAGS_cppunit@
 Makefile_CHECK_CFLAGS_SET      =   @CFLAGS_cppunit@
 Makefile_CHECK_CXXFLAGS_SET    = @CXXFLAGS_cppunit@

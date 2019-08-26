@@ -26,28 +26,42 @@ protected:
 #endiv
 #divert <tpp>
 #import tunitas.apanolio.storage.open
+#import want.rigging.exception.TearDown
+#import want.rigging.exception.Aspect
 template<tests::unit::storage::Fixture::Name ENGINE> auto tests::unit::storage::Fixture::test_open_template0() -> void {
   try {
-    auto stoage = ::tunitas::apanolio::storage::open<ENGINE>();
-    CPPUNIT_ASSERT(true); // yup, got it!
-  } catch (exception::Storage const &e) {
-    std::cerr <<  "failed to open ENGINE=" << (int)ENGINE << " because " << e.what() << '\n';
-    CPPUNIT_ASSERT(false); // did not expect this to fail
-  } catch (exception::Unimplemented const &) {
-    CPPUNIT_ASSERT(true); // ok never mind then
+    try {
+      auto stoage = ::tunitas::apanolio::storage::open<ENGINE>();
+      CPPUNIT_ASSERT(true); // yup, got it!
+    } catch (exception::Storage const &e) {
+      std::cerr <<  "failed to open ENGINE=" << (int)ENGINE << " because " << e.what() << '\n';
+      CPPUNIT_ASSERT(false); // did not expect this to fail
+    } catch (exception::Unimplemented const &) {
+      CPPUNIT_ASSERT(true); // ok never mind then
+    }
+  } catch (::want::rigging::exception::TearDown const &) {
+    CPPUNIT_ASSERT(true); // never mind ... we could not tear down the test, which means there is junk in /tmp
+  } catch (::want::rigging::exception::Aspect const &) {
+    CPPUNIT_ASSERT(false); // because the rigging failed, failed to setUp, or to operate in some other way
   }
 }
 #import tests.unit.temporary.Directory
 template<tests::unit::storage::Fixture::Name ENGINE> auto tests::unit::storage::Fixture::test_open_template1() -> void {
-  temporary::Directory<ENGINE> tmpdir{"tests::unit::storage::Fixture"};
   try {
-    auto storage = ::tunitas::apanolio::storage::open<ENGINE>((std::filesystem::path const &) tmpdir);
-    CPPUNIT_ASSERT(true); // yup, got it!
-  } catch (exception::Storage const &e) {
-    std::cerr <<  "failed to open ENGINE=" << (int)ENGINE << " on " << (std::filesystem::path const &)tmpdir << " because " << e.what() << '\n';
-    CPPUNIT_ASSERT(true); // no, that was a surprise
-  } catch (exception::Unimplemented const &) {
-    CPPUNIT_ASSERT(true); // ok never mind then
+    temporary::Directory<ENGINE> tmpdir{"tests::unit::storage::Fixture"};
+    try {
+      auto storage = ::tunitas::apanolio::storage::open<ENGINE>((std::filesystem::path const &) tmpdir);
+      CPPUNIT_ASSERT(true); // yup, got it!
+    } catch (exception::Storage const &e) {
+      std::cerr <<  "failed to open ENGINE=" << (int)ENGINE << " on " << (std::filesystem::path const &)tmpdir << " because " << e.what() << '\n';
+      CPPUNIT_ASSERT(true); // no, that was a surprise
+    } catch (exception::Unimplemented const &) {
+      CPPUNIT_ASSERT(true); // ok never mind then
+    }
+  } catch (::want::rigging::exception::TearDown const &) {
+    CPPUNIT_ASSERT(true); // never mind ... we could not tear down the test, which means there is junk in /tmp
+  } catch (::want::rigging::exception::Aspect const &) {
+    CPPUNIT_ASSERT(false); // because the rigging failed, failed to setUp, or to operate in some other way
   }
 }
 #endiv
@@ -55,13 +69,19 @@ template<tests::unit::storage::Fixture::Name ENGINE> auto tests::unit::storage::
 #import tunitas.apanolio.storage.open
 auto tests::unit::storage::Fixture::test_open_function() -> void {
   try {
-    auto stoage = ::tunitas::apanolio::storage::open();
-    CPPUNIT_ASSERT(true); // yup, got it!
-  } catch (exception::Storage const &e) {
-    std::cerr <<  "failed to open() on noargs because " << e.what() << '\n';
-    CPPUNIT_ASSERT(true); // no, that was a surprise
-  } catch (exception::Unimplemented const &) {
-    CPPUNIT_ASSERT(true); // ok never mind then
+    try {
+      auto stoage = ::tunitas::apanolio::storage::open();
+      CPPUNIT_ASSERT(true); // yup, got it!
+    } catch (exception::Storage const &e) {
+      std::cerr <<  "failed to open() on noargs because " << e.what() << '\n';
+      CPPUNIT_ASSERT(true); // no, that was a surprise
+    } catch (exception::Unimplemented const &) {
+      CPPUNIT_ASSERT(true); // ok never mind then
+    }
+  } catch (::want::rigging::exception::TearDown const &) {
+    CPPUNIT_ASSERT(true); // never mind ... we could not tear down the test, which means there is junk in /tmp
+  } catch (::want::rigging::exception::Aspect const &) {
+    CPPUNIT_ASSERT(false); // because the rigging failed, failed to setUp, or to operate in some other way
   }
 }
 #import tunitas.apanolio.storage.engine.Engine

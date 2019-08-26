@@ -3,7 +3,7 @@
 # Licensed under the terms of the Apache-2.0 license.
 # See the LICENSE file in https://github.com/yahoo/temerarious-flagship/blob/master/LICENSE for terms.
 
-cd ${0%/*} || exit 70
+cd ${0%/*} || exit 255
 # the minimum needed to get autotools to allow configure to check the rest
 declare -a REQUIRED_RPMS=(autoconf automake libtool)
 

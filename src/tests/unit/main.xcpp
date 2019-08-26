@@ -13,8 +13,9 @@
 #import tests.unit.url.Fixture
 #import tests.unit.want.Fixture
 auto main(int argc, char **argv) -> int {
-  using namespace rigging::bench;
-  using namespace tests::unit;
+  using rigging::bench::Main;
+  namespace tu = tests::unit;
+  using namespace tu;
   Main remain(apanolio::Fixture::suite(),
               concurrent::Fixture::suite(),
               engine::Fixture::suite(),
@@ -23,7 +24,7 @@ auto main(int argc, char **argv) -> int {
               resource::Fixture::suite(),
               storage::Fixture::suite(),
               url::Fixture::suite(),
-              want::Fixture::suite());
+              tu::want::Fixture::suite());
   return remain(argc, argv);
 }
 #endiv
