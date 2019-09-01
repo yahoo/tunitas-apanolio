@@ -31,7 +31,7 @@ protected:
 template<tests::unit::storage::Fixture::Name ENGINE> auto tests::unit::storage::Fixture::test_open_template0() -> void {
   try {
     try {
-      auto stoage = ::tunitas::apanolio::storage::open<ENGINE>();
+      auto storage = ::tunitas::apanolio::storage::open<ENGINE>();
       CPPUNIT_ASSERT(true); // yup, got it!
     } catch (exception::Storage const &e) {
       std::cerr <<  "failed to open ENGINE=" << (int)ENGINE << " because " << e.what() << '\n';
@@ -70,7 +70,7 @@ template<tests::unit::storage::Fixture::Name ENGINE> auto tests::unit::storage::
 auto tests::unit::storage::Fixture::test_open_function() -> void {
   try {
     try {
-      auto stoage = ::tunitas::apanolio::storage::open();
+      auto storage = ::tunitas::apanolio::storage::open();
       CPPUNIT_ASSERT(true); // yup, got it!
     } catch (exception::Storage const &e) {
       std::cerr <<  "failed to open() on noargs because " << e.what() << '\n';

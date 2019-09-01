@@ -77,9 +77,6 @@ if [[ -d ${PWD%/*/*}/hyperledger ]] ; then
 elif [[ -d ${PWD%/*/*/*}/hyperledger ]] ; then
     : ${with_hyping:=${PWD%/*/*/*}/hyperledger}
     : ${with_fabricating:=${with_hyping?}/fabric}
-elif [[ -d /build/state-space ]] ; then
-    : ${with_hyping:=/build/state-space}
-    : ${with_fabricating:=${with_hyping?}}
 elif [[ -d /build/hyperledger ]] ; then
     : ${with_hyping:=/build/hyperledger}
     : ${with_fabricating:=${with_hyping}/fabric}
