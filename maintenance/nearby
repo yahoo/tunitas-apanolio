@@ -168,12 +168,10 @@ function set_all_defaults_relatively() {
             : ${with_hyperledger_fabric_ca:=yes}
         fi
     fi
-set -xv
     : ${with_hyperledger_fabric_ca:=yes}
     : ${with_hyperledger_fabric_db:=yes}
     : ${with_hyperledger_fabric:=${with_hyperledger_fabric_db%/*}}
     : ${with_hyperledger:=${with_hyperledger_fabric?}} # ${with_hyperledger_fabric%/*}}
-set +xv
     : ${with_apache_httpd_api:=${2:-$1}/apache-httpd-api}
     : ${with_module_boost:=$1/module-boost}
     : ${with_module_c:=$1/module-c}

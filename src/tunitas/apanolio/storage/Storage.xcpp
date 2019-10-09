@@ -9,8 +9,18 @@ namespace tunitas::apanolio::storage {
   //
   // Usage:
   //
-  //   auto engine = ...somehow...
-  //   Storage storage = construct(engine);
+  //   constexpr auto ENGINE = ...somehow...   one of NONE, MEMORY, FILES, LEVELDB, SQLITE, ...blah blah blah...
+  //
+  // Depending upon whether the engine takes a directory name or not
+  //
+  //   Storage store = storage::open<ENGINE>();
+  //   Storage store = storage::open<ENGINE>(path);
+  //
+  //   auto got = store.GET(identifier)
+  //   if (ok(got)) { ... }
+  //
+  //   auto sat = store.SET(identifier, record);
+  //   if (ok(sat)) { ... }
   //
   class Storage;
 }
@@ -29,6 +39,8 @@ public:
   Storage() = default;
   Storage(Storage const &) = delete;
   auto operator=(Storage const &) -> Storage & = delete;
+  Storage(Storage &&) = default;
+  auto operator=(Storage &&) -> Storage & = default;
   inline auto GET(Identifier const &) -> Outcome<Record>;
   inline auto SET(Identifier const &, Record const &) -> Success;
 protected:

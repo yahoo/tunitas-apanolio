@@ -1,0 +1,37 @@
+#!/bin/bash
+# Copyright 2019-2019, Oath Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#
+# the full end-to-end build using the production-install trees which are in /opt/tunitas and /opt/scold
+#
+#   buildconf
+#   configure
+#   make [all]
+#   make check
+#
+# Usage:
+#
+#   ./maintenance/simple     (no options)
+#
+#   prefix=/usr/local \
+#   with_temerarious_flagship=/opt/tunitas \
+#   ./maintenance/simple
+# 
+# The scold module "with" variables will naturally default to /opt/scold
+# The tunitas "with" variables would be expected to be in /opt/tunitas
+#
+cd ${0%/*}/.. || exit 70
+: ${prefix:=/exp/tunitas}
+eval \
+    ${prefix:+prefix=$prefix} \
+    ${with_hypogeal_twilight:+with_hypogeal_twilight=$with_hypogeal_twilight} \
+    ${with_temerarious_flagship:+with_temerarious_flagship=$with_temerarious_flagship} \
+    ./buildconf &&
+./configure \
+    ${prefix:+--prefix=$prefix} \
+    ${end} &&
+make &&
+make check &&
+echo OK DONE
+    

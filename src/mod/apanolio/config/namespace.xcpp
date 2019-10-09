@@ -2,5 +2,9 @@
 // Copyright 2019-2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace mod::apanolio::config { }
+namespace mod::apanolio::config {
+  enum STORAGE_ENGINE { };
+  enum STORAGE_DIRECTORY { };
+  enum LOCATION_PREFIX { };
+}
 #endiv

@@ -15,6 +15,8 @@ lib_libmod_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 $(lib_libmod_apanolio_la_OBJECTS) : CXXFLAGS+=-Wno-invalid-offsetof
 lib_libmod_apanolio_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libmod_apanolio_la_SOURCES))
 lib_libmod_apanolio_la_SOURCES = \
+  obj/src/apache/httpd/config/Value.mod.apanolio.config.cpp \
+  \
   obj/src/mod/apanolio/namespace.cpp \
   obj/src/mod/apanolio/handler.cpp \
   obj/src/mod/apanolio/module.cpp \
@@ -27,7 +29,9 @@ lib_libmod_apanolio_la_SOURCES = \
   \
   obj/src/mod/apanolio/method/namespace.cpp \
   obj/src/mod/apanolio/method/Prototype.cpp \
+  obj/src/mod/apanolio/method/Deleter.cpp \
   obj/src/mod/apanolio/method/Getter.cpp \
+  obj/src/mod/apanolio/method/Optioner.cpp \
   obj/src/mod/apanolio/method/Poster.cpp \
   obj/src/mod/apanolio/method/Putter.cpp \
   $(end)
