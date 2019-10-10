@@ -1,0 +1,58 @@
+// -*- mode: c++; indent-tabs-mode: nil; -*- in the SCOLD stylings that are so popular these days
+#divert <hpp>
+#import std.string
+namespace tunitas::apanolio::resting::file {
+  //
+  // Like mktemp(...) but more so
+  //
+  // The name is "highly probably" unique by virtue of being a uuid.
+  // Thus the filesystem is not consulted to acquire atomicity against collisions.
+  //
+
+  // A unique name in some directory (mktemp works against this directory)
+  inline auto tempname(std::string const &directory) -> std::string;
+  // A unique name (in no directory, mktemp works against the current directory)
+  inline auto tempname() -> std::string;
+
+  namespace detail {
+    auto continuation(std::string const &pattern) -> std::string;
+  }
+}
+#endiv
+#divert <ipp>
+#import uuid.generate.random
+#import path.filename.workbench
+auto tunitas::apanolio::resting::file::tempname(std::string const &directory) -> std::string {
+  auto uuid = to_string(uuid::generate::random());
+  auto xxx = std::string("XXXXXX"); // required pattern trailer for mktemp
+  auto pattern = finalize(path::filename::workbench() * directory / uuid * xxx);
+  return detail::continuation(pattern);
+}
+
+auto tunitas::apanolio::resting::file::tempname() -> std::string {
+  auto uuid = to_string(uuid::generate::random());
+  auto xxx = std::string("XXXXXX");
+  auto pattern = finalize(path::filename::workbench() * uuid * xxx);
+  return detail::continuation(pattern);
+}
+#endiv
+#divert <cpp>
+#import std.system_error
+#import std.error_code
+#import std.system_category
+#import sys.posix.mktemp
+#import tunitas.apanolio.exception.System
+auto tunitas::apanolio::resting::file::detail::continuation(std::string const &pattern) -> std::string {
+  // FIXME (and the linker will tell us too).
+  // Sure.  I know ... mktemp isn't safe, isn't atomic, etc.
+  auto made = sys::posix::mktemp(pattern);
+  if (!ok(made)) {
+    std::ostringstream buf;
+    buf << "could not mktemp on " << pattern;
+    auto ec = error_code(made);
+    // std::error_code ec(error_num(made), std::system_category()); -- TODO FIXME later std_error_code(...) supplies this
+    throw exception::System{ec, buf.str()};
+  }
+  return value(made);
+}
+#endiv

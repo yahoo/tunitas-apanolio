@@ -1,0 +1,92 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resting::file {
+  //
+  // Gulp the file off of the request_rec "into" the finalizable file
+  //
+  // Usage:
+  //
+  //   File file = ...something...
+  //   Gulp gulp(req, file);
+  //   auto gulped = gulp(); <------------- doit
+  //   if (ok(gulped)) {
+  //     ....
+  //   }
+  //
+  // Also, you should use the functional form file::gulp(req, file), which is nearby
+  class Gulp;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.request_rec
+#import tunitas.apanolio.resting.File
+#import tunitas.apanolio.resting.file.detail.Gulped
+class tunitas::apanolio::resting::file::Gulp {
+public:
+  inline explicit Gulp(apache::httpd::request_rec *, File &);
+  using result_type = detail::Gulped;
+  auto operator()() -> result_type;
+protected:
+  apache::httpd::request_rec *req;
+  File &file;
+};
+#endiv
+#divert <ipp>
+tunitas::apanolio::resting::file::Gulp::Gulp(apache::httpd::request_rec *arg_req, File &arg_file)
+  : req(arg_req)
+  , file(arg_file) {
+  ;
+}
+#endiv
+#divert <cpp>
+#import c.buffer
+#import apache.httpd.status.Code
+#import apache.httpd.request.chunked.constants
+#import apache.httpd.request.chunked.get
+#import apache.httpd.request.chunked.setup
+#import std.min
+#import std.size_t
+auto tunitas::apanolio::resting::file::Gulp::operator()() -> result_type {
+  using namespace apache::httpd::request::chunked;
+  namespace status = apache::httpd::status;
+  namespace HTTP = apache::httpd::status::HTTP;
+  namespace handler = apache::httpd::status::handler;
+  auto u = setup(req, DECHUNK);
+  if (!ok(u)) {
+    return detail::make(HTTP::INTERNAL_SERVER_ERROR);
+  }
+  std::size_t byte_count_written = 0;
+  status::Code result = handler::OK;
+  char some_space[SOME_SIZE];
+  for (bool again=true; again; ) {
+    auto g = get(req, c::buffer(some_space));
+    if (!ok(g)) {
+      result = HTTP::BAD_REQUEST;
+      again = false;
+    } else if (eof(g)) {
+      // we're good (we're done)
+      again = false;
+    } else if (0 == size(g)) {
+      // we're good (we're done ...eos (is different than eof)...
+      again = false;
+    } else {
+      auto write_size = std::min<std::streamsize>(size(g), sizeof(some_space));
+      if (file.write(&some_space[0], write_size)) {
+        // This value should be redundant with
+        //   file.outbound.tellp(), is it?
+        //   r->read_length
+        byte_count_written += write_size;
+      } else {
+        // Log this ... why?  What was errno?
+        again = false;
+        result = HTTP::INTERNAL_SERVER_ERROR;
+      } 
+    }
+  }
+  file.finalize(File::KEEP);
+  detect_inadvertent_HTTP_OK(result);
+  return detail::make(result, byte_count_written);
+}
+#endiv

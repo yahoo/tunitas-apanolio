@@ -15,6 +15,13 @@ include @temerarious_flagship_datadir@/am/build.am
 # configure.ac:  HGTW_CONFIG_SUBMODULES([submodules], [ ...list...])
 # Makefile.am    SUBDIRS = @subdirs@
 
+#
+# Reminder: these variables are needed for on-site development use only
+#           they are not needed for a "simple" build.
+# They must match one-for-one the TF_WITH_MODULE(...) declarations in configure.ac
+# configure.ac: TF_WITH_MODULE(name), TF_WITH_NONSTD(name, ...etc...)
+# Makefile.am:  DEVELOPMENT_AREAS, TESTING_AREAS, INSTALLATION_AREAS
+#
 DEVELOPMENT_AREAS = \
   $(apache_httpd_api_prefix) \
   $(hyperledger_prefix) \
@@ -58,6 +65,8 @@ INSTALLATION_AREAS = \
 include src/autotools/autoconf/Makefrag.am
 include src/mod/apanolio/Makefrag.am
 include src/tunitas/apanolio/Makefrag.am
+include src/tunitas/apanolio/resting/Makefrag.am
+include src/tunitas/apanolio/storage/Makefrag.am
 include src/want/Makefrag.am
 include src/tests/unit/Makefrag.am
 
@@ -76,19 +85,21 @@ lib_libtunitas_apanolio_la_MODULE_SOURCES_SET = \
   $(lib_libtunitas_apanolio_la_SOURCES) \
   $(lib_libwant_la_SOURCES) \
   $(end)
-module_SOURCE_SET = # NO NOT READY YET ---> $(lib_libtunitas_scarpet_la_MODULE_SOURCES_SET)
+# [[FIXTHIS]] module_BB_SOURCE_SET should be deprecating real soon now, move to use module_SOURCE_SET, whenever it is ready)
 module_BB_SOURCE_SET = \
-  $(warning module_BB_SOURCE_SET should be deprecating real soon now, move to use module_SOURCE_SET, whenever it is ready) \
   $(lib_libtunitas_apanolio_la_MODULE_SOURCES_SET) \
   $(end)
+module_SOURCE_SET = # NO NOT READY YET ---> $(lib_libtunitas_scarpet_la_MODULE_SOURCES_SET)
 
 bin_PROGRAMS = \
   $(end)
 noinst_LTLIBRARIES = \
   $(lib_libautotools_autoconf_la) \
+  $(lib_libtunitas_apanolio_resting_la) \
+  $(lib_libtunitas_apanolio_storage_la) \
   $(lib_libwant_la) \
   $(end)
-# WATCHOUT - these MUST be listed in this order so that the sequential install rule will allow the linker to process.
+# WATCHOUT - these MUST be listed in this order so that the sequential install rule will allow the linker to process them.
 #            libtool linking of libmod_apanolio.la MUST see the installed libtunitas-apanolio.la in order to be "finished"
 lib_LTLIBRARIES = \
   $(lib_libtunitas_apanolio_la) \
@@ -137,7 +148,7 @@ Makefile_nonstd_CHECK_LDFLAGS_SET    = @nonstd_cppunit_LDFLAGS@
 Makefile_COMPILER_CPPFLAGS_SET = @CPPFLAGS_gcc@ 
 Makefile_COMPILER_CFLAGS_SET   =   @CFLAGS_gcc@   @CFLAGS_gdb@
 Makefile_COMPILER_CXXFLAGS_SET = @CXXFLAGS_gcc@ @CXXFLAGS_gdb@ -pthread
-Makefile_COMPILER_LDFLAGS_SET  =  @LDFLAGS_gcc@  @LDFLAGS_gdb@ @libstd_filesystem@ -lpthread
+Makefile_COMPILER_LDFLAGS_SET  =  @LDFLAGS_gcc@  @LDFLAGS_gdb@ -lpthread @libstd_filesystem@
 Makefile_PACKAGE_CPPFLAGS_SET  = @CPPFLAGS_httpd@ @CPPFLAGS_apr@ @CPPFLAGS_apreq@ @CPPFLAGS_leveldb@ @CPPFLAGS_sqlite@ @CPPFLAGS_uuid@
 Makefile_PACKAGE_CFLAGS_SET    =   @CFLAGS_httpd@   @CFLAGS_apr@   @CFLAGS_apreq@   @CFLAGS_leveldb@   @CFLAGS_sqlite@   @CFLAGS_uuid@
 Makefile_PACKAGE_CXXFLAGS_SET  = @CXXFLAGS_httpd@ @CXXFLAGS_apr@ @CXXFLAGS_apreq@ @CXXFLAGS_leveldb@ @CXXFLAGS_sqlite@ @CXXFLAGS_uuid@
@@ -145,7 +156,7 @@ Makefile_PACKAGE_LDFLAGS_SET   =  @LDFLAGS_httpd@  @LDFLAGS_apr@  @LDFLAGS_apreq
 Makefile_CHECK_CPPFLAGS_SET    = @CPPFLAGS_cppunit@
 Makefile_CHECK_CFLAGS_SET      =   @CFLAGS_cppunit@
 Makefile_CHECK_CXXFLAGS_SET    = @CXXFLAGS_cppunit@
-Makefile_CHECK_LDFLAGS_SET     =  @LDFLAGS_cppunit@
+Makefile_CHECK_LDFLAGS_SET     =  @LDFLAGS_cppunit@ -no-install $(comment is the default in hypogeal-twilight >= 0:0.45)
 
 # See the 'Usage' statement in @hypogeal_twilight_datadir@/mk/toolflags.mk
 # See the definitions and expected usage of

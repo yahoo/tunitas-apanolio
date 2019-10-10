@@ -1,0 +1,29 @@
+// -*- mode: c++; indent-tabs-mode: nil; -*- in the SCOLD stylings that are so popular these days
+// Copyright (c) 2016-2017, Wendell Craig Baker, wbaker@scold-lang.org
+#divert <hpp>
+#import apache.httpd.request_rec
+#import tunitas.apanolio.resting.file.File
+#import tunitas.apanolio.resting.file.Gulp
+namespace tunitas::apanolio::resting::file {
+  //
+  // Create thge gulper and do the gulp all in one shot.  
+  //
+  // Usage:
+  //
+  //   auto req = request_req *{...somehow...}
+  //   auto file = File{...somehow...};
+  //
+  //   auto gulped = gulp(req, file);
+  //   if (ok(gulped)) {
+  //     ....
+  //   }
+  //
+  inline auto gulp(apache::httpd::request_rec *req, File &file) -> Gulp::result_type;
+}
+#endiv
+#divert <ipp>
+auto tunitas::apanolio::resting::file::gulp(apache::httpd::request_rec *req, File &file) -> Gulp::result_type {
+  Gulp gulp(req, file);
+  return gulp();
+}
+#endiv

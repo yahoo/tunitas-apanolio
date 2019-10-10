@@ -6,6 +6,7 @@ tests_unit_TESTS = \
   tests/unit/engine.test \
   tests/unit/error.test \
   tests/unit/exception.test \
+  tests/unit/resting.test \
   tests/unit/resource.test \
   tests/unit/storage.test \
   tests/unit/url.test \

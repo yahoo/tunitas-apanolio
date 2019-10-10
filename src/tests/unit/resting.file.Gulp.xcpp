@@ -1,0 +1,104 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::file { class Gulp; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::resting::file::Gulp : public cppunit::test::Fixture {
+public:
+  auto test_constructor() -> void;
+  auto test_operator_call() -> void;
+  auto test_accessors() -> void;
+
+  static auto suite() -> cppunit::Test *;
+protected:
+  static constexpr auto GENERATED_CONTENT_SIZE_LIMIT = 43498u; // some random magic value
+  auto generate_some_content() -> std::string;
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.resting.file.Gulp
+#import tunitas.apanolio.resting.file.File
+#import rigging.httpd.Dummy
+
+#import std.move
+#import std.random_device
+#import std.mt19937
+#import std.uniform_int_distribution
+#import sys.posix.tmpdir
+auto tests::unit::resting::file::Gulp::generate_some_content() -> std::string {
+  std::random_device rnd; // WATCHOUT - this does not open /dev/random unless _GLIBCXX_USE_RANDOM_TR1
+  std::seed_seq seed{rnd(), rnd(), rnd(), rnd(), rnd(), rnd()}; // how many?
+  std::mt19937 generator(seed);
+  std::uniform_int_distribution<int> distribution(0, 255); // generates binary data ... any possible 8-bit character value.
+  std::string ret;
+  for (int i(0), e(GENERATED_CONTENT_SIZE_LIMIT); e != i; ++i) {
+    char ch = distribution(generator);
+    ret += ch;
+  }
+  return std::move(ret);
+}
+
+#import tests.unit.resting.file.Unlinker
+auto tests::unit::resting::file::Gulp::test_constructor() -> void {
+  rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
+  tunitas::apanolio::resting::file::File testfile(sys::posix::tmpdir());
+  Unlinker un(testfile.name());
+  dummy.set_Content(generate_some_content());
+  dummy.prepare();
+  tunitas::apanolio::resting::file::Gulp gulp(dummy, testfile); // <------ test this
+}
+
+#import tests.unit.resting.file.Unlinker
+#import slurp.file.read
+auto tests::unit::resting::file::Gulp::test_operator_call() -> void {
+  rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
+  tunitas::apanolio::resting::file::File testfile(sys::posix::tmpdir());
+  Unlinker un(testfile.name());
+  auto specimen = generate_some_content();
+  dummy.set_Content(specimen);
+  dummy.prepare();
+  tunitas::apanolio::resting::file::Gulp gulp(dummy, testfile);
+  auto gulped = gulp();// <------ test this
+  bool okay = ok(gulped);
+  detect_inadvertent_HTTP_OK(status(gulped));
+  std::cerr << "okay=" << okay << '\n';
+  CPPUNIT_ASSERT(ok(gulped));
+  namespace HTTP = apache::httpd::status::HTTP;
+  namespace handler = apache::httpd::status::handler;
+  detect_inadvertent_HTTP_OK(status(gulped));
+  CPPUNIT_ASSERT(handler::OK == status(gulped));
+  CPPUNIT_ASSERT_EQUAL(specimen.size(), size(gulped));
+  testfile.finalize(tunitas::apanolio::resting::File::KEEP);
+  auto slurped = ::slurp::file::read<std::string>(testfile.name());
+  std::string expected = specimen;
+  std::string actual = slurped;
+  CPPUNIT_ASSERT_EQUAL(expected, actual);
+}
+
+auto tests::unit::resting::file::Gulp::test_accessors() -> void {
+  // There are no accessors
+  CPPUNIT_ASSERT(true);
+}
+
+#import tests.unit.resting.file.Unlinker
+#import rigging.httpd.Dummy
+#import std.cerr
+#import sys.posix.tmpdir
+#import slurp.file.read
+
+
+#import rigging.suite.io
+auto tests::unit::resting::file::Gulp::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("Gulp");
+  series << call("constructor", &Gulp::test_constructor)
+         << call("operator()", &Gulp::test_operator_call)
+         << call("accessors", &Gulp::test_accessors)
+    ;
+  return finalize(series);
+}
+#endiv

@@ -1,0 +1,27 @@
+// -*- c++ -*- and wrapped in the SCOLD stylings
+#divert <hpp>
+#import tests.unit.resting.file.Guard
+#import tests.unit.resting.file.Pair
+#import std.string
+namespace tests {
+  namespace unit {
+    namespace resting {
+      namespace file {
+        //
+        // Upon destruction, unlink both files mentioned in the subject
+        //
+        template<> inline Guard<Pair<std::string>>::~Guard();
+      }
+    }
+  }
+}
+#endiv
+#divert <ipp>
+#import sys.posix.unlink
+template<> tests::unit::resting::file::Guard<tests::unit::resting::file::Pair<std::string>>::~Guard() {
+  // Try our best ... don't even report the failures
+  using ::sys::posix::unlink;
+  unlink(subject.first);
+  unlink(subject.second);
+}
+#endiv

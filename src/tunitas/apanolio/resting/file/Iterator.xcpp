@@ -1,0 +1,162 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resting::file {
+  //
+  // An iterator over block-based reading of the stream
+  //
+  class Iterator;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::apanolio::resting::file {
+  // These only meaningfully compare against 'begin' and 'end' iterators
+  inline auto operator==(Iterator const &, Iterator const &) -> bool;
+  inline auto operator!=(Iterator const &, Iterator const &) -> bool;
+}
+#import c.const_buffer
+#import c.buffer
+#forward tunitas.apanolio.resting.file.Stream
+#import std.iterator
+#import std.input_iterator_tag
+#import std.shared_ptr
+#import std.size_t
+#import std.vector
+class tunitas::apanolio::resting::file::Iterator : public std::iterator<std::input_iterator_tag, c::const_buffer, void, void, void> {
+public:
+  inline Iterator();
+protected:
+  enum Position { BEGIN, END };
+  friend class file::Stream;
+  inline Iterator(Stream *owner, Position);
+public:
+  inline auto operator*() const -> c::const_buffer;
+  inline auto operator*() -> c::buffer;
+  inline auto operator++() -> Iterator &;
+  inline auto operator++(int) -> Iterator;
+  inline auto capacity() const -> std::size_t;
+  inline auto reserve(std::size_t capacity) -> void;
+protected:
+  // avoid cut & paste for operator* with const & muting objects
+  // RET = c::const_buffer,             c::buffer
+  // BUF = std::vector<char> const *    std::vector<char> const *
+  template<typename RET, typename BUF> inline static auto operator_indirect(BUF *) -> RET;
+  friend auto file::operator==(Iterator const &, Iterator const &) -> bool;
+  std::shared_ptr<std::vector<char>> buf;
+  static constexpr auto BUFFER_SIZE = 512u; // what's a good size?
+  Stream *owner;
+  auto read() -> void;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::resting {
+  auto file::operator==(Iterator const &a, Iterator const &b) -> bool {
+    return a.owner == b.owner && a.buf.get() == b.buf.get();
+  }
+
+  auto file::operator!=(Iterator const &a, Iterator const &b) -> bool {
+    return !operator==(a, b);
+  }
+}
+#import tunitas.apanolio.resting.file.Stream
+#import tunitas.apanolio.exception.Argument
+#import std.make_shared
+namespace tunitas::apanolio::resting::file {
+  Iterator::Iterator()
+    : buf()
+    , owner(nullptr) {
+    ;
+  }
+  Iterator::Iterator(Stream *arg_owner, Position position)
+    : buf()
+    , owner(arg_owner) {
+    if (nullptr != arg_owner && END != position) {
+      buf = std::make_shared<std::vector<char>>();
+      buf->reserve(BUFFER_SIZE);
+      read();
+      // An icky corner case for the empty file.
+      if (buf->empty() && owner->eof()) {
+        buf.reset();
+      }
+    }
+  }
+  template<typename RET, typename BUF> auto Iterator::operator_indirect(BUF *buf) -> RET {
+    if (nullptr == buf) {
+      throw exception::Argument{"iterator is beyond eof"};
+    }
+    RET ret(buf->size(), buf->data());
+    return ret;
+  }
+  auto Iterator::operator*() const -> c::const_buffer {
+    return operator_indirect<c::const_buffer>(buf.get());
+  }
+  auto Iterator::operator*() -> c::buffer {
+    return operator_indirect<c::buffer>(buf.get());
+  }
+  auto Iterator::operator++() -> Iterator & {
+                                             read();
+                                             return *this;
+  }
+  auto Iterator::operator++(int) -> Iterator {
+    Iterator old(*this);
+    operator++();
+    return old;
+  }
+  auto Iterator::capacity() const -> std::size_t {
+    auto ptr = buf.get();
+    return nullptr == ptr ? 0u : ptr->capacity();
+  }
+  auto Iterator::reserve(std::size_t capacity) -> void {
+    if (nullptr == buf.get()) {
+      buf = std::make_shared<std::vector<char>>();
+    }
+    buf->reserve(capacity);
+  }
+}
+#endiv
+#divert <cpp>
+#import std.runtime_error
+#import std.invalid_argument
+#import std.max
+#import std.cerr
+#import tunitas.apanolio.exception.Argument
+#import tunitas.apanolio.resting.file.Stream
+#include <cassert>
+auto tunitas::apanolio::resting::file::Iterator::read() -> void {
+  //
+  // http://www.cplusplus.com/reference/istream/istream/read/
+  //
+  // Whereas istream::read(...) does not behave like read(2); it rhymes
+  //
+  // eofbit is set at the end of the file because end-of-file was seen.
+  //        yet the buffer may be (partially or completely) filled.
+  //
+  // failbit is set of the buffer is not full to the brim
+  //         thus failbit is always set at the ragged end fo the file.
+  //
+  // badbit is an I/O error condition.
+  //
+  if (nullptr == owner) {
+    throw exception::Argument{"already at eof"};
+  } else if (owner->eof()) {
+    if (nullptr == buf.get()) {
+      throw exception::Argument{"read at eof"};
+    } else {
+      // ... last time we saw eof, but returned the data prior to that.
+      // Now we are *at* eof and canoot proceed further.
+      buf.reset();
+    }
+  } else {
+    // The size() becomes the amount actually read.
+    // The capacity() is used to record what we wish we could read.
+    buf->resize(buf->capacity());
+    assert(0 < buf->size());
+    auto &stream = owner->read(buf->data(), buf->size());
+    // owner->eof() may or may not be set
+    // buf may or may not be full to the brim (a partial read).g
+    auto red = stream.gcount();
+    buf->resize(red);
+  }
+}
+#endiv

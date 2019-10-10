@@ -9,6 +9,7 @@
 #import tests.unit.error.Fixture
 #import tests.unit.exception.Fixture
 #import tests.unit.resource.Fixture
+#import tests.unit.resting.Fixture
 #import tests.unit.storage.Fixture
 #import tests.unit.url.Fixture
 #import tests.unit.want.Fixture
@@ -22,6 +23,7 @@ auto main(int argc, char **argv) -> int {
               error::Fixture::suite(),
               exception::Fixture::suite(),
               resource::Fixture::suite(),
+              resting::Fixture::suite(),
               storage::Fixture::suite(),
               url::Fixture::suite(),
               tu::want::Fixture::suite());

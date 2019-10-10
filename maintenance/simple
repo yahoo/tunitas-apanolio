@@ -3,7 +3,7 @@
 # Licensed under the terms of the Apache-2.0 license.
 # See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #
-# the full end-to-end build using the production-install trees which are in /opt/tunitas and /opt/scold
+# The full end-to-end build using the production-install trees which are in /opt/tunitas and /opt/scold
 #
 #   buildconf
 #   configure
@@ -30,8 +30,9 @@ eval \
     ./buildconf &&
 ./configure \
     ${prefix:+--prefix=$prefix} \
+    ${with_hypogeal_twilight:+--with-hypogeal-twilight=$with_hypogeal_twilight} \
+    ${with_temerarious_flagship:+--with-temerarious-flagship=$with_temerarious_flagship} \
     ${end} &&
 make &&
 make check &&
 echo OK DONE
-    

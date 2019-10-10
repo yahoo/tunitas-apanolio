@@ -69,16 +69,14 @@ auto tests::unit::url::Fixture::test_Parser_slashprefix() -> void {
       CPPUNIT_ASSERT_EQUAL(expected, actual); } }
 }
 #import tests.unit.url.Parser
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.add
-#import unit.rigging.suite.call
+#import rigging.suite.io
 auto tests::unit::url::Fixture::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
+  using namespace ::rigging::suite;
   Stream series("url");
   series << call("Parser_slash", &Fixture::test_Parser_slash)
          << call("Parser_slashprefix", &Fixture::test_Parser_slashprefix)
-         << add(Parser::suite())
+         << add<Parser>()
     ;
-  return series.release();
+  return finalize(series);
 }
 #endiv

@@ -1,0 +1,21 @@
+// -*- c++ -*- and wrapped in the SCOLD stylings
+#divert <hpp>
+#import tests.unit.resting.file.Pair
+#import tests.unit.resting.file.generate
+#import std.string
+namespace tests {
+  namespace unit {
+    namespace resting {
+      namespace file {
+        template<> inline auto generate<int>() -> Pair<int>; 
+      }
+    }
+  }
+}
+#endiv
+#divert <ipp>
+#import tests.unit.resting.file.open
+template<> auto tests::unit::resting::file::generate<int>() -> Pair<int> {
+  return open(generate<std::string>());
+}
+#endiv

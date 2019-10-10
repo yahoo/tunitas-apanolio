@@ -44,6 +44,24 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/resource.Fixture.cpp \
   obj/src/tests/unit/resource.Identifier.cpp \
   obj/src/tests/unit/resource.Record.cpp \
+  obj/src/tests/unit/resting.Fixture.cpp \
+  obj/src/tests/unit/resting.file.constants.cpp \
+  obj/src/tests/unit/resting.file.File.cpp \
+  obj/src/tests/unit/resting.file.Finalizer.cpp \
+  obj/src/tests/unit/resting.file.Fixture.cpp \
+  obj/src/tests/unit/resting.file.generate.descriptors.cpp \
+  obj/src/tests/unit/resting.file.generate.filenames.cpp \
+  obj/src/tests/unit/resting.file.generate.cpp \
+  obj/src/tests/unit/resting.file.Guard.int.cpp \
+  obj/src/tests/unit/resting.file.Guard.string.cpp \
+  obj/src/tests/unit/resting.file.Guard.cpp \
+  obj/src/tests/unit/resting.file.Gulp.cpp \
+  obj/src/tests/unit/resting.file.Iterator.cpp \
+  obj/src/tests/unit/resting.file.Move.cpp \
+  obj/src/tests/unit/resting.file.open.cpp \
+  obj/src/tests/unit/resting.file.Pair.cpp \
+  obj/src/tests/unit/resting.file.Stream.cpp \
+  obj/src/tests/unit/resting.file.Unlinker.cpp \
   obj/src/tests/unit/storage.Fixture.cpp \
   obj/src/tests/unit/temporary.Prototype.cpp \
   obj/src/tests/unit/temporary.Directory.declaration.cpp \

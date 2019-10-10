@@ -1,0 +1,25 @@
+// -*- c++ -*- and wrapped in the SCOLD stylings
+#divert <hpp>
+#import tests.unit.resting.file.Pair
+namespace tests {
+  namespace unit {
+    namespace resting {
+      namespace file {
+        //
+        // TYPE is 'string' to generate unqiue filenames
+        // TYPE is 'int' to return file descriptors on unique filenames
+        //
+        template<typename TYPE> inline auto generate() -> Pair<TYPE>; 
+      }
+    }
+  }
+}
+#entail tests.unit.resting.file.generate.descriptors
+#entail tests.unit.resting.file.generate.filenames
+#endiv
+#divert <ipp>
+template<typename TYPE> auto tests::unit::resting::file::generate() -> Pair<TYPE> {
+  static_assert(0 == sizeof (TYPE) && 0 != sizeof (TYPE), "specializations only");
+  return Pair<TYPE>();
+}
+#endiv

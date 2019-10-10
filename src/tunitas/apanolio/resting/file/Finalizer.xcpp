@@ -1,0 +1,120 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resting::file {
+  //
+  // Usage:
+  //     std::string tempfile = "/tmp/some-temp-file";
+  //     std::string finalfile = "/tmp/the-final-file";
+  //     Finalizer izer(tempfile, finalfile);
+  //     if (...choose_somehow...) {
+  //         izer.choose(Finalizer::KEEP);
+  //     } else {
+  //         izer.choose(Finalizer::KILL);
+  //     }
+  //
+  // The default is KILL (the temporary file)
+  // To accept tempy as final, a positive choice must be made. 
+  //
+  class Finalizer;
+}
+#endiv
+#divert <hpp>
+#import std.string
+class tunitas::apanolio::resting::file::Finalizer {
+public:
+  // The finalizer "latches on" to the two strings.  It does not copy them.
+  inline Finalizer(std::string const &tempy, std::string const &final);
+  // executes run() if not DONE, but suppresses exceptions of run()
+  inline ~Finalizer();
+  Finalizer(Finalizer const &) = delete;
+  auto operator=(Finalizer const &) -> Finalizer & = delete;
+  enum Choice { KILL, KEEP, DONE };
+  inline auto choose(Choice) -> void;
+  // throws on failure to unlink or remove
+  inline auto run() -> void;
+protected:
+  inline auto do_kill() -> void;
+  inline auto do_keep() -> void;
+  Choice state;
+  std::string const &tempy;
+  std::string const &final;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::resting::file {
+  Finalizer::Finalizer(std::string const &arg_tempy, std::string const &arg_final)
+    : state(KILL)
+    , tempy(arg_tempy)
+    , final(arg_final) {
+    ;
+  }
+  Finalizer::~Finalizer() {
+    try {
+      run();
+    } catch (...) {
+      // suppress.
+      // exceptions cannot escape a destructor
+    }
+  }
+  auto Finalizer::choose(Choice new_choice) -> void {
+    if (DONE != state) {
+      state = new_choice;
+    }
+  }
+  auto Finalizer::run() -> void {
+    // run is idempotent (nothing happens if DONE == state is already true)
+    Choice action = state;
+    state = DONE;
+    if (KILL == action) {
+      do_kill();
+    } else if (KEEP == action) {
+      do_keep();
+    }
+  }
+}
+#import std.system_category
+#import std.error_code
+#import tunitas.apanolio.exception.System
+#import std.ostringstream
+#import sys.posix.unlink
+auto tunitas::apanolio::resting::file::Finalizer::do_kill() -> void {
+  auto unlinked = sys::posix::unlink(tempy);
+  if (!ok(unlinked)) {
+    std::ostringstream buf;
+    buf << "unlink " << tempy;
+    throw exception::System{std_system_error_code(unlinked), buf.str()};
+  }
+}
+
+#import tunitas.apanolio.exception.System
+#import std.ostringstream
+#if 1
+#import sys.posix.rename
+auto tunitas::apanolio::resting::file::Finalizer::do_keep() -> void {
+  auto renamed = sys::posix::rename(tempy, final);
+  if (!ok(renamed)) {
+    std::ostringstream buf;
+    buf << "rename " << tempy << ' ' << final;
+    throw exception::System{std_system_error_code(renamed), buf.str()};
+  }
+}
+#else
+// DEPRECATED does not use sys::posix::rename(...), calls ::rename(...) directly
+#import std.error_code
+#import std.system_category
+#include <cerrno>
+#include <unistd.h>
+auto tunitas::apanolio::resting::file::Finalizer::do_keep() -> void {
+  int renamed = ::rename(tempy.data(), final.data());
+  if (renamed < 0) {
+    int errnum = errno;
+    std::ostringstream buf;
+    buf << "rename " << tempy << ' ' << final;
+    std::error_code ec(errnum, std::system_category());
+    throw exception::System{ec, buf.str()};
+  }
+}
+#endif
+#endiv

@@ -32,7 +32,7 @@ protected:
 #import std.all_of
 #import std.max
 #import std.move
-#import std.invalid_argument
+#import tunitas.apanolio.exception.Argument
 namespace tunitas::apanolio {
   url::Parser::Parser(std::string const &prefix)
     : prefix_slash{prefix} {
@@ -72,7 +72,7 @@ namespace tunitas::apanolio {
     // but slashes further down in the string are separators.
     //
     if ('/' != prefix_slash.back()) {
-      throw std::invalid_argument{"no trailing slash"};
+      throw exception::Argument{"no trailing slash"};
     }
     std::string::size_type rest_index = prefix_slash.size();
     if (0 != syntax.find(prefix_slash) || syntax.size() < rest_index+1 || !isidentifier_thereon(syntax, rest_index)) {

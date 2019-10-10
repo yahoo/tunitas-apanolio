@@ -28,7 +28,7 @@ auto tests::unit::resource::Record::suite() -> cppunit::Test * {
     Stream con("constructor");
     con << call("dfefault", &Record::test_constructor_default)
       ;
-    series << add(con.release());
+    series << move(con);
   }
   return finalize(series);
 }

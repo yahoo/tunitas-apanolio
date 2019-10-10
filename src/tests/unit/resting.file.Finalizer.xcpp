@@ -1,0 +1,160 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::file { class Finalizer; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::resting::file::Finalizer : public cppunit::test::Fixture {
+public:
+  auto test_constructor() -> void;
+  auto test_destructor_default_KILL() -> void;
+  auto test_destructor_choose_KEEP() -> void;
+  auto test_destructor_choose_KILL() -> void;
+  auto test_choose_KEEP() -> void;
+  auto test_choose_KILL() -> void;
+  auto test_choose_DONE() -> void;
+  auto test_run() -> void;
+
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.resting.file.Finalizer
+#import tests.unit.resting.file.Pair
+#import tests.unit.resting.file.Guard
+#import tests.unit.resting.file.generate
+#import tests.unit.resting.file.open
+#import sys.posix.exists
+#import std.string
+
+auto tests::unit::resting::file::Finalizer::test_constructor() -> void {
+  Pair<std::string> names = generate<std::string>();
+  tunitas::apanolio::resting::file::Finalizer izer(names.first, names.second);
+  // Whee! it constructs
+  izer.choose(tunitas::apanolio::resting::file::Finalizer::DONE); // make it do nothing
+}
+
+auto tests::unit::resting::file::Finalizer::test_destructor_default_KILL() -> void {
+  Pair<std::string> names = generate<std::string>();
+  Guard<Pair<std::string>> unlink(names);
+  Pair<int> fds = open(names);
+  Guard<Pair<int>> close(fds);
+  {
+    tunitas::apanolio::resting::file::Finalizer izer(names.first, names.second);
+    CPPUNIT_ASSERT(  ::sys::posix::exists(names.first));
+    CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+  } // <------------------ test this ... Finalizer::~Finalizer()
+  // neither survives
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+}
+
+auto tests::unit::resting::file::Finalizer::test_destructor_choose_KEEP() -> void {
+  Pair<std::string> names = generate<std::string>();
+  Guard<Pair<std::string>> unlink(names);
+  Pair<int> fds = open(names);
+  Guard<Pair<int>> close(fds);
+  {
+    tunitas::apanolio::resting::file::Finalizer izer(names.first, names.second);
+    CPPUNIT_ASSERT(  ::sys::posix::exists(names.first));
+    CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+    izer.choose(tunitas::apanolio::resting::file::Finalizer::KEEP);
+  } // <------------------ test this ... Finalizer::~Finalizer()
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT(  ::sys::posix::exists(names.second));
+}
+
+auto tests::unit::resting::file::Finalizer::test_destructor_choose_KILL() -> void {
+  Pair<std::string> names = generate<std::string>();
+  Guard<Pair<std::string>> unlink(names);
+  Pair<int> fds = open(names);
+  Guard<Pair<int>> close(fds);
+  {
+    tunitas::apanolio::resting::file::Finalizer izer(names.first, names.second);
+    CPPUNIT_ASSERT(  ::sys::posix::exists(names.first));
+    CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+    izer.choose(tunitas::apanolio::resting::file::Finalizer::KILL);
+  } // <------------------ test this ... Finalizer::~Finalizer()
+  // neither survives
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+}
+
+auto tests::unit::resting::file::Finalizer::test_choose_KEEP() -> void {
+  Pair<std::string> names = generate<std::string>();
+  Guard<Pair<std::string>> unlink(names);
+  Pair<int> fds = open(names);
+  Guard<Pair<int>> close(fds);
+  tunitas::apanolio::resting::file::Finalizer izer(names.first, names.second);
+  CPPUNIT_ASSERT(  ::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+  izer.choose(tunitas::apanolio::resting::file::Finalizer::KEEP); // <----- test this with KEEP
+  izer.run();
+  // the tempfile is promoted to the final
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT(  ::sys::posix::exists(names.second));
+}
+
+auto tests::unit::resting::file::Finalizer::test_choose_KILL() -> void {
+  Pair<std::string> names = generate<std::string>();
+  Guard<Pair<std::string>> unlink(names);
+  Pair<int> fds = open(names);
+  Guard<Pair<int>> close(fds);
+  tunitas::apanolio::resting::file::Finalizer izer(names.first, names.second);
+  CPPUNIT_ASSERT(  ::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+  izer.choose(tunitas::apanolio::resting::file::Finalizer::KILL); // <---------- test this with KILL
+  izer.run();
+  // kill the tempfile, do not promote it to final
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+}
+
+auto tests::unit::resting::file::Finalizer::test_choose_DONE() -> void {
+  Pair<std::string> names = generate<std::string>();
+  Guard<Pair<std::string>> unlink(names);
+  Pair<int> fds = open(names);
+  Guard<Pair<int>> close(fds);
+  tunitas::apanolio::resting::file::Finalizer izer(names.first, names.second);
+  CPPUNIT_ASSERT(  ::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+  izer.choose(tunitas::apanolio::resting::file::Finalizer::DONE); // <---------- test this with KILL
+  izer.run();
+  // no change
+  CPPUNIT_ASSERT(  ::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+}
+
+auto tests::unit::resting::file::Finalizer::test_run() -> void {
+  Pair<std::string> names = generate<std::string>();
+  Guard<Pair<std::string>> unlink(names);
+  Pair<int> fds = open(names);
+  Guard<Pair<int>> close(fds);
+  tunitas::apanolio::resting::file::Finalizer izer(names.first, names.second);
+  CPPUNIT_ASSERT(  ::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+  izer.run(); // <------------------ test this ... explicitly run()
+  // no choice, defaults as KILL
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.first));
+  CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
+}
+
+#import rigging.suite.io
+auto tests::unit::resting::file::Finalizer::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("Finalizer");
+  series << call("constructor", &Finalizer::test_constructor)
+         << call("destructor-default-KILL", &Finalizer::test_destructor_default_KILL)
+         << call("destructor-choose-KEEP", &Finalizer::test_destructor_choose_KEEP)
+         << call("destructor-choose-KILL", &Finalizer::test_destructor_choose_KILL)
+         << call("choose-KEEP", &Finalizer::test_choose_KEEP)
+         << call("choose-KILL", &Finalizer::test_choose_KILL)
+         << call("choose-DONE", &Finalizer::test_choose_DONE)
+         << call("run", &Finalizer::test_run)
+    ;
+  return finalize(series);
+}
+#endiv

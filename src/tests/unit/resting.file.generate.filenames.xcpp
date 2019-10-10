@@ -1,0 +1,48 @@
+// -*- c++ -*- and wrapped in the SCOLD stylings
+#divert <hpp>
+#import tests.unit.resting.file.generate
+#import std.string
+namespace tests {
+  namespace unit {
+    namespace resting {
+      namespace file {
+        template<> inline auto generate<std::string>() -> Pair<std::string>; 
+      }
+    }
+  }
+}
+#endiv
+#divert <ipp>
+#import path.filename.workbench
+#import std.move
+#import std.string
+#import sys.posix.getenv
+#import sys.posix.mktemp
+#import sys.posix.unlink
+#import tunitas.apanolio.exception.System
+template<> auto tests::unit::resting::file::generate<std::string>() -> Pair<std::string> {
+  std::string tmpdir = "/tmp";
+  auto got = ::sys::posix::getenv("TMPDIR");
+  if (ok(got)) {
+    tmpdir = value(got);
+  }
+  // FIXME ... add more static uniqueness?  now() perhaps?
+  auto pattern = finalize(path::filename::workbench() * tmpdir / "t99.tests.unit.resting.file.XXXXXX");
+  using sys::posix::mktemp;
+  auto t1 = mktemp(pattern);
+  auto t2 = mktemp(pattern);
+  // If we couldn't get them both ...
+  if (!ok(t1) || !ok(t2)) {
+    using ::sys::posix::unlink;
+    // then kill them both
+    unlink(value(t1));
+    unlink(value(t2));
+    auto b1 = ok(t1);
+    auto ec       = !b1 ? std_system_error_code(t1) : std_system_error_code(t2);
+    auto message = "could not mktemp from " + pattern;
+    throw tunitas::apanolio::exception::System{ec, message};
+  }
+  Pair<std::string> ret((std::string)value(t1) + ".tmp"s, (std::string)value(t2) + ".final"s);
+  return std::move(ret);
+}
+#endiv

@@ -1,0 +1,123 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::file { class Stream; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::resting::file::Stream : public cppunit::test::Fixture {
+public:
+  auto test_constructor() -> void;
+  auto test_filename() -> void;
+  auto test_exists() -> void;
+  auto test_open_good() -> void;
+  auto test_open_bad() -> void;
+  auto test_begin_end() -> void;
+  auto test_copy_idiom() -> void;
+
+  auto setUp() -> void final;
+  auto tearDown() -> void final;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.resting.file.Stream
+#import tunitas.apanolio.resting.file.Iterator
+#import std.string
+
+#import tests.unit.resting.file.constants
+#import sys.posix.exists
+auto tests::unit::resting::file::Stream::setUp() -> void {
+  // You should have found these files from git.
+  // If not then you are missing files.
+  CPPUNIT_ASSERT(sys::posix::exists(SPECIMEN_SHORT_FILE));
+  CPPUNIT_ASSERT(sys::posix::exists(SPECIMEN_LONG_FILE));
+}
+
+auto tests::unit::resting::file::Stream::tearDown() -> void {
+  // Never mind
+}
+
+auto tests::unit::resting::file::Stream::test_constructor() -> void {
+  tunitas::apanolio::resting::file::Stream rel(SPECIMEN_LONG_FILE);
+  CPPUNIT_ASSERT(true); // the constructor "worked"
+}
+
+auto tests::unit::resting::file::Stream::test_filename() -> void {
+  std::string filename = SPECIMEN_LONG_FILE;
+  tunitas::apanolio::resting::file::Stream rel(filename);
+  CPPUNIT_ASSERT_EQUAL(filename, rel.filename());
+}
+
+auto tests::unit::resting::file::Stream::test_exists() -> void {
+  std::string filename = SPECIMEN_LONG_FILE;
+  tunitas::apanolio::resting::file::Stream rel(filename);
+  CPPUNIT_ASSERT(rel.exists());
+}
+
+auto tests::unit::resting::file::Stream::test_open_good() -> void {
+  std::string filename = SPECIMEN_LONG_FILE;
+  tunitas::apanolio::resting::file::Stream rel(filename);
+  auto opened = rel.open();
+  CPPUNIT_ASSERT(ok(opened));
+}
+
+auto tests::unit::resting::file::Stream::test_open_bad() -> void {
+  std::string filename = "/FAIL-FAIL-FAIL/share/dict/words";
+  tunitas::apanolio::resting::file::Stream rel(filename);
+  auto opened = rel.open();
+  CPPUNIT_ASSERT(!ok(opened));
+  auto ec = error_code(opened);
+  CPPUNIT_ASSERT(0 != ec.value());
+}
+
+#import std.ofstream
+auto tests::unit::resting::file::Stream::test_begin_end() -> void {
+  std::string filename = SPECIMEN_SHORT_FILE;
+  tunitas::apanolio::resting::file::Stream rel(filename);
+  auto opened = rel.open();
+  CPPUNIT_ASSERT(ok(opened));
+  std::ofstream nullity("/dev/null");
+  unsigned count = 0;
+  for (auto const &buf : rel) { // <------------- test this
+    std::cout << "chunk: size=" << buf.size() << ' ';
+    nullity.write(buf.data(), buf.size());
+    count++;
+  }
+  // Ensure that the file was big enough that it required more than one read() iteration
+  std::cout << "count=" << count << '\n';
+  CPPUNIT_ASSERT(2 < count);
+}
+
+#import std.ostringstream
+#import std.copy
+#import std.ostream_iterator.basic_buffer
+auto tests::unit::resting::file::Stream::test_copy_idiom() -> void {
+  std::string filename = SPECIMEN_LONG_FILE;
+  tunitas::apanolio::resting::file::Stream rel(filename);
+  auto opened = rel.open();
+  CPPUNIT_ASSERT(ok(opened));
+  std::ostringstream sink;
+  std::ostream_iterator<c::const_buffer> outbound(sink);
+  std::copy(rel.begin(), rel.end(), outbound);
+  std::string result = sink.str();
+  CPPUNIT_ASSERT(100000 < result.size());
+}
+
+#import rigging.suite.io
+auto tests::unit::resting::file::Stream::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  namespace suite = ::rigging::suite; // because nearby Stream occludes it
+  suite::Stream series("Stream");
+  series << call("constructor", &Stream::test_constructor)
+         << call("exists", &Stream::test_exists)
+         << call("open-good", &Stream::test_open_good)
+         << call("open-bad", &Stream::test_open_bad)
+         << call("begin_end", &Stream::test_begin_end)
+         << call("copy_idiom", &Stream::test_copy_idiom)
+    ;
+  return finalize(series);
+}
+#endiv

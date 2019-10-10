@@ -1,0 +1,13 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import std.size_t
+namespace tunitas::apanolio::resting::file {
+  // Helpers in and around File
+
+  // What's a good number here?  It's got to fit on the stack.
+  // used in gulp(...)
+  constexpr std::size_t const SOME_SIZE = 100u;
+}
+#endiv

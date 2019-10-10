@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::file {
+  //
+  // A guard
+  // ... to unlink the file (by name)
+  // ... to close the file description
+  //
+  // SUBJECT is Pair<string> or Pair<int>
+  //
+  template<typename SUBJECT> class Guard;
+}
+#endiv
+#divert <hpp>
+#import std.string
+#import std.is_same
+#import tests.unit.resting.file.Pair
+template<typename SUBJECT> class tests::unit::resting::file::Guard {
+public:
+  static_assert((std::is_same<SUBJECT, Pair<int>>::value ||
+                 std::is_same<SUBJECT, Pair<std::string>>::value),
+                "invalid SUBJECT");
+  using subject_type = SUBJECT;
+  inline explicit Guard(subject_type const &);
+  inline ~Guard();
+  Guard(Guard const &) = delete;
+  auto operator=(Guard const &) -> Guard & = delete;
+protected:
+  subject_type const &subject;
+};
+#endiv
+#divert <ipp>
+template<typename SUBJECT> tests::unit::resting::file::Guard<SUBJECT>::Guard(subject_type const &arg_subject)
+  : subject(arg_subject) {
+  ;
+}
+
+// specialization occurs on the destructor to affect the function
+#entail tests.unit.resting.file.Guard.int
+#entail tests.unit.resting.file.Guard.string
+#endiv

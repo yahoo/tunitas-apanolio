@@ -130,14 +130,12 @@ auto tests::unit::url::Parser::test_bad_identifier_3_not_isidentifier() -> void 
     CPPUNIT_ASSERT(!ok(u)); }
   { auto u = parser("/prefix/|date"); // <--- malformed identifier
     CPPUNIT_ASSERT(!ok(u)); }
-  { auto u = parser("/prefix/|/home/you"); // <--- malformed identifier (with slashe)
+  { auto u = parser("/prefix/|/home/you"); // <--- malformed identifier (with slash)
     CPPUNIT_ASSERT(!ok(u)); }
 }
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.add
-#import unit.rigging.suite.call
+#import rigging.suite.io
 auto tests::unit::url::Parser::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
+  using namespace ::rigging::suite;
   Stream series("Parser");
   series << call("empty", &Parser::test_empty)
          << call("slash", &Parser::test_slash)
@@ -157,6 +155,6 @@ auto tests::unit::url::Parser::suite() -> cppunit::Test * {
          << call("bad_identifier_2_with_slash", &Parser::test_bad_identifier_2_with_slash)
          << call("bad_identifier_3_not_identifier", &Parser::test_bad_identifier_3_not_isidentifier)
     ;
-  return series.release();
+  return finalize(series);
 }
 #endiv

@@ -1,0 +1,30 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::file { class Unlinker; }
+#endiv
+#divert <hpp>
+#import std.string
+class tests::unit::resting::file::Unlinker {
+public:
+  inline explicit Unlinker(std::string const &filename);
+  inline ~Unlinker();
+  Unlinker(Unlinker const &) = delete;
+  auto operator=(Unlinker const &) -> Unlinker & = delete;
+protected:
+  std::string filename;
+};
+#endiv
+#divert <ipp>
+tests::unit::resting::file::Unlinker::Unlinker(std::string const &arg_filename)
+  : filename(arg_filename) {
+  ;
+}
+
+#import sys.posix.unlink
+tests::unit::resting::file::Unlinker::~Unlinker() {
+  // Can't throw in the destructor.  Just try.
+  sys::posix::unlink(filename);
+}
+#endiv
