@@ -1,0 +1,21 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::schema::v0 {
+  //
+  // The fields of the v0 schema
+  //
+  // Specimen:
+  //   {
+  //       "id" : 115394546930515520,
+  //       "consentType" : "fanciful",
+  //       "entity" : "what is an entity anyway?",
+  //       "expires" : 1550665175,
+  //       "attributes" : [ "seems", "plural" ],
+  //       "status" : "of dubious provenance"
+  //   }
+  //
+  enum class Field { ID, EXPIRES, TYPE, STATUS, ATTRIBUTES };
+}
+#endiv

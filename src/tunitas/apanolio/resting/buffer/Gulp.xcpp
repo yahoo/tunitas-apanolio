@@ -1,0 +1,92 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resting::buffer {
+  //
+  // Gulp the stream off of the request_rec "into" the finalizable buffer
+  //
+  // Usage:
+  //
+  //   Buffer buffer = ...something...
+  //   Gulp gulp(req, buffer);
+  //   auto gulped = gulp(); <------------- doit
+  //   if (ok(gulped)) {
+  //     ....
+  //     buffer.finalize(Buffer::KEEP);
+  //   }
+  //   buffer.finalize(Buffer::DROP);
+  //
+  // Also, you should use the functional form buffer::gulp(req, buffer), which is nearby.
+  class Gulp;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.request_rec
+#import tunitas.apanolio.resting.Buffer
+#import tunitas.apanolio.resting.gulping.Gulped
+class tunitas::apanolio::resting::buffer::Gulp {
+public:
+  inline explicit Gulp(apache::httpd::request_rec *, Buffer &);
+  using Result = gulping::Gulped;
+  using result_type [[deprecated("avoid result_type from the old_school; prefer Result from the NewSchool")]] = Result;
+  auto operator()() -> Result;
+protected:
+  apache::httpd::request_rec *req;
+  Buffer &buffer;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::resting::buffer {
+  Gulp::Gulp(apache::httpd::request_rec *arg_req, Buffer &arg_buffer)
+    : req(arg_req)
+    , buffer(arg_buffer)
+  { }
+}
+#endiv
+#divert <cpp>
+#import apache.httpd.status.Code
+#import apache.httpd.request.chunked.constants
+#import apache.httpd.request.chunked.get
+#import apache.httpd.request.chunked.setup
+#import c.buffer
+#import std.back_inserter
+#import std.copy
+#import std.min
+#import std.size_t
+namespace tunitas::apanolio::resting::buffer {
+  auto Gulp::operator()() -> Result {
+    using namespace apache::httpd::request::chunked;
+    namespace status = apache::httpd::status;
+    namespace HTTP = apache::httpd::status::HTTP;
+    namespace handler = apache::httpd::status::handler;
+    auto u = setup(req, DECHUNK);
+    if (!ok(u)) {
+      return gulping::make(HTTP::INTERNAL_SERVER_ERROR);
+    }
+    std::size_t byte_count_written = 0;
+    status::Code result = handler::OK;
+    char some_space[gulping::SOME_SIZE];
+    for (bool again=true; again; ) {
+      auto g = get(req, c::buffer(some_space));
+      if (!ok(g)) {
+        result = HTTP::BAD_REQUEST;
+        again = false;
+      } else if (eof(g)) {
+        // we're good (we're done)
+        again = false;
+      } else if (0 == size(g)) {
+        // we're good (we're done ...eos (is different than eof)...
+        again = false;
+      } else {
+        auto write_size = std::min<std::streamsize>(size(g), sizeof(some_space));
+        // [[FIXTHIS]] is there some way where we can copy out of the incoming stream with fewer temporary-buffer copies?
+        std::copy(&some_space[0], &some_space[write_size], std::back_inserter(buffer));
+        byte_count_written += write_size;
+      }
+    }
+    detect_inadvertent_HTTP_OK(result);
+    return gulping::make(result, byte_count_written);
+  }
+}
+#endiv

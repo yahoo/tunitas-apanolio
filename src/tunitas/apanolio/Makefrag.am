@@ -7,9 +7,11 @@ lib_libtunitas_apanolio_la = lib/libtunitas-apanolio.la
 # [[FIXTHIS]] -ltunitas-app should be should be -ltunitas-service, something like that (-ltunitas-app has the command line options parsing)
 lib_libtunitas_apanolio_la_LIBADD = \
   $(lib_libtunitas_apanolio_resting_la) \
+  $(lib_libtunitas_apanolio_schema_la) \
   $(lib_libtunitas_apanolio_storage_la) \
   $(lib_libwant_la) \
   -ltunitas-app \
+ -lnonstd-module \
   $(end)
 lib_libtunitas_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 lib_libtunitas_apanolio_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunitas_apanolio_la_SOURCES))
@@ -30,8 +32,10 @@ lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/exception/namespace.cpp \
   obj/src/tunitas/apanolio/exception/Aspect.cpp \
   obj/src/tunitas/apanolio/exception/Argument.cpp \
+  obj/src/tunitas/apanolio/exception/Identifier.cpp \
   obj/src/tunitas/apanolio/exception/Invariant.cpp \
   obj/src/tunitas/apanolio/exception/Null.cpp \
+  obj/src/tunitas/apanolio/exception/Record.cpp \
   obj/src/tunitas/apanolio/exception/Storage.cpp \
   obj/src/tunitas/apanolio/exception/System.cpp \
   obj/src/tunitas/apanolio/exception/Version.cpp \
@@ -42,9 +46,11 @@ lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/resource/identifier.construct.cpp \
   obj/src/tunitas/apanolio/resource/Record.cpp \
   \
-  obj/src/tunitas/apanolio/url/namespace.cpp \
-  obj/src/tunitas/apanolio/url/Parser.cpp \
-  obj/src/tunitas/apanolio/url/URI.cpp \
+  obj/src/tunitas/apanolio/uri/namespace.cpp \
+  obj/src/tunitas/apanolio/uri/Parser.cpp \
+  obj/src/tunitas/apanolio/uri/URI.cpp \
+  obj/src/tunitas/apanolio/url.Parser.cpp \
+  obj/src/tunitas/apanolio/url.URI.cpp \
   $(end)
 $(scold_cxxdir)/tunitas/apanolio/dependencies.mk:
 	$(AM_V_BB1ST) $(call TF_DISAGGREGATE_COMPILE, $(lib_libtunitas_apanolio_la_SOURCES))

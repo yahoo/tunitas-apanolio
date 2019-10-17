@@ -32,6 +32,7 @@ DEVELOPMENT_AREAS = \
   $(module_c_prefix) \
   $(module_format_prefix) \
   $(module_leveldb_prefix) \
+  $(module_json_prefix) \
   $(module_mysql_prefix) \
   $(module_nonstd_prefix) \
   $(module_options_prefix) \
@@ -66,6 +67,7 @@ include src/autotools/autoconf/Makefrag.am
 include src/mod/apanolio/Makefrag.am
 include src/tunitas/apanolio/Makefrag.am
 include src/tunitas/apanolio/resting/Makefrag.am
+include src/tunitas/apanolio/schema/Makefrag.am
 include src/tunitas/apanolio/storage/Makefrag.am
 include src/want/Makefrag.am
 include src/tests/unit/Makefrag.am
@@ -96,6 +98,7 @@ bin_PROGRAMS = \
 noinst_LTLIBRARIES = \
   $(lib_libautotools_autoconf_la) \
   $(lib_libtunitas_apanolio_resting_la) \
+  $(lib_libtunitas_apanolio_schema_la) \
   $(lib_libtunitas_apanolio_storage_la) \
   $(lib_libwant_la) \
   $(end)

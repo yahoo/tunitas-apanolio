@@ -1,0 +1,49 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#import std.string
+#import std.size_t
+#import std.numeric_limits
+namespace tests::unit {
+  //
+  // Do just that.  Generate some "random" content.
+  // Lots of the test cases need some bytes to work with.
+  //
+  // There is a hidden internal safety limit so you can't "generate" an unbounded amount.
+  // This is a tester after all.
+  //
+  // Usage:
+  //
+  //   auto generated = generate_some_content(12345u);  ... generates about 13KB of "data"
+  //
+  auto generate_some_content(std::size_t = std::numeric_limits<std::size_t>::max()) -> std::string;
+}
+#endiv
+#divert <cpp>
+#import std.min
+#import std.move
+#import std.mt19937
+#import std.random_device
+#import std.uniform_int_distribution
+auto tests::unit::generate_some_content(std::size_t caller_defined_limit) -> std::string {
+  auto const secret_internal_safety_limit = (1lu<<16)<<8; // i.e. 16'777'216_byte
+  auto limit = std::min(caller_defined_limit, secret_internal_safety_limit);
+  //
+  // WATCHOUT - this does not open /dev/random unless _GLIBCXX_USE_RANDOM_TR1
+  // But GCC 8, see 
+  // https://gcc.gnu.org/gcc-8/changes.html
+  // <quote>On GNU/Linux, std::random_device::entropy() accesses the kernel's entropy count for the random device, if known (thanks to Xi Ruoyao).</quote>
+  //
+  std::random_device rnd;
+  std::seed_seq seed{rnd(), rnd(), rnd(), rnd(), rnd(), rnd()}; // how many?
+  std::mt19937 generator(seed);
+  std::uniform_int_distribution<int> distribution(0, 255); // generates binary data ... any possible 8-bit character value.
+  std::string ret;
+  for (int i(0), e(limit); e != i; ++i) {
+    char ch = distribution(generator);
+    ret += ch;
+  }
+  return std::move(ret);
+}
+#endiv

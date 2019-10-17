@@ -5,4 +5,6 @@
 namespace mod::apanolio {
   enum CONFIG { };
 }
+// Many things have need of seeing this
+#import nonstd.exception.Unimplemented
 #endiv

@@ -1,0 +1,42 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+//
+// A RAII guard for the grab & release system of the compiler.
+// See the documentariat in compiler::Interface
+//
+#include <tunitas.apanolio.schema.compiler.Interface>
+#endiv
+#divert <hpp>
+struct tunitas::apanolio::schema::compiler::Interface::Guard {
+  inline Guard(Interface &, Interface::Reference);
+  inline ~Guard();
+  Guard(Guard const &) = delete;
+private:
+  Interface &interface;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::schema::compiler {
+  Interface::Guard::Guard(Interface &interface, Interface::Reference reference)
+    : interface{interface} {
+    interface.grab(reference);
+  }
+  Interface::Guard::~Guard() {
+    interface.release();
+  }
+}
+#endiv
+#divert <cpp>
+#import std.is_copy_constructible
+#import std.is_copy_assignable
+#import std.is_move_constructible
+#import std.is_move_assignable
+namespace tunitas::apanolio::schema::compiler {
+  static_assert(!std::is_copy_constructible_v<Interface::Guard>);
+  static_assert(!std::is_copy_assignable_v<Interface::Guard>);
+  static_assert(!std::is_move_constructible_v<Interface::Guard>);
+  static_assert(!std::is_move_assignable_v<Interface::Guard>);
+}
+#endiv

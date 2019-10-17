@@ -1,0 +1,35 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::buffer { class Buffer; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tunitas.apanolio.resting.buffer.Buffer
+class tests::unit::resting::buffer::Buffer : public cppunit::test::Fixture {
+public:
+  using Subject = ::tunitas::apanolio::resting::buffer::Buffer;
+  auto test_constructor_default() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::resting::buffer::Buffer::test_constructor_default() -> void {
+  Subject subject;
+  CPPUNIT_ASSERT(subject.empty());
+}
+#import rigging.suite.io
+auto tests::unit::resting::buffer::Buffer::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("Buffer");
+  {
+    Stream con("constructor");
+    con << call("default", &Buffer::test_constructor_default)
+      ;
+    series << move(con);
+  }
+  return finalize(series);
+}
+#endiv

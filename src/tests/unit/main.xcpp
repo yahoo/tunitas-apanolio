@@ -11,7 +11,7 @@
 #import tests.unit.resource.Fixture
 #import tests.unit.resting.Fixture
 #import tests.unit.storage.Fixture
-#import tests.unit.url.Fixture
+#import tests.unit.uri.Fixture
 #import tests.unit.want.Fixture
 auto main(int argc, char **argv) -> int {
   using rigging::bench::Main;
@@ -25,7 +25,7 @@ auto main(int argc, char **argv) -> int {
               resource::Fixture::suite(),
               resting::Fixture::suite(),
               storage::Fixture::suite(),
-              url::Fixture::suite(),
+              uri::Fixture::suite(),
               tu::want::Fixture::suite());
   return remain(argc, argv);
 }

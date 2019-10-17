@@ -1,0 +1,265 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::schema::v0 {
+  //
+  // The compiler ... check and produce the "safe" form, for the v0 schema.
+  // Whereas the JSON being inspected came off of the Big Bad (Evil) Internet
+  // we are required to validate everything in it.
+  //
+  // Trust ... but verify. to make sure.
+  //
+  // Lifetimes
+  //   the lifetime of the Stream must be longer than that of the Compiler
+  //
+  // Usage:
+  //
+  //   auto buffer = resting::Buffer{...somehow...};
+  //   auto log = std::ostringstream{}; .................. if you want to save the prattlings
+  //   auto log = nonstd::stream::Null{}; ................ if you want silence
+  //
+  //   Compiler compiler{log};
+  //   compiler.grab(buffer);
+  //   if (compiler.check()) {
+  //     auto safe = compiler.sanitize();
+  //     ...store the record...
+  //   }
+  //
+  class Compiler;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.schema.compiler.Log
+#import tunitas.apanolio.schema.compiler.Prototype
+#import tunitas.apanolio.schema.compiler.Interface
+#import tunitas.apanolio.schema.v0.Field
+#import c.const_stringz
+class tunitas::apanolio::schema::v0::Compiler : private compiler::Log, public compiler::Prototype, virtual public compiler::Interface {
+  struct Ancestors {
+    using Log = compiler::Log;
+    using Prototype = compiler::Prototype;
+    using Interface = compiler::Interface;
+  };
+public:
+  Compiler() = default;
+  inline Compiler(Stream &);
+  inline auto grab(Reference) -> void final;
+  auto check() -> bool final;
+  // reminder: the grabbed object must have passed check() before valid are valid calls
+  auto identify() const -> Identifier final;
+  auto sanitize() const -> Record final;
+protected:
+  // Each subcheck is responsible for prattling about what it finds, as is amusing and as necessary.
+  // but at least returning the success of the check
+  template<Field> inline auto subcheck(Object const &) -> bool;
+  // In a "correct" and vetted object, get the sub-Object within the greater Object field.  Never copies.
+  template<Field> inline auto subget() const -> Object const &;
+  inline auto prattle_missing(c::const_stringz field_name) -> void;
+  inline auto prattle_not_a_number(c::const_stringz field_name) -> void;
+  inline auto prattle_not_a_string(c::const_stringz field_name) -> void;
+  template<Field> inline auto check_string_length(Object const &candidate) -> bool;
+}; 
+namespace tunitas::apanolio::schema::v0 {
+  template<> inline auto Compiler::subcheck<Field::ID>(Object const &) -> bool;
+  template<> inline auto Compiler::subcheck<Field::EXPIRES>(Object const &) -> bool;
+  template<> inline auto Compiler::subcheck<Field::TYPE>(Object const &) -> bool;
+  template<> inline auto Compiler::subcheck<Field::STATUS>(Object const &) -> bool;
+  template<> inline auto Compiler::subcheck<Field::ATTRIBUTES>(Object const &) -> bool;
+}
+#endiv
+#divert <ipp>
+#import tunitas.apanolio.schema.v0.field.Specification
+#import format.q
+#import c.str
+namespace tunitas::apanolio::schema::v0 {
+  using ::format::q;
+  Compiler::Compiler(Stream &lending)
+    : Ancestors::Log{lending}
+  { }
+  auto Compiler::grab(Reference r) -> void {
+    Prototype::grab(r);
+  }
+  auto Compiler::prattle_missing(c::const_stringz literal) -> void {
+    log << "field " << q(literal) << " is missing\n";
+  }
+  auto Compiler::prattle_not_a_number(c::const_stringz literal) -> void {
+    log << "field " << q(literal) << " is not a number\n";
+  }
+  auto Compiler::prattle_not_a_string(c::const_stringz literal) -> void {
+    log << "field " << q(literal) << " is not a string\n";
+  }
+  template<Field FIELD> auto Compiler::check_string_length(Object const &container) -> bool {
+    using Specification = field::Specification<FIELD>;
+    using Limits = typename Specification::Limits;
+    auto ok = false;
+    auto found = [&container]() {
+                   auto const literal = Specification::literal();
+                   return container.find(literal.begin(), literal.end());
+                 }();
+    if (nullptr == found) {
+        prattle_missing(Specification::literal());
+    } else {
+      auto const &candidate = *found;
+      if (!candidate.isString()) {
+        prattle_not_a_string(Specification::literal());
+      } else {
+        // This may be a small word or a large base64 word (e.g. encoded TCF) or something else
+        auto const payload = candidate.asString();
+        auto const payload_size = payload.size();
+        if (payload_size < Limits::min() || Limits::max() < payload_size) {
+          log << "field " << format::q(Specification::literal()) << " with length " << payload_size << " is out of range " << Limits::min() << " .. " << Limits::max() << '\n';
+        } else {
+          ok = true;
+        }
+      }
+    }
+    return ok;
+  }
+  template<Field FIELD> auto Compiler::subget() const -> Object const & {
+    // Because donor is 'Object const', no new allocation is done; instead a (constant & context-free) Object{JSONNULL} is returned referenced & copied out.
+    Object const &donor{*grabbed};
+    return donor[c::str(field::Specification<FIELD>::literal())];
+  }
+}
+#import format.q
+#import nonstd.int128.ostream // operator<< for uint128
+#import std.is_signed
+#import sys.time.t
+#import tunitas.apanolio.schema.io
+#import tunitas.apanolio.schema.limits
+#import tunitas.apanolio.schema.v0.field.Specification
+#import tunitas.time.Clock
+#import tunitas.time.Point
+namespace tunitas::apanolio::schema::v0 {
+  using nonstd::int128::operator<<; // that namespace also has a format(...) so only get what we need
+  using ::format::q;
+  template<> auto Compiler::subcheck<Field::ID>(Object const &container) -> bool {
+    using Specification = field::Specification<Field::ID>;
+    using Limits = Specification::Limits;
+    auto ok = false;
+    auto found = [&container]() {
+                   auto const literal = Specification::literal();
+                   return container.find(literal.begin(), literal.end());
+                 }();
+    if (nullptr == found) {
+      prattle_missing(Specification::literal());
+    } else {
+      auto const &candidate = *found;
+      if (!candidate.isUInt64()) {
+        prattle_not_a_number(Specification::literal());
+      } else {
+        // [[FIXTHIS, MAYBE]] we really want uint128 here but jsoncpp doesn't (ahem, yet) support that
+        auto const identifier = candidate.asUInt64();
+        if (identifier < Limits::min() || Limits::max() < identifier) {
+          log << "field " << q(Specification::literal()) << " with value " << io::identifier << identifier << " is out of the reasonable range " << io::identifier << Limits::min() << " .. " << io::identifier << Limits::max() << '\n';
+        } else {
+          ok = true;
+        }
+      }
+    }
+    return ok;
+  }
+  template<> auto Compiler::subcheck<Field::EXPIRES>(Object const &container) -> bool {
+    using Specification = field::Specification<Field::EXPIRES>;
+    using Limits = Specification::Limits;
+    auto ok = false;
+    auto found = [&container]() {
+                   auto const literal = Specification::literal();
+                   return container.find(literal.begin(), literal.end());
+                 }();
+    if (nullptr == found) {
+      prattle_missing(Specification::literal());
+    } else {
+      auto const &candidate = *found;
+      if (!candidate.isUInt64()) {
+        prattle_not_a_number(Specification::literal());
+      } else {
+        static_assert(std::is_signed_v<sys::time::t>); // but we disallow negative time (before 1970).
+        auto const [min, expires, max] = [&candidate]() -> std::tuple<time::Point, time::Point, time::Point> {
+          using time::Clock;
+          auto now = Clock::now();
+          return {Limits::min(now), Clock::from_time_t(candidate.asUInt64()), Limits::max(now)};
+        }();
+        if (expires < min || max < expires) {
+          auto const format = "%FT%T";
+          log << "field " << q(Specification::literal()) << " with value " << io::put(expires, format) << " is out of range " << io::put(min, format) << " .. " << io::put(max, format) << '\n';
+        } else {
+          ok = true;
+        }
+      }
+    }
+    return ok;
+  }
+  template<> auto Compiler::subcheck<Field::TYPE>(Object const &candidate) -> bool {
+    return check_string_length<Field::TYPE>(candidate);
+  }
+  template<> auto Compiler::subcheck<Field::STATUS>(Object const &candidate) -> bool {
+    return check_string_length<Field::STATUS>(candidate);
+  }
+  template<> auto Compiler::subcheck<Field::ATTRIBUTES>(Object const &candidate) -> bool {
+    // the 'attributes' are optional but SHOULD be an array of words (strings)
+    return true; // attributes is not checked, and is later ignored (dropped in sanitization)
+  }
+}
+#endiv
+#divert <cpp>
+#import json.as
+#import json.writer.Compact
+#import json.writer.stream.Builder
+#import nonstd.exception.Unimplemented
+#import std.transform
+#import std.back_inserter
+#import std.move
+namespace tunitas::apanolio::schema::v0 {
+  auto Compiler::check() -> bool {
+    // Start with assuming the grabbed object is invalid and prove that it is valid.
+    auto result = false;
+    if (grabbed) {
+      auto const &candidate{*grabbed};
+      if (candidate.isObject()) {
+        auto id = subcheck<Field::ID>(candidate);
+        auto type = subcheck<Field::TYPE>(candidate);
+        auto expires = subcheck<Field::EXPIRES>(candidate);
+        auto status = subcheck<Field::STATUS>(candidate);
+        auto attributes = subcheck<Field::ATTRIBUTES>(candidate);
+        result = id && type && expires && status && attributes;
+      }
+    }
+    return result;
+  }
+  auto Compiler::identify() const -> Identifier {
+    // The grabbed object has already passed check() so we can just go for it
+    return Identifier{subget<Field::ID>().asUInt64()};
+  }
+  auto Compiler::sanitize() const -> Record {
+    json::Value cleaned;
+    // [[FIXTHIS]] move these literals into Limits<Field> or some such table-driven type-indexed scheme
+    cleaned["id"] = subget<Field::ID>();
+    cleaned["consentType"] = subget<Field::TYPE>();
+    cleaned["expires"] = subget<Field::EXPIRES>();
+    cleaned["status"] = subget<Field::STATUS>();
+    // [[FIXTHIS]] this is strongly suboptimal because of the duplicate copy AND because buried in as<std::string>(...) is json::writer::Compact
+    auto const serialized = [&cleaned]() -> std::string {
+                              // NOT json::as<std::string>(cleaned); because that uses the pretty printer or something else, we don't know what
+#if 0
+                              json::writer::Compact compact;
+                              return compact.write(cleaned);
+#else
+                              json::writer::stream::Builder bob;
+                              bob["commentStyle"] = "None";
+                              bob["indentation"] = ""; // <-------------------------- this is not in Compact as of module-json 0.8.0-0.devel (mainline)
+                              std::unique_ptr<json::writer::Stream> w(bob.newStreamWriter());
+                              std::ostringstream buf;
+                              w->write(cleaned, &buf);
+                              return buf.str();
+#endif
+
+                            }();
+    Record returned;
+    // [[MAYBE]] we could do compression here, but these things aren't that big anyway, are they?
+    std::transform(serialized.begin(), serialized.end(), std::back_inserter(returned), [](auto c) -> Record::Value { return Record::Value(c); });
+    return std::move(returned);
+  }
+}
+#endiv

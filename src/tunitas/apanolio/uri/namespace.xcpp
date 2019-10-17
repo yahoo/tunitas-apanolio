@@ -2,13 +2,6 @@
 // Copyright 2019-2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace tunitas::apanolio {
-  //
-  // preferred  namespace uri (i as in iPad)
-  // deprecated namespace url (l as in llama)
-  //
-  namespace [[deprecated("instead use tunitas::apanolio::uri ... with an 'i' as in iPad, not 'l' as in llama")]] url { }
-}
 namespace tunitas::apanolio::uri {
   //
   // The URI parser

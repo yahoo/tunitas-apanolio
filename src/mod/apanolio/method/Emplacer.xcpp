@@ -1,0 +1,115 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace mod::apanolio::method {
+  //
+  // The "emplacer" is the behavior common between POST and PUT (Poster and Putter).
+  // Descendants only.
+  //
+  // Usage:
+  //
+  //   Poster poster{r, spec};     Putter putter{r, spec};
+  //   return poster();            return putter();
+  //
+  class Emplacer;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.status.Code
+#import mod.apanolio.method.Prototype
+#import c.const_stringz
+#import std.string
+class mod::apanolio::method::Emplacer : public Prototype {
+  using Ancestor = Prototype;
+protected:
+  ~Emplacer() = default; // NOT virtual
+  using Ancestor::Prototype;
+  // the 'method' is merely descriptive, being supplied by the descendant's call
+  auto emplace(c::const_stringz method) -> apache::httpd::status::Code;
+  auto emplace(c::const_stringz method, std::string const &identifier) -> apache::httpd::status::Code;
+private:
+  auto banner_failure(c::const_stringz method, std::string const &reason) -> void;
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.resource.Identifier
+#import tunitas.apanolio.resource.identifier.construct
+#import tunitas.apanolio.resource.Record
+#import tunitas.apanolio.resting.buffer.gulp
+#import tunitas.apanolio.resting.validate
+#import rabinpoly.fingerprint
+#import std.to_string
+namespace mod::apanolio::method {
+  using tunitas::apanolio::resting::Buffer;
+  using tunitas::apanolio::resting::buffer::gulp;
+  using tunitas::apanolio::resource::identifier::construct;
+  using rabinpoly::fingerprint;
+  auto Emplacer::emplace(c::const_stringz method) -> apache::httpd::status::Code {
+    Buffer buffer;
+    auto gulped = gulp(this->req, buffer);
+    if (!ok(gulped)) {
+      auto message = "error " + std::to_string((int) status(gulped)); // [[FIXTHIS]] is there no moral equivalent of error_code(gulped).message()
+      banner_failure(method, message);
+      return status(gulped);
+    }
+    auto [identifier, record] = validate(buffer);
+    auto const &key = construct(rabinpoly::fingerprint(identifier));
+    if (ok(spec->storage.PROBE(key))) {
+      // [[reminder]] Only the web semantic requires this; (typically) the underlying storage supports upsert or overwrite semantics.
+      banner_failure(method, "already exists");
+      return HTTP::CONFLICT;
+    }
+    auto set = spec->storage.SET(key, record);
+    if (!ok(set)) {
+      auto message = "error " + std::to_string((int) status(gulped)); // [[FIXTHIS]] is there no moral equivalent of error_code(gulped).message()
+      banner_failure(method, message);
+      // ... or attempting a prohibited action (e.g. creating a duplicate record where only one is allowed).
+      return HTTP::FORBIDDEN;
+    }
+    ap_set_content_type(this->req, "text/text"); // [[FIXTHIS]] is this not redundant?  Else do it right ... as ap::set_content_type(...)
+    return HANDLER::OK; // not HTTP::OK
+  }
+  auto Emplacer::emplace(c::const_stringz method, std::string const &declared_identifier) -> apache::httpd::status::Code {
+    Buffer buffer;
+    auto gulped = gulp(this->req, buffer);
+    if (!ok(gulped)) {
+      auto message = "error " + std::to_string((int) status(gulped)); // [[FIXTHIS]] is there no moral equivalent of error_code(gulped).message()
+      banner_failure(method, message);
+      return status(gulped);
+    }
+    auto [received_identifier, record] = validate(buffer);
+    auto const &key0 = construct(rabinpoly::fingerprint(declared_identifier));
+    auto const &key1 = construct(rabinpoly::fingerprint(received_identifier));
+    if (key0 == key1) {
+      banner_failure(method, "mismatched identifiers");
+      return HTTP::CONFLICT;
+    }
+    if (!ok(spec->storage.PROBE(key0))) {
+      // [[reminder]] Only the web semantic requires this; (typically) the underlying storage supports upsert or overwrite semantics.
+      return HTTP::NOT_FOUND;
+    }
+    auto set = spec->storage.SET(key0, record);
+    if (!ok(set)) {
+      auto message = "error " + std::to_string((int) status(gulped)); // [[FIXTHIS]] is there no moral equivalent of error_code(gulped).message()
+      banner_failure(method, message);
+      // ... or attempting a prohibited action (e.g. creating a duplicate record where only one is allowed).
+      return HTTP::FORBIDDEN;
+    }
+    ap_set_content_type(this->req, "text/text"); // [[FIXTHIS]] is this not redundant?  Else do it right ... as ap::set_content_type(...)
+    return HANDLER::OK; // not HTTP::OK
+  }
+}
+#import apache.httpd.io.keywords
+#import autotools.autoconf.Config.mod.apanolio.CONFIG
+auto mod::apanolio::method::Emplacer::banner_failure(c::const_stringz method, std::string const &reason) -> void {
+  using namespace io::keywords;
+  ap_set_content_type(this->req, "text/html"); // [[FIXTHIS]] as ap::set_content_type(...)
+  rs << html << br
+     << head << autotools::autoconf::Config<CONFIG>::package_name() << _head << br
+     << body << p << "the POST fails"
+    // with no reason stated
+     << _p << _body
+     << _html;
+}
+#endiv

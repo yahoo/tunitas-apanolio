@@ -16,6 +16,9 @@ public:
   using Name = ::tunitas::apanolio::storage::engine::Name;
   template<Name ENGINE> auto test_open_template0() -> void;
   template<Name ENGINE> auto test_open_template1() -> void;
+  auto test_PROBE() -> void;
+  auto test_GET() -> void;
+  auto test_SET() -> void;
   static auto suite() -> cppunit::Test *;
 protected:
   struct exception {
@@ -84,6 +87,43 @@ auto tests::unit::storage::Fixture::test_open_function() -> void {
     CPPUNIT_ASSERT(false); // because the rigging failed, failed to setUp, or to operate in some other way
   }
 }
+auto tests::unit::storage::Fixture::test_PROBE() -> void {
+  try {
+    namespace storage = ::tunitas::apanolio::storage;
+    auto shim = storage::open<storage::engine::NONE>();
+    namespace resource = ::tunitas::apanolio::resource;
+    auto const zero = resource::Identifier{0};
+    auto probed = shim.PROBE(zero);
+    CPPUNIT_ASSERT(!ok(probed)); // it can't be there this is the NONE storage engine.
+  } catch (::want::rigging::exception::Aspect const &) {
+    CPPUNIT_ASSERT(false); // because the rigging failed, failed to setUp, or to operate in some other way
+  }
+}
+auto tests::unit::storage::Fixture::test_GET() -> void {
+  try {
+    namespace storage = ::tunitas::apanolio::storage;
+    auto shim = storage::open<storage::engine::NONE>();
+    namespace resource = ::tunitas::apanolio::resource;
+    auto const zero = resource::Identifier{0};
+    auto got = shim.GET(zero);
+    CPPUNIT_ASSERT(!ok(got)); // it can't be there this is the NONE storage engine.
+  } catch (::want::rigging::exception::Aspect const &) {
+    CPPUNIT_ASSERT(false); // because the rigging failed, failed to setUp, or to operate in some other way
+  }
+}
+auto tests::unit::storage::Fixture::test_SET() -> void {
+  try {
+    namespace storage = ::tunitas::apanolio::storage;
+    auto shim = storage::open<storage::engine::NONE>();
+    namespace resource = ::tunitas::apanolio::resource;
+    auto const zero = resource::Identifier{0};
+    auto const payload = resource::Record{};
+    auto set = shim.SET(zero, payload);
+    CPPUNIT_ASSERT(!ok(set)); // it can't be set because this is the NONE storage engine.
+  } catch (::want::rigging::exception::Aspect const &) {
+    CPPUNIT_ASSERT(false); // because the rigging failed, failed to setUp, or to operate in some other way
+  }
+}
 #import tunitas.apanolio.storage.engine.Engine
 #import rigging.suite.io
 auto tests::unit::storage::Fixture::suite() -> cppunit::Test * {
@@ -98,9 +138,23 @@ auto tests::unit::storage::Fixture::suite() -> cppunit::Test * {
         << call("FILES", &Fixture::test_open_template1<engine::FILES>)
         << call("LEVELDB", &Fixture::test_open_template1<engine::LEVELDB>)
         << call("SQLITE", &Fixture::test_open_template1<engine::SQLITE>)
+#if 0
       // the others are not ready for testing yet
+        << call("MYSQL", &Fixture::test_open_template1<engine::MYSQL>)
+        << call("PGSQL", &Fixture::test_open_template1<engine::PGSQL>)
+        << call("RAMCLOUD", &Fixture::test_open_template1<engine::RAMCLOUD>)
+        << call("FABRIC", &Fixture::test_open_template1<engine::FABRIC>)
+        << call("SCARPET", &Fixture::test_open_template1<engine::SCARPET>)
+#endif
     ;
     series << move(ope);
+  } {
+    Stream ops("operations");
+    ops << call("PROBE", &Fixture::test_PROBE)
+        << call("GET", &Fixture::test_GET)
+        << call("SET", &Fixture::test_SET)
+      ;
+    series << move(ops);
   }
   return finalize(series);
 }

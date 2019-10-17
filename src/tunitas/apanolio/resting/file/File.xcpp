@@ -25,6 +25,7 @@ namespace tunitas::apanolio::resting::file {
   //     detect_inadvertent_HTTP_OK(failed);
   //     return failed;
   //   }
+  //   file.finalize(File::KEEP);
   //
   class File;
 }
@@ -81,7 +82,7 @@ namespace tunitas::apanolio::resting::file {
     // Choose and prefigure what will happen upon destruction.
     // The caller wants to "finalize", so do it all.
     //
-    // Amplify the File::Cohice into a Finalizer::Choice
+    // Amplify the File::Choice into a Finalizer::Choice
     auto redo = (file::Finalizer::Choice)(choice);
     finalizer.choose(redo);
     // Close the outbound so its data is flushed out.

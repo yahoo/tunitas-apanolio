@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#import std.ios
+#import nonstd.required.Character_Traits
+#import tunitas.time.put
+namespace tunitas::apanolio::schema::io {
+  //
+  // The stream modifiers for the known types.
+  // Identifiers are always printed as hexidecimal integers with full fill to the width of the identifier.
+  //
+  // Usage:
+  //
+  //   cout << " wow " << io::identifier << some_id << " wow "
+  //
+  inline auto identifier(std::ios &) -> std::ios &;
+  //
+  // Deal with time
+  // https://en.cppreference.com/w/cpp/io/manip/put_time 
+  //
+  // Suggest:
+  //   %s      seconds
+  //   %FT%T   ISO 8601
+  //
+  // Usage:
+  //
+  //     auto point = time::Point{...somehow...};
+  //     out << io::put(point, "%s") << '\n';
+  //
+  using tunitas::time::put;
+}
+#endiv
+#divert <ipp>
+#import std.hex
+#import std.setw
+#import std.setfill
+#import tunitas.apanolio.resource.Identifier
+namespace tunitas::apanolio::schema {
+  auto io::identifier(std::ios &ios) -> std::ios & {
+    auto const IDENTIFIER_WIDTH = sizeof (resource::Identifier) / 4; // it will be hexidecimal
+    ios.width(IDENTIFIER_WIDTH);
+    ios.fill('0'); //<------------- cannot work against std::ios_base because we utter a (thin) character literal here
+    ios.setf(std::ios::hex, std::ios::basefield);
+    return ios;
+  }
+}
+#endiv

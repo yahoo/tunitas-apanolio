@@ -3,4 +3,6 @@
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
 namespace tunitas::apanolio { }
+// Many things have need of seeing this
+#import nonstd.exception.Unimplemented
 #endiv

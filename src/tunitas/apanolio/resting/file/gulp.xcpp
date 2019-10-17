@@ -1,12 +1,13 @@
-// -*- mode: c++; indent-tabs-mode: nil; -*- in the SCOLD stylings that are so popular these days
-// Copyright (c) 2016-2017, Wendell Craig Baker, wbaker@scold-lang.org
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <hpp>
 #import apache.httpd.request_rec
 #import tunitas.apanolio.resting.file.File
 #import tunitas.apanolio.resting.file.Gulp
 namespace tunitas::apanolio::resting::file {
   //
-  // Create thge gulper and do the gulp all in one shot.  
+  // Create the gulper and do the gulp all in one shot.  
   //
   // Usage:
   //
@@ -18,11 +19,11 @@ namespace tunitas::apanolio::resting::file {
   //     ....
   //   }
   //
-  inline auto gulp(apache::httpd::request_rec *req, File &file) -> Gulp::result_type;
+  inline auto gulp(apache::httpd::request_rec *req, [[out]] File &file) -> Gulp::Result;
 }
 #endiv
 #divert <ipp>
-auto tunitas::apanolio::resting::file::gulp(apache::httpd::request_rec *req, File &file) -> Gulp::result_type {
+auto tunitas::apanolio::resting::file::gulp(apache::httpd::request_rec *req, File &file) -> Gulp::Result {
   Gulp gulp(req, file);
   return gulp();
 }

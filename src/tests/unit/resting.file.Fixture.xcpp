@@ -12,7 +12,6 @@ public:
   auto test_tempname_0arg() -> void;
   auto test_tempname_1arg() -> void;
   auto test_gulp() -> void;
-
   static auto suite() -> cppunit::Test *;
 protected:
   static constexpr auto const TEMPNAME_ITERATION_LIMIT = 10;
@@ -24,7 +23,6 @@ protected:
 #import tunitas.apanolio.resting.file.tempname
 #import std.set
 #import std.string
-
 auto tests::unit::resting::file::Fixture::test_tempname_0arg() -> void {
   using tunitas::apanolio::resting::file::tempname;
   std::set<std::string> save;
@@ -35,7 +33,6 @@ auto tests::unit::resting::file::Fixture::test_tempname_0arg() -> void {
     save.insert(n);
   }
 }
-
 auto tests::unit::resting::file::Fixture::test_tempname_1arg() -> void {
   using tunitas::apanolio::resting::file::tempname;
   std::string some_directory = "/tmp";
@@ -47,7 +44,6 @@ auto tests::unit::resting::file::Fixture::test_tempname_1arg() -> void {
     save.insert(n);
   }
 }
-
 #import std.move
 auto tests::unit::resting::file::Fixture::generate_content(std::size_t size) -> std::string {
   std::string ret;
@@ -60,7 +56,6 @@ auto tests::unit::resting::file::Fixture::generate_content(std::size_t size) -> 
   }
   return std::move(ret);
 }
-
 #import tests.unit.resting.file.Unlinker
 #import tunitas.apanolio.resting.File
 #import tunitas.apanolio.resting.file.gulp
@@ -69,7 +64,6 @@ auto tests::unit::resting::file::Fixture::generate_content(std::size_t size) -> 
 #import sys.posix.tmpdir
 #import slurp.file.read
 auto tests::unit::resting::file::Fixture::test_gulp() -> void {
-  std::cerr << __FILE__ << ':' << __LINE__ << '\n';
   rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
   for (std::size_t i(0), e(GULP_ITERATION_SIZE_LIMIT); e != i; ++i) {
     std::string specimen = generate_content(i);
@@ -87,13 +81,10 @@ auto tests::unit::resting::file::Fixture::test_gulp() -> void {
     CPPUNIT_ASSERT_EQUAL(expected, actual);
   }
 }
-
 #import tests.unit.resting.file.File
 #import tests.unit.resting.file.Finalizer
 #import tests.unit.resting.file.Gulp
 #import tests.unit.resting.file.Move
-#import tests.unit.resting.file.Stream
-#import tests.unit.resting.file.Iterator
 #import rigging.suite.io
 auto tests::unit::resting::file::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
@@ -106,8 +97,6 @@ auto tests::unit::resting::file::Fixture::suite() -> cppunit::Test * {
          << add<Finalizer>()
          << add<Gulp>()
          << add<Move>()
-         << add<Stream>()
-         << add<Iterator>()
     ;
   return finalize(series);
 }

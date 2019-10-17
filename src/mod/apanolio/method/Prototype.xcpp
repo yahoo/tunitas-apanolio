@@ -25,7 +25,7 @@ namespace mod::apanolio::method {
 #import apache.httpd.status.Code
 #import apache.httpd.request_rec
 #import mod.apanolio.config.Specification
-#import tunitas.apanolio.url.Parser
+#import tunitas.apanolio.uri.Parser
 class mod::apanolio::method::Prototype {
 protected:
   ~Prototype() = default;
@@ -40,7 +40,7 @@ protected:
   // Not const because we might need to omdify ... and even a GET isn't readonly activity
   config::Specification *spec;
   // ... because parsing occurs.
-  tunitas::apanolio::url::Parser uri_parser;
+  tunitas::apanolio::uri::Parser uri_parser;
   // ... because every method handler will need to respond onto an html stream.
   apache::httpd::Stream rs;
 };

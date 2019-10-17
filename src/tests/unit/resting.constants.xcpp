@@ -2,20 +2,20 @@
 // Copyright 2019-2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace tests::unit::resting::file { }
+namespace tests::unit::resting { }
 #endiv
 #divert <hpp>
 #import std.string
-namespace tests::unit::resting::file {
+namespace tests::unit::resting {
   // Any file at all so long as it is not zero length
   extern std::string const SPECIMEN_LONG_FILE;
-  // Any file so long as it is bigger than  ~1024 (tunitas::apanolio::resting::file::Iterator::BUFFER_SIZE)
+  // Any file so long as it is bigger than  ~1024 (tunitas::apanolio::resting::stream::Iterator::BUFFER_SIZE)
   extern std::string const SPECIMEN_SHORT_FILE;
 }
 #endiv
 #divert <cpp>
 // and as such the test rigging must be run from $(top_srcdir)
 //
-std::string const tests::unit::resting::file::SPECIMEN_LONG_FILE = "tests/unit/SPECIMEN_LONG_FILE.txt";
-std::string const tests::unit::resting::file::SPECIMEN_SHORT_FILE = "tests/unit/SPECIMEN_SHORT_FILE.txt";
+std::string const tests::unit::resting::SPECIMEN_LONG_FILE = "tests/unit/SPECIMEN_LONG_FILE.txt";
+std::string const tests::unit::resting::SPECIMEN_SHORT_FILE = "tests/unit/SPECIMEN_SHORT_FILE.txt";
 #endiv

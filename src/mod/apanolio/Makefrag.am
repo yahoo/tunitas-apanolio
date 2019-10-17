@@ -29,6 +29,7 @@ lib_libmod_apanolio_la_SOURCES = \
   \
   obj/src/mod/apanolio/method/namespace.cpp \
   obj/src/mod/apanolio/method/Prototype.cpp \
+  obj/src/mod/apanolio/method/Emplacer.cpp \
   obj/src/mod/apanolio/method/Deleter.cpp \
   obj/src/mod/apanolio/method/Getter.cpp \
   obj/src/mod/apanolio/method/Optioner.cpp \

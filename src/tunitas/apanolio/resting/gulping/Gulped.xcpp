@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resting::gulping {
+  //
+  // The result of a gulping operation
+  // same for gulping into memory (buffer) or gulping into a file
+  //
+  // Code is the HTTP status code to return the client
+  // size_t is the bytes actually written to (our) storage
+  //        this may be different than the bytes read off the wire.
+  //
+  class Gulped;
+}
+#endiv
+#divert <hpp>
+#import std.size_t
+#import apache.httpd.status.Code
+namespace tunitas::apanolio::resting::gulping {
+  // constructor
+  inline auto make(apache::httpd::status::Code, std::size_t = 0) -> Gulped;
+  // accessors
+  inline auto ok(Gulped const &) -> bool;
+  inline auto status(Gulped const &) -> apache::httpd::status::Code;
+  inline auto size(Gulped const &) -> std::size_t;
+}
+#import std.tuple
+class tunitas::apanolio::resting::gulping::Gulped : public std::tuple<apache::httpd::status::Code, std::size_t> {
+  using Ancestor = std::tuple<apache::httpd::status::Code, std::size_t>;
+public:
+  Gulped() = default;
+  using Ancestor::tuple;
+};
+#endiv
+#divert <ipp>
+#import std.get
+namespace tunitas::apanolio::resting {
+  auto gulping::make(apache::httpd::status::Code c, std::size_t s) -> Gulped {
+    return Gulped{c, s};
+  }
+  auto gulping::ok(Gulped const &g) -> bool {
+    return ok(status(g));
+  }
+  auto gulping::status(Gulped const &g) -> apache::httpd::status::Code {
+    return std::get<0>(g);
+  }
+  auto gulping::size(Gulped const &g) -> std::size_t {
+    return std::get<1>(g);
+  }
+}
+#endiv

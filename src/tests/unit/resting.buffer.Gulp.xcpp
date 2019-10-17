@@ -1,0 +1,69 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::buffer { class Gulp; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::resting::buffer::Gulp : public cppunit::test::Fixture {
+public:
+  auto test_constructor() -> void;
+  auto test_operator_call() -> void;
+  auto test_accessors() -> void;
+
+  static auto suite() -> cppunit::Test *;
+protected:
+protected:
+  static constexpr auto GENERATED_CONTENT_SIZE_LIMIT = 21566u; // some random magic value
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.resting.buffer.Gulp
+#import tunitas.apanolio.resting.buffer.Buffer
+#import rigging.httpd.Dummy
+#import tests.unit.generate_some_content
+auto tests::unit::resting::buffer::Gulp::test_constructor() -> void {
+  rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
+  tunitas::apanolio::resting::buffer::Buffer testbuff;
+  dummy.set_Content(generate_some_content(GENERATED_CONTENT_SIZE_LIMIT));
+  dummy.prepare();
+  tunitas::apanolio::resting::buffer::Gulp gulp(dummy, testbuff); // <------ test this
+}
+auto tests::unit::resting::buffer::Gulp::test_operator_call() -> void {
+  rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
+  tunitas::apanolio::resting::buffer::Buffer testbuff;
+  auto specimen = generate_some_content(GENERATED_CONTENT_SIZE_LIMIT);
+  dummy.set_Content(specimen);
+  dummy.prepare();
+  tunitas::apanolio::resting::buffer::Gulp gulp(dummy, testbuff);
+  auto gulped = gulp();// <------ test this
+  bool okay = ok(gulped);
+  detect_inadvertent_HTTP_OK(status(gulped));
+  std::cerr << "okay=" << okay << '\n';
+  CPPUNIT_ASSERT(ok(gulped));
+  namespace HTTP = apache::httpd::status::HTTP;
+  namespace handler = apache::httpd::status::handler;
+  detect_inadvertent_HTTP_OK(status(gulped));
+  CPPUNIT_ASSERT(handler::OK == status(gulped));
+  CPPUNIT_ASSERT_EQUAL(specimen.size(), size(gulped));
+  std::string expected = specimen;
+  std::string actual = std::string{testbuff.begin(), testbuff.end()};
+  CPPUNIT_ASSERT_EQUAL(expected, actual);
+}
+auto tests::unit::resting::buffer::Gulp::test_accessors() -> void {
+  // There are no accessors
+  CPPUNIT_ASSERT(true);
+}
+#import rigging.suite.io
+auto tests::unit::resting::buffer::Gulp::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("Gulp");
+  series << call("constructor", &Gulp::test_constructor)
+         << call("operator()", &Gulp::test_operator_call)
+         << call("accessors", &Gulp::test_accessors)
+    ;
+  return finalize(series);
+}
+#endiv

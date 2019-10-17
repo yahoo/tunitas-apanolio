@@ -2,7 +2,7 @@
 // Copyright 2019-2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace tunitas::apanolio::resting::file {
+namespace tunitas::apanolio::resting::stream {
   //
   // An iterator over block-based reading of the stream
   //
@@ -10,25 +10,25 @@ namespace tunitas::apanolio::resting::file {
 }
 #endiv
 #divert <hpp>
-namespace tunitas::apanolio::resting::file {
+namespace tunitas::apanolio::resting::stream {
   // These only meaningfully compare against 'begin' and 'end' iterators
   inline auto operator==(Iterator const &, Iterator const &) -> bool;
   inline auto operator!=(Iterator const &, Iterator const &) -> bool;
 }
 #import c.const_buffer
 #import c.buffer
-#forward tunitas.apanolio.resting.file.Stream
+#forward tunitas.apanolio.resting.stream.Stream
 #import std.iterator
 #import std.input_iterator_tag
 #import std.shared_ptr
 #import std.size_t
 #import std.vector
-class tunitas::apanolio::resting::file::Iterator : public std::iterator<std::input_iterator_tag, c::const_buffer, void, void, void> {
+class tunitas::apanolio::resting::stream::Iterator : public std::iterator<std::input_iterator_tag, c::const_buffer, void, void, void> {
 public:
   inline Iterator();
 protected:
   enum Position { BEGIN, END };
-  friend class file::Stream;
+  friend class stream::Stream;
   inline Iterator(Stream *owner, Position);
 public:
   inline auto operator*() const -> c::const_buffer;
@@ -42,7 +42,7 @@ protected:
   // RET = c::const_buffer,             c::buffer
   // BUF = std::vector<char> const *    std::vector<char> const *
   template<typename RET, typename BUF> inline static auto operator_indirect(BUF *) -> RET;
-  friend auto file::operator==(Iterator const &, Iterator const &) -> bool;
+  friend auto stream::operator==(Iterator const &, Iterator const &) -> bool;
   std::shared_ptr<std::vector<char>> buf;
   static constexpr auto BUFFER_SIZE = 512u; // what's a good size?
   Stream *owner;
@@ -51,18 +51,18 @@ protected:
 #endiv
 #divert <ipp>
 namespace tunitas::apanolio::resting {
-  auto file::operator==(Iterator const &a, Iterator const &b) -> bool {
+  auto stream::operator==(Iterator const &a, Iterator const &b) -> bool {
     return a.owner == b.owner && a.buf.get() == b.buf.get();
   }
 
-  auto file::operator!=(Iterator const &a, Iterator const &b) -> bool {
+  auto stream::operator!=(Iterator const &a, Iterator const &b) -> bool {
     return !operator==(a, b);
   }
 }
-#import tunitas.apanolio.resting.file.Stream
+#import tunitas.apanolio.resting.stream.Stream
 #import tunitas.apanolio.exception.Argument
 #import std.make_shared
-namespace tunitas::apanolio::resting::file {
+namespace tunitas::apanolio::resting::stream {
   Iterator::Iterator()
     : buf()
     , owner(nullptr) {
@@ -95,8 +95,8 @@ namespace tunitas::apanolio::resting::file {
     return operator_indirect<c::buffer>(buf.get());
   }
   auto Iterator::operator++() -> Iterator & {
-                                             read();
-                                             return *this;
+    read();
+    return *this;
   }
   auto Iterator::operator++(int) -> Iterator {
     Iterator old(*this);
@@ -121,9 +121,9 @@ namespace tunitas::apanolio::resting::file {
 #import std.max
 #import std.cerr
 #import tunitas.apanolio.exception.Argument
-#import tunitas.apanolio.resting.file.Stream
+#import tunitas.apanolio.resting.stream.Stream
 #include <cassert>
-auto tunitas::apanolio::resting::file::Iterator::read() -> void {
+auto tunitas::apanolio::resting::stream::Iterator::read() -> void {
   //
   // http://www.cplusplus.com/reference/istream/istream/read/
   //

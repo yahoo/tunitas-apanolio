@@ -4,27 +4,38 @@
 # See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 
 lib_libtunitas_apanolio_resting_la = lib/libtunitas-apanolio-resting.la
-lib_libtunitas_apanolio_resting_la_LIBADD = 
+lib_libtunitas_apanolio_resting_la_LIBADD = -ljson-module -lsys-module
 lib_libtunitas_apanolio_resting_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 lib_libtunitas_apanolio_resting_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunitas_apanolio_resting_la_SOURCES))
 lib_libtunitas_apanolio_resting_la_SOURCES = \
   obj/src/tunitas/apanolio/resting/namespace.cpp \
-  obj/src/tunitas/apanolio/resting/File.cpp \
+  obj/src/tunitas/apanolio/resting/validate.cpp \
   \
+  obj/src/tunitas/apanolio/resting/Buffer.cpp \
+  obj/src/tunitas/apanolio/resting/buffer/namespace.cpp \
+  obj/src/tunitas/apanolio/resting/buffer/Buffer.cpp \
+  obj/src/tunitas/apanolio/resting/buffer/gulp.cpp \
+  obj/src/tunitas/apanolio/resting/buffer/Gulp.cpp \
+  obj/src/tunitas/apanolio/resting/buffer/validate.cpp \
+  \
+  obj/src/tunitas/apanolio/resting/File.cpp \
   obj/src/tunitas/apanolio/resting/file/namespace.cpp \
   obj/src/tunitas/apanolio/resting/file/File.cpp \
   obj/src/tunitas/apanolio/resting/file/Finalizer.cpp \
   obj/src/tunitas/apanolio/resting/file/gulp.cpp \
   obj/src/tunitas/apanolio/resting/file/Gulp.cpp \
-  obj/src/tunitas/apanolio/resting/file/Iterator.cpp \
   obj/src/tunitas/apanolio/resting/file/Move.cpp \
   obj/src/tunitas/apanolio/resting/file/Remove.cpp \
-  obj/src/tunitas/apanolio/resting/file/Stream.cpp \
   obj/src/tunitas/apanolio/resting/file/tempname.cpp \
   \
-  obj/src/tunitas/apanolio/resting/file/detail/Gulped.cpp \
-  obj/src/tunitas/apanolio/resting/file/detail/namespace.cpp \
-  obj/src/tunitas/apanolio/resting/file/detail/Opened.cpp \
+  obj/src/tunitas/apanolio/resting/gulping/namespace.cpp \
+  obj/src/tunitas/apanolio/resting/gulping/Gulped.cpp \
+  \
+  obj/src/tunitas/apanolio/resting/Stream.cpp \
+  obj/src/tunitas/apanolio/resting/stream/namespace.cpp \
+  obj/src/tunitas/apanolio/resting/stream/Iterator.cpp \
+  obj/src/tunitas/apanolio/resting/stream/Stream.cpp \
+  obj/src/tunitas/apanolio/resting/stream/Opened.cpp \
   $(end)
 $(scold_cxxdir)/tunitas/apanolio/resting/dependencies.mk:
 	$(AM_V_BB1ST) $(call TF_DISAGGREGATE_COMPILE, $(lib_libtunitas_apanolio_resting_la_SOURCES))

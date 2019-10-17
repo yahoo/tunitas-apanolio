@@ -1,0 +1,78 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::schema::v1 {
+  //
+  // The compiler ... check and produce the "safe" form, for the v1 schema.
+  // Whereas the JSON being inspected came off of the Big Bad (Evil) Internet
+  // we are required to validate everything in it.
+  //
+  // Trust ... but verify. to make sure.
+  //
+  // Lifetimes
+  //   the lifetime of the Stream must be longer than that of the Compiler
+  //
+  // Usage:
+  //
+  //   auto buffer = resting::Buffer{...somehow...};
+  //   auto log = std::ostringstream{}; .................. if you want to save the prattlings
+  //   auto log = nonstd::stream::Null{}; ................ if you want silence
+  //
+  //   Compiler compiler{log};
+  //   compiler.grab(buffer);
+  //   if (compiler.check()) {
+  //     auto record = compiler.sanitize();
+  //     ...store the record...
+  //   }
+  //
+  class Compiler;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.schema.compiler.Log
+#import tunitas.apanolio.schema.compiler.Prototype
+#import tunitas.apanolio.schema.compiler.Interface
+#import c.const_stringz
+class tunitas::apanolio::schema::v1::Compiler : private compiler::Log, public compiler::Prototype, virtual public compiler::Interface {
+  struct Ancestors {
+    using Log = compiler::Log;
+    using Prototype = compiler::Prototype;
+    using Interface = compiler::Interface;
+  };
+public:
+  Compiler() = default;
+  inline Compiler(Stream &);
+  inline auto grab(Reference) -> void final;
+  auto check() -> bool final;
+  // reminder: the grabbed object must have passed check() before valid are valid calls
+  auto identify() const -> Identifier final;
+  auto sanitize() const -> Record final;
+protected:
+  // ... something
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::schema::v1 {
+  Compiler::Compiler(Stream &lending)
+    : Ancestors::Log{lending}
+  { }
+  auto Compiler::grab(Reference r) -> void {
+    Prototype::grab(r);
+  }
+}
+#endiv
+#divert <cpp>
+#import nonstd.exception.Unimplemented
+namespace tunitas::apanolio::schema::v1 {
+  auto Compiler::check() -> bool {
+    throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  }
+  auto Compiler::identify() const -> Identifier {
+    throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  }
+  auto Compiler::sanitize() const -> Record {
+    throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  }
+}
+#endiv

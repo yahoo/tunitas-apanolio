@@ -18,7 +18,10 @@ auto tests::unit::resting::Fixture::test_something_anything() -> void {
   // There is nothing, nothing at all, to test here.
   CPPUNIT_ASSERT(true);
 }
+#import tests.unit.resting.buffer.Fixture
 #import tests.unit.resting.file.Fixture
+#import tests.unit.resting.stream.Fixture
+#import tests.unit.resting.Validate
 #import rigging.suite.io
 auto tests::unit::resting::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
@@ -26,7 +29,10 @@ auto tests::unit::resting::Fixture::suite() -> cppunit::Test * {
   suite::Stream series("resting");
   // Whereas there is no functionality in the tunitas::apanolio::resting namespace
   series << call("something-anything", &Fixture::test_something_anything)
+         << add<buffer::Fixture>()
          << add<file::Fixture>()
+         << add<stream::Fixture>()
+         << add<Validate>()
     ;
   return finalize(series);
 }

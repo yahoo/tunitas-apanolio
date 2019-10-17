@@ -2,8 +2,8 @@
 // Copyright 2019-2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace tunitas::apanolio::resting::file::detail {
-  // The implementation details of Stream::open() 
-  enum class Lookup { ADL }; 
+#import tunitas.apanolio.resting.stream.Stream
+namespace tunitas::apanolio::resting {
+  using stream::Stream;
 }
 #endiv
