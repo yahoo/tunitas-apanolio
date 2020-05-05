@@ -76,7 +76,7 @@ auto tests::unit::resting::file::File::generate() -> std::string {
   auto raw = uuid::generate::time_unsafe();
   std:: string ret;
   uuid::unparsing::lower(raw, ret);
-  return std::move(ret);
+  return ret;
 }
 
 auto tests::unit::resting::file::File::test_write() -> void {

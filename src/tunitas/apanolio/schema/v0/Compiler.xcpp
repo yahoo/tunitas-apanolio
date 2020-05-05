@@ -261,7 +261,7 @@ namespace tunitas::apanolio::schema::v0 {
     Record returned;
     // [[MAYBE]] we could do compression here, but these things aren't that big anyway, are they?
     std::transform(serialized.begin(), serialized.end(), std::back_inserter(returned), [](auto c) -> Record::Value { return Record::Value(c); });
-    return std::move(returned);
+    return returned;
   }
 }
 #endiv

@@ -56,7 +56,7 @@ auto tests::unit::resting::file::Fixture::generate_content(std::size_t size) -> 
   if (ret.empty()) {
     ret = "empty!";
   }
-  return std::move(ret);
+  return ret;
 }
 #import tests.unit.resting.file.Unlinker
 #import tunitas.apanolio.resting.File

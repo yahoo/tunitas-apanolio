@@ -1,4 +1,8 @@
-// -*- c++ -*- and wrapped in the SCOLD stylings
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #divert <hpp>
 #import std.string
 #import tests.unit.resting.file.Pair
@@ -31,6 +35,6 @@ auto tests::unit::resting::file::open(Pair<std::string> const &names) -> Pair<in
   }
   int known_invalid = -1;
   Pair<int> ret(value(c1), known_invalid);
-  return std::move(ret);
+  return ret;
 }
 #endiv

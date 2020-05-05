@@ -30,7 +30,7 @@ auto tests::unit::resting::buffer::Fixture::generate_content(std::size_t size) -
   if (ret.empty()) {
     ret = "empty!";
   }
-  return std::move(ret);
+  return ret;
 }
 #import apache.httpd.status.constants
 #import tunitas.apanolio.resting.Buffer

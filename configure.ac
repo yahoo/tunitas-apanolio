@@ -4,7 +4,7 @@ dnl Licensed under the terms of the Apache-2.0 license.
 dnl For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
 dnl For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 
-AC_INIT([apanolio], [0.1.0], [tunitas@verizonmedia.com])
+AC_INIT([apanolio], [0.2.0], [tunitas@verizonmedia.com])
 TF_INIT(AC_PACKAGE_NAME, AC_PACKAGE_VERSION, AC_PACKAGE_BUGREPORT)
 
 TF_COMPONENT_METADIRECTORY_TIERS
@@ -12,6 +12,7 @@ TF_ENABLE_CONFIGURE_VERBOSE dnl first so that TF_MSG_VERBOSE works
 TF_ENABLE_GCC
 TF_ENABLE_GDB
 TF_ENABLE_GNU
+TF_ENABLE_LIBTOOL_NO_INSTALL
 TF_ENABLE_MOCK_BUILD
 
 TF_WITH_STD([scold])

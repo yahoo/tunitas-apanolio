@@ -46,6 +46,6 @@ auto tests::unit::generate_some_content(std::size_t caller_defined_limit) -> std
     char ch = distribution(generator);
     ret += ch;
   }
-  return std::move(ret);
+  return ret;
 }
 #endiv

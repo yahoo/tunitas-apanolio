@@ -55,7 +55,7 @@ auto tests::unit::resting::operator""_Buffer(char const *literal, std::size_t le
 auto tests::unit::resting::Validate::actualize(tunitas::apanolio::resource::Record const &buffy) -> std::string {
   std::string ret;
   std::transform(buffy.begin(), buffy.end(), std::back_inserter(ret), [](auto b) -> char { return char(b); });
-  return std::move(ret);
+  return ret;
 }
 #import tunitas.apanolio.resting.validate
 #import tunitas.apanolio.exception.Aspect

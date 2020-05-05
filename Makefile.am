@@ -153,14 +153,22 @@ Makefile_COMPILER_CPPFLAGS_SET = @CPPFLAGS_gcc@
 Makefile_COMPILER_CFLAGS_SET   =   @CFLAGS_gcc@   @CFLAGS_gdb@
 Makefile_COMPILER_CXXFLAGS_SET = @CXXFLAGS_gcc@ @CXXFLAGS_gdb@ -pthread
 Makefile_COMPILER_LDFLAGS_SET  =  @LDFLAGS_gcc@  @LDFLAGS_gdb@ -lpthread @libstd_filesystem@
+
 Makefile_PACKAGE_CPPFLAGS_SET  = @CPPFLAGS_httpd@ @CPPFLAGS_apr@ @CPPFLAGS_apreq@ @CPPFLAGS_leveldb@ @CPPFLAGS_sqlite@ @CPPFLAGS_uuid@
 Makefile_PACKAGE_CFLAGS_SET    =   @CFLAGS_httpd@   @CFLAGS_apr@   @CFLAGS_apreq@   @CFLAGS_leveldb@   @CFLAGS_sqlite@   @CFLAGS_uuid@
 Makefile_PACKAGE_CXXFLAGS_SET  = @CXXFLAGS_httpd@ @CXXFLAGS_apr@ @CXXFLAGS_apreq@ @CXXFLAGS_leveldb@ @CXXFLAGS_sqlite@ @CXXFLAGS_uuid@
 Makefile_PACKAGE_LDFLAGS_SET   =  @LDFLAGS_httpd@  @LDFLAGS_apr@  @LDFLAGS_apreq@  @LDFLAGS_leveldb@  @LDFLAGS_sqlite@  @LDFLAGS_uuid@
-Makefile_CHECK_CPPFLAGS_SET    = @CPPFLAGS_cppunit@
-Makefile_CHECK_CFLAGS_SET      =   @CFLAGS_cppunit@
-Makefile_CHECK_CXXFLAGS_SET    = @CXXFLAGS_cppunit@
-Makefile_CHECK_LDFLAGS_SET     =  @LDFLAGS_cppunit@ -no-install $(comment is the default in hypogeal-twilight >= 0:0.45)
+
+#                                                  if    did not substitute away                      then use this
+#                                                  |           |                                      |            else use the substitution
+#                                                  |           |              @CPPFLAGS_no_install@   |            |
+#                                                  |           |              |                       |            |
+#                                                  |           |              |                       |            |
+#                                                  v           v              v                       v            v
+Makefile_CHECK_CPPFLAGS_SET = @CPPFLAGS_cppunit@ $(if $(filter %_no_install@, @CPPFLAGS_no_install@), $(empty),    @CPPFLAGS_no_install@)
+Makefile_CHECK_CFLAGS_SET   =   @CFLAGS_cppunit@ $(if $(filter %_no_install@, @CFLAGS_no_install@),   $(empty),    @CFLAGS_no_install@)
+Makefile_CHECK_CXXFLAGS_SET = @CXXFLAGS_cppunit@ $(if $(filter %_no_install@, @CXXFLAGS_no_install@), $(empty),    @CXXFLAGS_no_install@)
+Makefile_CHECK_LDFLAGS_SET  =  @LDFLAGS_cppunit@ $(if $(filter %_no_install@, @LDFLAGS_no_install@),  -no-install, @LDFLAGS_no_install@)
 
 # See the 'Usage' statement in @hypogeal_twilight_datadir@/mk/toolflags.mk
 # See the definitions and expected usage of
