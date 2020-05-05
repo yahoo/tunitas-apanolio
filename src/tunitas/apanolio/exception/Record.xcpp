@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::exception {
+  //
+  // An invalid record was encountered
+  //
+  // It is reasonable to signal the appearance of bogus JSON by throwing this sort of exception.
+  //
+  // Usage:
+  //
+  //   try {
+  //     ...
+  //     throw Record{};
+  //     ...
+  //   } catch (exception::Aspect const &) {
+  //     ...handle it...
+  //   } catch (std::exception const &) {
+  //     ...handle it...
+  //   }
+  //
+  class Record;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.exception.Aspect
+#import std.invalid_argument
+class tunitas::apanolio::exception::Record : public exception::Aspect, public std::invalid_argument {
+  struct ancestors {
+    using Aspect = apanolio::exception::Aspect;
+    using Exception = std::invalid_argument;
+  };
+public:
+  // i.e. for when you don't have anything else to say
+  inline Record();
+  // e.g. "server config"
+  inline explicit Record(std::string const &object);
+  auto what() const noexcept -> char const * override;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::exception {
+  Record::Record()
+    : ancestors::Exception{"record"}
+  { }
+  Record::Record(std::string const &object)
+    : ancestors::Exception{object}
+  { }
+}
+#endiv
+#divert <cpp>
+auto tunitas::apanolio::exception::Record::what() const noexcept -> char const * {
+  return ancestors::Exception::what();
+}
+#endiv

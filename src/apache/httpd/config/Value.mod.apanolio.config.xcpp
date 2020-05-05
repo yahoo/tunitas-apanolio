@@ -1,0 +1,34 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#import mod.apanolio.config
+#import apache.httpd.config.Value
+namespace apache::httpd::config {
+  template<> char const Value<mod::apanolio::config::STORAGE_ENGINE>::NAME[];
+  template<> char const Value<mod::apanolio::config::STORAGE_ENGINE>::DESCRIPTION[];
+
+  template<> char const Value<mod::apanolio::config::STORAGE_DIRECTORY>::NAME[];
+  template<> char const Value<mod::apanolio::config::STORAGE_DIRECTORY>::DESCRIPTION[];
+
+  template<> char const Value<mod::apanolio::config::LOCATION_PREFIX>::NAME[];
+  template<> char const Value<mod::apanolio::config::LOCATION_PREFIX>::DESCRIPTION[];
+}
+#endiv
+#divert <cpp>
+namespace apache::httpd::config {
+  template<> char const Value<mod::apanolio::config::STORAGE_ENGINE>::NAME[] = "StorageEngine";
+  template<> char const Value<mod::apanolio::config::STORAGE_ENGINE>::DESCRIPTION[] =
+    // [[FIXTHIS]] -- make these literals be compile-time constants which may or may not appear depending on whether the relevant --enable switch is configured
+    R"DESCRIPTION(Storage engine name; e.g. none, memory, files, leveldb, sqlite, mariadb, postgresql, ramcloud, fabric, scarpet)DESCRIPTION";
+
+
+  template<> char const Value<mod::apanolio::config::STORAGE_DIRECTORY>::NAME[] = "StorageDirectory";
+  template<> char const Value<mod::apanolio::config::STORAGE_DIRECTORY>::DESCRIPTION[] =
+    R"DESCRIPTION(Storage directory for uploaded blobs; e.g. /var/mod_apanolio)DESCRIPTION";
+
+  template<> char const Value<mod::apanolio::config::LOCATION_PREFIX>::NAME[] = "LocationPrefix";
+  template<> char const Value<mod::apanolio::config::LOCATION_PREFIX>::DESCRIPTION[] =
+    R"DESCRIPTION(The <Location ...> prefix of the handler, defaults to "/")DESCRIPTION";
+}
+#endiv

@@ -1,7 +1,8 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright 2019-2019, Oath Inc.
+# Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
 # Licensed under the terms of the Apache-2.0 license.
-# See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 
 # silent-rules has no effect, see configure.ac
 # no can do:  -Wall -Werror
@@ -15,6 +16,13 @@ include @temerarious_flagship_datadir@/am/build.am
 # configure.ac:  HGTW_CONFIG_SUBMODULES([submodules], [ ...list...])
 # Makefile.am    SUBDIRS = @subdirs@
 
+#
+# Reminder: these variables are needed for on-site development use only
+#           they are not needed for a "simple" build.
+# They must match one-for-one the TF_WITH_MODULE(...) declarations in configure.ac
+# configure.ac: TF_WITH_MODULE(name), TF_WITH_NONSTD(name, ...etc...)
+# Makefile.am:  DEVELOPMENT_AREAS, TESTING_AREAS, INSTALLATION_AREAS
+#
 DEVELOPMENT_AREAS = \
   $(apache_httpd_api_prefix) \
   $(hyperledger_prefix) \
@@ -25,6 +33,7 @@ DEVELOPMENT_AREAS = \
   $(module_c_prefix) \
   $(module_format_prefix) \
   $(module_leveldb_prefix) \
+  $(module_json_prefix) \
   $(module_mysql_prefix) \
   $(module_nonstd_prefix) \
   $(module_options_prefix) \
@@ -55,28 +64,50 @@ INSTALLATION_AREAS = \
   $(std_scold_prefix) \
   $(end)
 
-module_SOURCE_SET = \
+include src/autotools/autoconf/Makefrag.am
+include src/mod/apanolio/Makefrag.am
+include src/tunitas/apanolio/Makefrag.am
+include src/tunitas/apanolio/resting/Makefrag.am
+include src/tunitas/apanolio/schema/Makefrag.am
+include src/tunitas/apanolio/storage/Makefrag.am
+include src/want/Makefrag.am
+include src/tests/unit/Makefrag.am
+
+#
+# The following three definitions must be consistent
+#
+# Makefile.am module_SOURCE_SET    (future)         the modules (cut & paste header files)
+# Makefile.am module_BB_SOURCE_SET (deprecating)    them.
+# Makefile.am lib_LTLIBRARIES      (current)        the DSO & static libraries
+# tunitas-apanolio.spec the '%files devel' stanza must list the 
+#
+# [[FIXTHIS]] the plurality here is problematic ... done multiple ways
+lib_libtunitas_apanolio_la_MODULE_SOURCES_SET = \
   $(lib_libautotools_autoconf_la_SOURCES) \
   $(lib_libmod_apanolio_la_SOURCES) \
   $(lib_libtunitas_apanolio_la_SOURCES) \
   $(lib_libwant_la_SOURCES) \
   $(end)
-
-include src/autotools/autoconf/Makefrag.am
-include src/mod/apanolio/Makefrag.am
-include src/tunitas/apanolio/Makefrag.am
-include src/want/Makefrag.am
-include src/tests/unit/Makefrag.am
+# [[FIXTHIS]] module_BB_SOURCE_SET should be deprecating real soon now, move to use module_SOURCE_SET, whenever it is ready)
+module_BB_SOURCE_SET = \
+  $(lib_libtunitas_apanolio_la_MODULE_SOURCES_SET) \
+  $(end)
+module_SOURCE_SET = # NO NOT READY YET ---> $(lib_libtunitas_scarpet_la_MODULE_SOURCES_SET)
 
 bin_PROGRAMS = \
   $(end)
 noinst_LTLIBRARIES = \
   $(lib_libautotools_autoconf_la) \
+  $(lib_libtunitas_apanolio_resting_la) \
+  $(lib_libtunitas_apanolio_schema_la) \
+  $(lib_libtunitas_apanolio_storage_la) \
   $(lib_libwant_la) \
   $(end)
+# WATCHOUT - these MUST be listed in this order so that the sequential install rule will allow the linker to process them.
+#            libtool linking of libmod_apanolio.la MUST see the installed libtunitas-apanolio.la in order to be "finished"
 lib_LTLIBRARIES = \
-  $(lib_libmod_apanolio_la) \
   $(lib_libtunitas_apanolio_la) \
+  $(lib_libmod_apanolio_la) \
   $(end)
 check_PROGRAMS = \
   $(check_bin_unit) \
@@ -108,11 +139,11 @@ TESTS = \
 #install: check
 default: all
 
-# REMOVE WHEN: baleful_ballad:hypogeal-twilight-0.??.? has work that supercedes this
-Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_boost_CPPFLAGS@ @nonstd_gcc_CPPFLAGS@ @nonstd_sqlite_CPPFLAGS@
-Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_boost_CFLAGS@   @nonstd_gcc_CFLAGS@   @nonstd_sqlite_CFLAGS@
-Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_boost_CXXFLAGS@ @nonstd_gcc_CXXFLAGS@ @nonstd_sqlite_CXXFLAGS@
-Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_boost_LDFLAGS@  @nonstd_gcc_LDFLAGS@  @nonstd_sqlite_LDFLAGS@
+# [[REMOVEWHEN]] hypogeal-twilight has work that subsumes this, think hypogeal-twilight >= 0.47.0 (or when the sun grows cold)
+Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_boost_CPPFLAGS@ @nonstd_gcc_CPPFLAGS@ @nonstd_leveldb_CPPFLAGS@ @nonstd_sqlite_CPPFLAGS@
+Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_boost_CFLAGS@   @nonstd_gcc_CFLAGS@   @nonstd_leveldb_CFLAGS@   @nonstd_sqlite_CFLAGS@
+Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_boost_CXXFLAGS@ @nonstd_gcc_CXXFLAGS@ @nonstd_leveldb_CXXFLAGS@ @nonstd_sqlite_CXXFLAGS@
+Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_boost_LDFLAGS@  @nonstd_gcc_LDFLAGS@  @nonstd_leveldb_LDFLAGS@  @nonstd_sqlite_LDFLAGS@
 Makefile_nonstd_CHECK_CPPFLAGS_SET   = @nonstd_cppunit_CPPFLAGS@
 Makefile_nonstd_CHECK_CFLAGS_SET     = @nonstd_cppunit_CFLAGS@
 Makefile_nonstd_CHECK_CXXFLAGS_SET   = @nonstd_cppunit_CXXFLAGS@
@@ -121,15 +152,15 @@ Makefile_nonstd_CHECK_LDFLAGS_SET    = @nonstd_cppunit_LDFLAGS@
 Makefile_COMPILER_CPPFLAGS_SET = @CPPFLAGS_gcc@ 
 Makefile_COMPILER_CFLAGS_SET   =   @CFLAGS_gcc@   @CFLAGS_gdb@
 Makefile_COMPILER_CXXFLAGS_SET = @CXXFLAGS_gcc@ @CXXFLAGS_gdb@ -pthread
-Makefile_COMPILER_LDFLAGS_SET  =  @LDFLAGS_gcc@  @LDFLAGS_gdb@ @libstd_filesystem@ -lpthread
-Makefile_PACKAGE_CPPFLAGS_SET  = @CPPFLAGS_httpd@ @CPPFLAGS_apr@ @CPPFLAGS_apreq@ @CPPFLAGS_sqlite@ @CPPFLAGS_uuid@
-Makefile_PACKAGE_CFLAGS_SET    =   @CFLAGS_httpd@   @CFLAGS_apr@   @CFLAGS_apreq@   @CFLAGS_sqlite@   @CFLAGS_uuid@
-Makefile_PACKAGE_CXXFLAGS_SET  = @CXXFLAGS_httpd@ @CXXFLAGS_apr@ @CXXFLAGS_apreq@ @CXXFLAGS_sqlite@ @CXXFLAGS_uuid@
-Makefile_PACKAGE_LDFLAGS_SET   =  @LDFLAGS_httpd@  @LDFLAGS_apr@  @LDFLAGS_apreq@  @LDFLAGS_sqlite@  @LDFLAGS_uuid@
+Makefile_COMPILER_LDFLAGS_SET  =  @LDFLAGS_gcc@  @LDFLAGS_gdb@ -lpthread @libstd_filesystem@
+Makefile_PACKAGE_CPPFLAGS_SET  = @CPPFLAGS_httpd@ @CPPFLAGS_apr@ @CPPFLAGS_apreq@ @CPPFLAGS_leveldb@ @CPPFLAGS_sqlite@ @CPPFLAGS_uuid@
+Makefile_PACKAGE_CFLAGS_SET    =   @CFLAGS_httpd@   @CFLAGS_apr@   @CFLAGS_apreq@   @CFLAGS_leveldb@   @CFLAGS_sqlite@   @CFLAGS_uuid@
+Makefile_PACKAGE_CXXFLAGS_SET  = @CXXFLAGS_httpd@ @CXXFLAGS_apr@ @CXXFLAGS_apreq@ @CXXFLAGS_leveldb@ @CXXFLAGS_sqlite@ @CXXFLAGS_uuid@
+Makefile_PACKAGE_LDFLAGS_SET   =  @LDFLAGS_httpd@  @LDFLAGS_apr@  @LDFLAGS_apreq@  @LDFLAGS_leveldb@  @LDFLAGS_sqlite@  @LDFLAGS_uuid@
 Makefile_CHECK_CPPFLAGS_SET    = @CPPFLAGS_cppunit@
 Makefile_CHECK_CFLAGS_SET      =   @CFLAGS_cppunit@
 Makefile_CHECK_CXXFLAGS_SET    = @CXXFLAGS_cppunit@
-Makefile_CHECK_LDFLAGS_SET     =  @LDFLAGS_cppunit@
+Makefile_CHECK_LDFLAGS_SET     =  @LDFLAGS_cppunit@ -no-install $(comment is the default in hypogeal-twilight >= 0:0.45)
 
 # See the 'Usage' statement in @hypogeal_twilight_datadir@/mk/toolflags.mk
 # See the definitions and expected usage of

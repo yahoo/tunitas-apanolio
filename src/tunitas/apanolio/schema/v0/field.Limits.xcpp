@@ -1,0 +1,82 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tunitas.apanolio.schema.v0.Field
+namespace tunitas::apanolio::schema::v0::field {
+  //
+  // The basic limits on length or (unsigned integer) value
+  // Specializations only.
+  //
+  // Usage:
+  //
+  //   constexpr auto FIELD = Field{...somehow...};
+  //
+  //   using Limits = field::Limits<FIELD>;
+  //   auto const [min, max] = Limits::range();
+  //   auto const min = Limits::min();
+  //   auto const max = Limits::max();
+  //
+  template<Field> struct Limits;
+  template<> struct Limits<Field::ID>;
+  template<> struct Limits<Field::EXPIRES>;
+  template<> struct Limits<Field::TYPE>;
+  template<> struct Limits<Field::STATUS>;
+  // There is no specialization for Limits<Field::ATTRIBUTES>
+  namespace detail {
+    template<typename LIMITS, typename VALUE> struct Range;
+  }
+}
+#endiv
+#divert <hpp>
+#import std.size_t
+#import std.uint64_t
+#import nonstd.uint128_t
+#import tunitas.time.Point
+#import tunitas.apanolio.schema.limits
+#import tunitas.apanolio.resource.Identifier
+namespace tunitas::apanolio::schema::v0::field {
+  template<typename LIMITS, typename VALUE> struct detail::Range {
+    using Value = VALUE;
+    static constexpr auto range() -> std::pair<Value, Value> { return {LIMITS::min(), LIMITS::max()}; }
+  };
+  //
+  //
+  //
+  template<> class Limits<Field::ID> : public detail::Range<Limits<Field::ID>, resource::identifier::Underlying> {
+    using Ancestor = detail::Range<Limits<Field::ID>, resource::identifier::Underlying>;
+  public:
+    static constexpr auto min() -> Value { return limits::id::MIN; }
+    static constexpr auto max() -> Value { return limits::id::MAX; }
+  };
+  template<> class Limits<Field::EXPIRES> : public detail::Range<Limits<Field::EXPIRES>, time::Point> {
+    using Ancestor = detail::Range<Limits<Field::EXPIRES>, time::Point>;
+  public:
+    static constexpr auto min(time::Point now) -> Value { return now - limits::expires::PAST; }
+    static constexpr auto max(time::Point now) -> Value { return now + limits::expires::FUTURE; }
+  };
+  template<> class Limits<Field::TYPE> : public detail::Range<Limits<Field::TYPE>, std::size_t> {
+    using Ancestor = detail::Range<Limits<Field::TYPE>, std::size_t>;
+  public:
+    static constexpr auto min() -> Value { return limits::consent::type::MIN; }
+    static constexpr auto max() -> Value { return limits::consent::type::MAX; }
+  };
+  template<> class Limits<Field::STATUS> : public detail::Range<Limits<Field::STATUS>, std::size_t> {
+    using Ancestor = detail::Range<Limits<Field::STATUS>, std::size_t>;
+  public:
+    static constexpr auto min() -> Value { return limits::consent::status::MIN; }
+    static constexpr auto max() -> Value { return limits::consent::status::MAX; }
+  };
+}
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.resource.Identifier
+#import std.is_same
+#import std.underlying_type
+#import nonstd.uint128_t
+namespace tunitas::apanolio::schema::v0::field {
+  static_assert(std::is_same_v<Limits<Field::ID>::Value, std::underlying_type<resource::Identifier>::type>); // ............. consistency
+  static_assert(std::is_same_v<resource::identifier::Underlying, std::underlying_type<resource::Identifier>::type>); // ..... could have used either of these
+  static_assert(std::is_same_v<nonstd::uint128_t, std::underlying_type<resource::Identifier>::type>); // .................... but we expect it to be a 128-bit quantity
+}
+#endiv

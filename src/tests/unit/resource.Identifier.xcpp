@@ -63,7 +63,7 @@ auto tests::unit::resource::Identifier::suite() -> cppunit::Test * {
        << call("uuid", &Identifier::test_constructor_uuid)
        << call("generate", &Identifier::test_constructor_generate)
       ;
-    series << add(con.release());
+    series << move(con);
   }
   return finalize(series);
 }

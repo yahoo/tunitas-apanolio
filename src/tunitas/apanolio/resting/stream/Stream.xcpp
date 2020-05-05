@@ -1,0 +1,78 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE stream in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resting::stream {
+  //
+  // Stream a (disk) stream out to the network
+  //
+  // Um ... just like sendfile(2)... but ... more copying
+  //     #include <sys/sendfile.h>
+  //     ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
+  //
+  class Stream;
+}
+#endiv
+#divert <hpp>
+#import std.ifstream
+#import std.string
+#import tunitas.apanolio.resting.stream.Opened
+#forward tunitas.apanolio.resting.stream.Iterator
+class tunitas::apanolio::resting::stream::Stream : public std::ifstream {
+  using ancestor = std::ifstream;
+public:
+  inline explicit Stream(std::string const &);
+  inline auto exists() -> bool;
+  using opened_type = Opened;
+  inline auto open() -> opened_type;
+  inline auto filename() const -> std::string const &;
+  using iterator = Iterator;
+  inline auto begin() -> iterator;
+  inline auto end() -> iterator;
+protected:
+  std::string source_filename;
+};
+#endiv
+#divert <ipp>
+tunitas::apanolio::resting::stream::Stream::Stream(std::string const &arg_filename)
+  : ancestor()
+  , source_filename(arg_filename) {
+  ; // DO NOT open the ancestor's stream
+}
+#import sys.posix.exists
+auto tunitas::apanolio::resting::stream::Stream::exists() -> bool {
+  return sys::posix::exists(source_filename);
+}
+#import format.q
+#import std.error_code
+#import std.system_category
+#import std.system_error
+#import std.ios
+#import std.ostringstream
+#include <cerrno>
+namespace tunitas::apanolio::resting::stream {
+  auto Stream::open() -> opened_type {
+    ancestor::open(source_filename, std::ios::in);
+    int error_num = errno; // capture this immediately, independent of success
+    if (ancestor::fail()) {
+      std::error_code ec(error_num, std::system_category());
+      return stream::make(false, ec);
+    } else {
+      std::error_code ec(0, std::system_category());
+      return stream::make(true, ec);
+    }
+  }
+  auto Stream::filename() const -> std::string const & {
+    return source_filename;
+  }
+}
+#import tunitas.apanolio.resting.stream.Iterator
+namespace tunitas::apanolio::resting::stream {
+  auto Stream::begin() -> iterator {
+    return iterator(this, iterator::BEGIN);
+  }
+  auto Stream::end() -> iterator {
+    return iterator(this, iterator::END);
+  }
+}
+#endiv

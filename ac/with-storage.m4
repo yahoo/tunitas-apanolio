@@ -35,8 +35,14 @@ AC_DEFUN([APANOLIO_WITH_STORAGE], [
         APANOLIOinternal_WITH_STORAGE_AND_WARNING_VALIDATED_ARGUMENTS([$1], [$2], [$3])
     ], [ifelse([$1-$2], [sqlite-sqlite], [
         APANOLIOinternal_WITH_STORAGE_AND_WARNING_VALIDATED_ARGUMENTS([$1], [$2], [$3])
+    ], [ifelse([$1], [mysql++], [
+        TF_MSG_NOTICE([instead say [APANOLIO]_WITH_STORAGE(m4_changequote([{],[}])[mysql], [mysql++]m4_changequote({[},{]}))])
+        TF_MSG_ERROR([mysql++ MUST NOT appear as the 1st argument here, it MAY appear as the second argument])
     ], [ifelse([$1-$2], [mysql-mysql++], [
         APANOLIOinternal_WITH_STORAGE_AND_WARNING_VALIDATED_ARGUMENTS([$1], [$2], [$3])
+    ], [ifelse([$1], [pgsql++], [
+        TF_MSG_NOTICE([instead say [APANOLIO]_WITH_STORAGE(m4_changequote([{],[}])[pgsql], [pgsql++]m4_changequote({[},{]}))])
+        TF_MSG_ERROR([pgsql++ MUST NOT appear as the 1st argument here, it MAY appear as the second argument])
     ], [ifelse([$1-$2], [pgsql-pgsql++], [
         APANOLIOinternal_WITH_STORAGE_AND_WARNING_VALIDATED_ARGUMENTS([$1], [$2], [$3])
     ], [ifelse([$1-$2], [ramcloud-ramcloud], [
@@ -50,14 +56,12 @@ AC_DEFUN([APANOLIO_WITH_STORAGE], [
         TF_MSG_WARNING([you should fix this, see the commentariat in with-storage.m4])
         TF_MSG_WARNING([good luck])
         APANOLIOinternal_WITH_STORAGE_AND_WARNING_VALIDATED_ARGUMENTS([$1], [$2], [$3])
-    ]) ]) ]) ]) ]) ]) ])
+    ]) ]) ]) ]) ]) ]) ]) ]) ])
 ])
 
 AC_DEFUN([APANOLIOinternal_WITH_STORAGE_AND_WARNING_VALIDATED_ARGUMENTS], [
   TF_WITH_MODULE([$1])
   TF_WITH_NONSTD([$1],
-                 m4_bpatsubst(ifelse([$2], [], [$1], [$2]),
-                               m4_changequote([{], [}]){++$}m4_changequote({[}, {]}),
-                               []),
+                 m4_bpatsubst(ifelse([$2], [], [$1], [$2]), [++$], [__]),
                  [That Certain Non-Standard (patched, enhanced, re-invigorated) ifelse([$3], [], [$1], [$3])])
 ])

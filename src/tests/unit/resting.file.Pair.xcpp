@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::file {
+  //
+  // A pair, in a namespace, so ADL will find it.
+  // with accessor functions nearby
+  //
+  // Also see nearby:
+  //    auto names = generate<...>(...)
+  //    auto fds = generate<...>(...)
+  //
+  template<typename TYPE> class Pair;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit::resting::file {
+  template<typename TYPE> inline auto tempy(Pair<TYPE> const &) -> TYPE;
+  template<typename TYPE> inline auto final(Pair<TYPE> const &) -> TYPE;
+}
+#import std.pair
+template<typename TYPE> class tests::unit::resting::file::Pair : public std::pair<TYPE, TYPE> {
+  using ancestor = std::pair<TYPE, TYPE>;
+public:
+  using ancestor::pair;
+};
+#endiv
+#divert <ipp>
+template<typename TYPE> auto tests::unit::resting::file::tempy(Pair<TYPE> const &p) -> TYPE {
+  return p.first;
+}
+template<typename TYPE> auto tests::unit::resting::file::final(Pair<TYPE> const &p) -> TYPE {
+  return p.second;
+}
+#endiv

@@ -1,0 +1,36 @@
+// -*- c++ -*- and wrapped in the SCOLD stylings
+#divert <hpp>
+#import std.string
+#import tests.unit.resting.file.Pair
+namespace tests {
+  namespace unit {
+    namespace resting {
+      namespace file {
+        inline auto open(Pair<std::string> const &names) -> Pair<int>;
+      }
+    }
+  }
+}
+#endiv
+#divert <ipp>
+#import sys.posix.close
+#import sys.posix.create
+#import tunitas.apanolio.exception.System
+auto tests::unit::resting::file::open(Pair<std::string> const &names) -> Pair<int> {
+  using ::sys::posix::create;
+  auto c1 = create(names.first, 0666);
+  // DO NOT open names.second ... the whole point is that we only 
+  if (!ok(c1)) {
+    using ::sys::posix::close;
+    // then kill them both
+    close(value(c1));
+    auto ec = std_system_error_code(c1);
+    auto filename = names.first;
+    auto message = "could not open " + filename;
+    throw tunitas::apanolio::exception::System{ec, message};
+  }
+  int known_invalid = -1;
+  Pair<int> ret(value(c1), known_invalid);
+  return std::move(ret);
+}
+#endiv

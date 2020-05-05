@@ -34,6 +34,7 @@ auto tests::unit::engine::Fixture::suite() -> cppunit::Test * {
          << add<testing::Engine<subject::MYSQL>>()
          << add<testing::Engine<subject::PGSQL>>()
          << add<testing::Engine<subject::RAMCLOUD>>()
+         << add<testing::Engine<subject::FABRIC>>()
          << add<testing::Engine<subject::SCARPET>>()
     ;
   return finalize(series);

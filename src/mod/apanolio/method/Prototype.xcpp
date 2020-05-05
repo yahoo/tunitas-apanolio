@@ -20,31 +20,33 @@ namespace mod::apanolio::method {
 }
 #endiv
 #divert <hpp>
-#import apache.httpd.io.Stream
+#import apache.httpd.Stream //    WATCHOUT ...
+#import apache.httpd.io.Stream // WATCHOUT ... these two are gratuitously DIFFERENT [[FIXTHIS]]
 #import apache.httpd.status.Code
 #import apache.httpd.request_rec
 #import mod.apanolio.config.Specification
-#import tunitas.apanolio.url.Parser
+#import tunitas.apanolio.uri.Parser
 class mod::apanolio::method::Prototype {
 protected:
   ~Prototype() = default;
 public:
-  inline Prototype(apache::httpd::request_rec *, config::Specification const *);
+  inline Prototype(apache::httpd::request_rec *, config::Specification *);
   // The descendant must implement (the non-virtual)
   //   auto operator()() -> apache::httpd::status::Code;
 protected:
   // Of course, the containing apache request record must have a longer lifetime than the method
   apache::httpd::request_rec *req;
   // Of course, the Specification must have a longer lifetime than the method (descendant)
-  config::Specification const *spec;
+  // Not const because we might need to omdify ... and even a GET isn't readonly activity
+  config::Specification *spec;
   // ... because parsing occurs.
-  tunitas::apanolio::url::Parser uri_parser;
+  tunitas::apanolio::uri::Parser uri_parser;
   // ... because every method handler will need to respond onto an html stream.
-  apache::httpd::io::Stream rs;
+  apache::httpd::Stream rs;
 };
 #endiv
 #divert <ipp>
-mod::apanolio::method::Prototype::Prototype(apache::httpd::request_rec *req, config::Specification const *spec)
+mod::apanolio::method::Prototype::Prototype(apache::httpd::request_rec *req, config::Specification *spec)
   : req{req}
   , spec{spec}
   , uri_parser{spec->location_prefix.value}

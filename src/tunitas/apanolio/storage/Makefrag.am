@@ -1,0 +1,74 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#
+lib_libtunitas_apanolio_storage_la = lib/libtunitas-apanolio-storage.la
+lib_libtunitas_apanolio_storage_la_LIBADD = \
+  -lrabinpoly-module \
+  -llevel-module \
+  $(end)
+lib_libtunitas_apanolio_storage_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+lib_libtunitas_apanolio_storage_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunitas_apanolio_storage_la_SOURCES))
+lib_libtunitas_apanolio_storage_la_SOURCES = \
+  obj/src/tunitas/apanolio/Storage.cpp \
+  \
+  obj/src/tunitas/apanolio/storage/namespace.cpp \
+  obj/src/tunitas/apanolio/storage/Storage.cpp \
+  obj/src/tunitas/apanolio/storage/open.cpp \
+  \
+  obj/src/tunitas/apanolio/storage/Engine.cpp \
+  obj/src/tunitas/apanolio/storage/engine/namespace.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Name.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Prototype.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.declaration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.NONE.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.MEMORY.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.FILES.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.LEVELDB.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.SQLITE.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.MYSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.PGSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.RAMCLOUD.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.FABRIC.cpp \
+  obj/src/tunitas/apanolio/storage/engine/Engine.SCARPET.cpp \
+  \
+  obj/src/tunitas/apanolio/storage/engine/level/namespace.cpp \
+  obj/src/tunitas/apanolio/storage/engine/level/db2.Sink.cpp \
+  obj/src/tunitas/apanolio/storage/engine/level/db2.Recorder.declaration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/level/db2.Recorder.Record.cpp \
+  obj/src/tunitas/apanolio/storage/engine/level/db2.Recorder.cpp \
+  \
+  obj/src/tunitas/apanolio/storage/engine/Configuration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/namespace.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Prototype.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.declaration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.FABRIC.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.MYSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.PGSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.RAMCLOUD.cpp \
+  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.SCARPET.cpp \
+  \
+  obj/src/tunitas/apanolio/storage/engine/State.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/namespace.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/Prototype.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.declaration.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.FABRIC.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.MYSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.PGSQL.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.RAMCLOUD.cpp \
+  obj/src/tunitas/apanolio/storage/engine/state/State.SCARPET.cpp \
+  $(end)
+$(lib_libtunitas_apanolio_storage_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_DISAGGREGATE_COMPILE, $@)
+	$(TF_V_DUN) test -e $@
+$(scold_cxxdir)/tunitas/apanolio/storage/dependencies.mk:
+	$(TF_V_COM) $(call TF_COMPILE, $(lib_libtunitas_apanolio_storage_la_SOURCES))
+	$(TF_V_DUN) test -e $@
+include $(scold_cxxdir)/tunitas/apanolio/storage/dependencies.mk
+clean-dependencies::
+	rm -f $(scold_cxxdir)/tunitas/apanolio/storage/dependencies.mk

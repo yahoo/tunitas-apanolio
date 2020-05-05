@@ -27,14 +27,18 @@ class mod::apanolio::method::Getter : public method::Prototype {
 public:
   using ancestor::Prototype;
   auto operator()() -> apache::httpd::status::Code;
-protected:
-  auto banner_failure(std::string const &) -> void;
+private:
+  auto banner_failure(std::string const &, std::string const &reason) -> void;
 };
 #endiv
 #divert <cpp>
 #import autotools.autoconf.Config.mod.apanolio.CONFIG
-#import nonstd.exception.Unimplemented
+#import tunitas.apanolio.resource.identifier.construct
+#import rabinpoly.fingerprint
 #import std.string
+#import std.copy
+#import std.transform
+#import std.ostream_iterator
 auto mod::apanolio::method::Getter::operator()() -> apache::httpd::status::Code {
   std::string uri{req->uri};
   auto parsed = uri_parser(uri);
@@ -45,14 +49,23 @@ auto mod::apanolio::method::Getter::operator()() -> apache::httpd::status::Code 
     // How then, did this get routed here?
     return HTTP::NOT_FOUND;
   }
-  //
-  // [[TODO]] recover up the data item so named.
-  throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
+  using tunitas::apanolio::resource::identifier::construct;
+  using rabinpoly::fingerprint;
+  auto const &syntax = identifier(parsed);
+  auto const key = construct(rabinpoly::fingerprint(syntax));
+  auto got = spec->storage.GET(key);
+  if (!ok(got)) {
+    banner_failure(syntax, error_code(got).message());
+    return HTTP::NOT_FOUND;
+  }
+  auto const &record = value(got);
+  ap_set_content_type(this->req, "text/json"); // [[FIXTHIS]] as ap::set_content_type(...)
+  std::transform(record.begin(), record.end(), std::ostream_iterator<char>{rs}, [](auto b) -> char { return char(b); });
   return HANDLER::OK; // not HTTP::OK
 }
 #import apache.httpd.io.keywords
 #import autotools.autoconf.Config.mod.apanolio.CONFIG
-auto mod::apanolio::method::Getter::banner_failure(std::string const &identifier) -> void {
+auto mod::apanolio::method::Getter::banner_failure(std::string const &identifier, std::string const &reasons) -> void {
   using namespace io::keywords;
   ap_set_content_type(this->req, "text/html"); // [[FIXTHIS]] as ap::set_content_type(...)
   rs << html << br
@@ -60,7 +73,7 @@ auto mod::apanolio::method::Getter::banner_failure(std::string const &identifier
      << body << p << "unable to recover the identifier "
      << identifier
      << " because "
-     << "of some really good reasons"
+     << reasons
      << _p << _body
      << _html;
 }

@@ -10,8 +10,10 @@ namespace tests::unit::exception { class Fixture; }
 class tests::unit::exception::Fixture : public cppunit::test::Fixture {
 public:
   auto test_Argument() -> void;
+  auto test_Identifier() -> void;
   auto test_Invariant() -> void;
   auto test_Null() -> void;
+  auto test_Record() -> void;
   auto test_Storage() -> void;
   auto test_System() -> void;
   template<typename EXCEPTION> auto test_Aspect() -> void;
@@ -38,6 +40,12 @@ auto tests::unit::exception::Fixture::test_Argument() -> void {
   Subject subject{"bad"};
   CPPUNIT_ASSERT(nullptr != subject.what());
 }
+#import tunitas.apanolio.exception.Identifier
+auto tests::unit::exception::Fixture::test_Identifier() -> void {
+  using Subject = ::tunitas::apanolio::exception::Identifier;
+  Subject subject{"bad"};
+  CPPUNIT_ASSERT(nullptr != subject.what());
+}
 #import tunitas.apanolio.exception.Invariant
 auto tests::unit::exception::Fixture::test_Invariant() -> void {
   using Subject = ::tunitas::apanolio::exception::Invariant;
@@ -47,6 +55,12 @@ auto tests::unit::exception::Fixture::test_Invariant() -> void {
 #import tunitas.apanolio.exception.Null
 auto tests::unit::exception::Fixture::test_Null() -> void {
   using Subject = ::tunitas::apanolio::exception::Null;
+  Subject subject{};
+  CPPUNIT_ASSERT(nullptr != subject.what());
+}
+#import tunitas.apanolio.exception.Record
+auto tests::unit::exception::Fixture::test_Record() -> void {
+  using Subject = ::tunitas::apanolio::exception::Record;
   Subject subject{};
   CPPUNIT_ASSERT(nullptr != subject.what());
 }
@@ -86,8 +100,10 @@ auto tests::unit::exception::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("exception");
   series << call("Argument", &Fixture::test_Argument)
+         << call("Identifier", &Fixture::test_Identifier)
          << call("Invariant", &Fixture::test_Invariant)
          << call("Null", &Fixture::test_Null)
+         << call("Record", &Fixture::test_Record)
          << call("Storage", &Fixture::test_Storage)
          << call("System", &Fixture::test_System)
     ;
@@ -95,8 +111,10 @@ auto tests::unit::exception::Fixture::suite() -> cppunit::Test * {
     Stream asp("Aspect");
     namespace subject = ::tunitas::apanolio::exception;
     asp << call("Argument", &Fixture::test_Aspect<subject::Argument>)
+        << call("Identifier", &Fixture::test_Aspect<subject::Identifier>)
         << call("Invariant", &Fixture::test_Aspect<subject::Invariant>)
         << call("Null", &Fixture::test_Aspect<subject::Null>)
+        << call("Record", &Fixture::test_Aspect<subject::Record>)
         << call("Storage", &Fixture::test_Aspect<subject::Storage>)
         << call("System", &Fixture::test_Aspect<subject::System>)
       ;

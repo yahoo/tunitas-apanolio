@@ -1,9 +1,10 @@
 dnl This is a GNU -*- autoconf -*- specification that is processed by Autoconf.
-dnl Copyright 2019-2019, Oath Inc.
+dnl Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
 dnl Licensed under the terms of the Apache-2.0 license.
-dnl See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+dnl For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+dnl For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 
-AC_INIT([apanolio], [0.0.0], [tunitas@verizonmedia.com])
+AC_INIT([apanolio], [0.1.0], [tunitas@verizonmedia.com])
 TF_INIT(AC_PACKAGE_NAME, AC_PACKAGE_VERSION, AC_PACKAGE_BUGREPORT)
 
 TF_COMPONENT_METADIRECTORY_TIERS
@@ -56,8 +57,8 @@ dnl [[FIXTHIS]] tie these to an --enable-engine=STORAGE type choice and require 
 m4_include([ac/with-storage.m4])
 APANOLIO_WITH_STORAGE([leveldb])
 APANOLIO_WITH_STORAGE([sqlite])
-APANOLIO_WITH_STORAGE([mysql++])
-APANOLIO_WITH_STORAGE([pgsql++])
+APANOLIO_WITH_STORAGE([mysql], [mysql++])
+APANOLIO_WITH_STORAGE([pgsql], [pgsql++])
 
 TF_MSG_VERBOSE([testing subsystems (alphabetical)])
 TF_WITH_MODULE([cppunit])
@@ -102,6 +103,7 @@ TF_CHECK_CPPUNIT
 TF_CHECK_APACHE_HTTPD
 TF_CHECK_BOOST
 TF_CHECK_CPPUNIT
+TF_CHECK_LEVELDB
 TF_CHECK_SQLITE
 TF_CHECK_UUID
 # Checks for libraries.

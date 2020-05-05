@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::schema::compiler {
+  //
+  // The interface of any compiler.
+  // Descendants only.
+  //
+  // Usage:
+  //
+  //   class my::Compiler : private compiler::Log, public compiler::Prototype, virtual public Interface {
+  //     ...etc...
+  //   }
+  //
+  //   auto specimen = json::Value{...somehow...} ... as was parsed, being hot off the wire
+  //   auto compiler = Compiler{...somehow...};
+  //
+  // Story #1 -- grab & release
+  //
+  //   compiler.grab(specimen);
+  //   if (compiler.check()) {
+  //     auto id = compiler.identify();
+  //     auto cleaned = compiler.sanitize();
+  //     ... store the cleaned record at position 'id' in the database
+  //   }
+  //   compiler.release();
+  //
+  // Story #2 -- with a RAII guard
+  //
+  //   Compiler::Guard guard{compiler, specimen};
+  //   if (compiler.check()) {
+  //     auto id = compiler.identify();
+  //     auto cleaned = compiler.sanitize();
+  //     ... store the cleaned record at position 'id' in the database
+  //   }
+  //
+  class Interface;
+}
+#endiv
+#divert <hpp>
+#import json.Value
+#import std.reference_wrapper
+#import tunitas.apanolio.schema.compiler.Interface
+#import tunitas.apanolio.resource.Identifier
+#import tunitas.apanolio.resource.Record
+class tunitas::apanolio::schema::compiler::Interface {
+protected:
+  virtual ~Interface() = default;
+public:
+  Interface() = default;
+  using Object = compiler::Object;
+  using Reference = compiler::Reference;
+  virtual auto grab(Reference) -> void = 0;
+  virtual auto release() -> Reference = 0;
+  struct Guard;
+  virtual auto check() -> bool = 0;
+  //
+  // The grabbed object must have passed check() before valid are valid calls
+  //
+  using Identifier = resource::Identifier;
+  virtual auto identify() const -> Identifier = 0;
+  using Record = compiler::Record;
+  virtual auto sanitize() const -> Record = 0;
+};
+#endiv

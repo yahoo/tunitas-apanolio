@@ -1,0 +1,50 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#include <tests.unit.compiler.Fixture>
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.schema.compiler.Interface
+#import tunitas.apanolio.schema.compiler.Prototype
+class tests::unit::compiler::Fixture::Recompiler : public ::tunitas::apanolio::schema::compiler::Prototype, virtual public ::tunitas::apanolio::schema::compiler::Interface {
+  struct Ancestors {
+    using Interface = ::tunitas::apanolio::schema::compiler::Interface;
+    using Implementation = ::tunitas::apanolio::schema::compiler::Prototype;
+  };
+public:
+  Recompiler() = default;
+  auto grab(Reference) -> void final;
+  auto release() -> Reference final;
+  auto check() -> bool final;
+  auto identify() const -> Identifier final;
+  auto sanitize() const -> Record final;
+};
+#endiv
+#divert <cpp>
+#import std.swap
+#import tunitas.apanolio.exception.Null
+namespace tests::unit::compiler {
+  auto Fixture::Recompiler::grab(Reference packaged) -> void {
+    Object &proposed = packaged;
+    grabbed = &proposed;
+  }
+  auto Fixture::Recompiler::release() -> Reference {
+    if (nullptr == grabbed) {
+      throw tunitas::apanolio::exception::Null{};
+    }
+    Object *tmp{nullptr};
+    std::swap(tmp, grabbed);
+    return Reference{*tmp};
+  }
+  auto Fixture::Recompiler::check() -> bool {
+    return true;
+  }
+  auto Fixture::Recompiler::identify() const -> Identifier {
+    return Identifier{};
+  }
+  auto Fixture::Recompiler::sanitize() const -> Record {
+    return Record{};
+  }
+}
+#endiv

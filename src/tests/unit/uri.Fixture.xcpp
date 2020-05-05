@@ -2,12 +2,12 @@
 // Copyright 2019-2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace tests::unit::url { class Fixture; }
+namespace tests::unit::uri { class Fixture; }
 #endiv
 #divert <hpp>
 #import cppunit.Test
 #import cppunit.test.Fixture
-class tests::unit::url::Fixture : public cppunit::test::Fixture {
+class tests::unit::uri::Fixture : public cppunit::test::Fixture {
 public:
   auto test_Parser_slash() -> void;
   auto test_Parser_slashprefix() -> void;
@@ -15,11 +15,11 @@ public:
 };
 #endiv
 #divert <cpp>
-#import tunitas.apanolio.url.Parser
+#import tunitas.apanolio.uri.Parser
 #import format.q
 #import std.clog
-auto tests::unit::url::Fixture::test_Parser_slash() -> void {
-  ::tunitas::apanolio::url::Parser parser("/");
+auto tests::unit::uri::Fixture::test_Parser_slash() -> void {
+  ::tunitas::apanolio::uri::Parser parser("/");
   { auto u = parser("");
     CPPUNIT_ASSERT(!ok(u)); }
   { auto u = parser("/");
@@ -42,8 +42,8 @@ auto tests::unit::url::Fixture::test_Parser_slash() -> void {
       std::string actual = identifier(u);
       CPPUNIT_ASSERT_EQUAL(expected, actual); } }
 }
-auto tests::unit::url::Fixture::test_Parser_slashprefix() -> void {
-  ::tunitas::apanolio::url::Parser parser("/prefix");
+auto tests::unit::uri::Fixture::test_Parser_slashprefix() -> void {
+  ::tunitas::apanolio::uri::Parser parser("/prefix");
   { auto u = parser("");
     CPPUNIT_ASSERT(!ok(u)); }
   { auto u = parser("/");
@@ -68,17 +68,15 @@ auto tests::unit::url::Fixture::test_Parser_slashprefix() -> void {
       std::string actual = identifier(u);
       CPPUNIT_ASSERT_EQUAL(expected, actual); } }
 }
-#import tests.unit.url.Parser
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.add
-#import unit.rigging.suite.call
-auto tests::unit::url::Fixture::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
-  Stream series("url");
+#import tests.unit.uri.Parser
+#import rigging.suite.io
+auto tests::unit::uri::Fixture::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("uri");
   series << call("Parser_slash", &Fixture::test_Parser_slash)
          << call("Parser_slashprefix", &Fixture::test_Parser_slashprefix)
-         << add(Parser::suite())
+         << add<Parser>()
     ;
-  return series.release();
+  return finalize(series);
 }
 #endiv

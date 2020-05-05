@@ -1,0 +1,61 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace mod::apanolio::method {
+  //
+  // OPTIONS /...blah-blah-blah... HTTP/X.Y
+  // <body is ignored>
+  //
+  // These are used for the CORS "preflight checks"
+  // Expectations of URL routing consistency are enforced
+  // It doesn't matter what the path is (mostly)
+  // The thing responds with the headers that the client (browser) needs to perform CORS safety checks.
+  //
+  // WATCHOUT - this component does absolutly nothing.
+  // You MUST declare the headers in your apache configuration fragments on your own.
+  // This module does NOT do that for you; so it is very clear what you are getting at runtime.
+  //
+  // From an Apache VirtualHost configuration stanza:
+  //
+  // either
+  //   Header set Access-Control-Allow-Origin    "https://apanolio.example.state-space.network"
+  // or
+  //   Header set Access-Control-Allow-Origin      "*"
+  // always
+  //   Header set Access-Control-Allow-Methods     "DELETE, GET, OPTIONS, PATCH, POST, PUT"
+  //   Header set Access-Control-Allow-Headers     "Accept, api_key, Authorization, Client-Security-Token, Content-Type, Origin, X-Requested-With"
+  //   Header set Access-Control-Allow-Credentials "true"
+  //   Header set Access-Control-Max-Age           "1000"
+  //
+  // Usage:
+  //   Optioner optioner{r, spec};
+  //   return optioner();
+  //
+  class Optioner;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.status.Code
+#import mod.apanolio.method.Prototype
+class mod::apanolio::method::Optioner : public method::Prototype {
+  using ancestor = Prototype;
+public:
+  using ancestor::Prototype;
+  auto operator()() -> apache::httpd::status::Code;
+};
+#endiv
+#divert <cpp>
+#import mod.apanolio.module
+auto mod::apanolio::method::Optioner::operator()() -> apache::httpd::status::Code {
+  //
+  // DO NOT parse the url (this->req->path)
+  // In fact, we do not care what it is.
+  // This is OPTIONS and must be capable of being used as a preflight check for CORS.
+  // So, for exapmle, it needs to work for /consent (no identifier) as well as /consent/123456 (with an identifier)
+  //
+  // DO NOT return HTTP::OK because that signals "200 OK" but is an internal server failure.
+  //
+  return HANDLER::OK;
+}
+#endiv

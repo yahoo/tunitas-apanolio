@@ -1,0 +1,182 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting { class Validate; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tunitas.apanolio.resource.Record
+#import std.string
+class tests::unit::resting::Validate : public cppunit::test::Fixture {
+public:
+  template<unsigned> auto test_good() -> void;
+  template<unsigned> auto test_fail() -> void;
+  static auto suite() -> cppunit::Test *;
+protected:
+  static auto actualize(tunitas::apanolio::resource::Record const &) -> std::string;
+};
+namespace tests::unit::resting {
+  template<> auto Validate::test_good<0>() -> void;
+  template<> auto Validate::test_good<1>() -> void;
+  template<> auto Validate::test_good<2>() -> void;
+  //
+  template<> auto Validate::test_fail<0>() -> void;
+  template<> auto Validate::test_fail<1>() -> void;
+  template<> auto Validate::test_fail<2>() -> void;
+  template<> auto Validate::test_fail<3>() -> void;
+  template<> auto Validate::test_fail<4>() -> void;
+  template<> auto Validate::test_fail<5>() -> void;
+}
+#import tunitas.apanolio.exception
+#import tunitas.apanolio.resource.Identifier
+#import tunitas.apanolio.resting.validate
+#import tunitas.apanolio.resting.Buffer
+#import std.size_t
+namespace tests::unit::resting {
+  namespace exception = tunitas::apanolio::exception;
+  using tunitas::apanolio::resource::Identifier;
+  using tunitas::apanolio::resting::validate;
+  using tunitas::apanolio::resting::Buffer;
+  auto operator""_Buffer(char const *, std::size_t) -> Buffer;
+}
+#endiv
+#divert <cpp>
+auto tests::unit::resting::operator""_Buffer(char const *literal, std::size_t length) -> Buffer {
+  // And yet we are told that length can never be zero because the language rules and the compiler won't ever do that
+  return 0 == length ? Buffer{} : Buffer{&literal[0], &literal[length-1]};
+}
+#import std.transform
+#import std.back_inserter
+#import std.move
+auto tests::unit::resting::Validate::actualize(tunitas::apanolio::resource::Record const &buffy) -> std::string {
+  std::string ret;
+  std::transform(buffy.begin(), buffy.end(), std::back_inserter(ret), [](auto b) -> char { return char(b); });
+  return std::move(ret);
+}
+#import tunitas.apanolio.resting.validate
+#import tunitas.apanolio.exception.Aspect
+namespace tests::unit::resting {
+  template<> auto Validate::test_good<0>() -> void {
+    //
+    // simplest object
+    //
+    // expires now (from today)
+    auto const specimen = R"json(  { "id" : 85317577, "expires" : 1571331890, "consentType" : "tcf 0.9", "status" : "denied" }  )json"_Buffer;
+    auto [identifier, record] = validate(specimen);
+    CPPUNIT_ASSERT(Identifier{85317577} == identifier);
+    auto const expected = R"json({"consentType":"tcf 0.9","expires":1571331890,"id":85317577,"status":"denied"})json"s;
+    CPPUNIT_ASSERT_EQUAL(expected, actualize(record));
+  }
+  template<> auto Validate::test_good<1>() -> void {
+    //
+    // Some other object
+    //
+    // six hundred days hence (from today) ... echo $((600*86400 + $(date +%s)))
+    auto const specimen = R"json(  { "id" : 104848934, "expires" : 1623171729, "consentType" : "tcf 1.0", "status" : "go" }  )json"_Buffer;
+    auto [identifier, record] = validate(specimen);
+    CPPUNIT_ASSERT(Identifier{104848934} == identifier);
+    auto const expected = R"json({"consentType":"tcf 1.0","expires":1623171729,"id":104848934,"status":"go"})json"s;
+    CPPUNIT_ASSERT_EQUAL(expected, actualize(record));
+  }
+  template<> auto Validate::test_good<2>() -> void {
+    //
+    // And yet another other object
+    //
+    // one hundred days ago (from today) ... echo $((-100*86400 + $(date +%s)))
+    auto const specimen = R"json(  { "id" : 28001580, "expires" : 1562691790, "consentType" : "tcf 2.0", "status" : "very good" }  )json"_Buffer;
+    auto [identifier, record] = validate(specimen);
+    CPPUNIT_ASSERT(Identifier{28001580} == identifier);
+    auto const expected = R"json({"consentType":"tcf 2.0","expires":1562691790,"id":28001580,"status":"very good"})json"s;
+    CPPUNIT_ASSERT_EQUAL(expected, actualize(record));
+  }
+}
+namespace tests::unit::resting {
+  template<> auto Validate::test_fail<0>() -> void try {
+    //
+    // just plain empty (there is no JSON)
+    //
+    //
+    auto const specimen = R"json(      )json"_Buffer;
+    validate(specimen);
+    CPPUNIT_ASSERT(false);
+  } catch (exception::Aspect const &) {
+    CPPUNIT_ASSERT(true);
+  }
+  template<> auto Validate::test_fail<1>() -> void try {
+    //
+    // empty object ---------------\ (that)
+    //                             |
+    //                             v
+    auto const specimen = R"json(  {  }  )json"_Buffer;
+    auto [identifier, record] = validate(specimen);
+    CPPUNIT_ASSERT(true);
+  } catch (exception::Aspect const &) {
+    CPPUNIT_ASSERT(true);
+  }
+  template<> auto Validate::test_fail<2>() -> void try {
+    //
+    // no closing bracket           /-------- here
+    //                              |
+    //                              v
+    auto const specimen = R"json(   {   )json"_Buffer;
+    validate(specimen);
+    CPPUNIT_ASSERT(false);
+  } catch (exception::Aspect const &) {
+    CPPUNIT_ASSERT(true);
+  }
+  template<> auto Validate::test_fail<3>() -> void try {
+    auto const specimen = R"json(   { "bogon" : "not a number" }  )json"_Buffer;
+    validate(specimen);
+    CPPUNIT_ASSERT(false);
+  } catch (exception::Aspect const &) {
+    CPPUNIT_ASSERT(true);
+  }
+  template<> auto Validate::test_fail<4>() -> void try {
+    //
+    // gratutious trailing comma ----------------------------------\ (here)
+    //                                                             |
+    //                                                             v
+    auto const specimen = R"json(   { "id" : 1234, "status" : "yes", }  )json"_Buffer;
+    validate(specimen);
+    CPPUNIT_ASSERT(false);
+  } catch (exception::Aspect const &) {
+    CPPUNIT_ASSERT(true);
+  }
+  template<> auto Validate::test_fail<5>() -> void try {
+    //
+    // identifier is way way too big (it is 2^129)
+    //
+    auto const specimen = R"json(   { "id" : 680564733841876926926749214863536422912 }  )json"_Buffer;
+    validate(specimen);
+    CPPUNIT_ASSERT(false);
+  } catch (exception::Aspect const &) {
+    CPPUNIT_ASSERT(true);
+  }
+}
+#import rigging.suite.io
+auto tests::unit::resting::Validate::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("validate");
+  {
+    Stream goo("good");
+    goo << call("0", &Validate::test_good<0>)
+        << call("1", &Validate::test_good<1>)
+        << call("2", &Validate::test_good<2>)
+      ;
+    series << move(goo);
+  } {
+    Stream fai("fail");
+    fai << call("0", &Validate::test_fail<0>)
+        << call("1", &Validate::test_fail<1>)
+        << call("2", &Validate::test_fail<2>)
+        << call("3", &Validate::test_fail<3>)
+        << call("4", &Validate::test_fail<4>)
+        << call("5", &Validate::test_fail<5>)
+      ;
+    series << move(fai);
+  }
+  return finalize(series);
+}
+#endiv

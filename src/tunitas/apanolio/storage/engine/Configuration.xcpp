@@ -3,7 +3,7 @@
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
 #import tunitas.apanolio.storage.engine.configuration.Configuration
-namespace tunitas::apanolio::storage::engine::configuration {
+namespace tunitas::apanolio::storage::engine {
   // But typically though you won't need all possible configurations, you'll want an engine-specific specialization
   using configuration::Configuration;
 }

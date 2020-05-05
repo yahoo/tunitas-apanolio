@@ -1,0 +1,123 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::file { class File; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import std.size_t
+#import std.string
+#import tunitas.apanolio.resting.File
+class tests::unit::resting::file::File : public cppunit::test::Fixture {
+public:
+  auto setUp() -> void;
+  auto tearDown() -> void;
+
+  static constexpr auto const KILL = ::tunitas::apanolio::resting::File::KILL;
+  static constexpr auto const KEEP = ::tunitas::apanolio::resting::File::KEEP;
+  static std::size_t const REPETITION_LIMIT = 100;
+  std::string temporary_storage_directory;
+
+  auto test_constructor() -> void;
+  auto test_destructor() -> void;
+  auto test_write() -> void;
+  auto test_finalize_keep() -> void;
+  auto test_finalize_kill() -> void;
+
+  static auto suite() -> cppunit::Test *;
+public:
+  static auto generate() -> std::string;
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.resting.File
+
+#import unit.rigging.lhs
+using unit::rigging::lhs;
+#import unit.rigging.clear
+using unit::rigging::clear;
+
+#import sys.posix.getenv
+auto tests::unit::resting::file::File::setUp() -> void {
+  auto got = sys::posix::getenv("TMPDIR");
+  lhs(temporary_storage_directory) = ok(got) ? value(got): std::string("/tmp");
+}
+
+auto tests::unit::resting::file::File::tearDown() -> void {
+  lhs(temporary_storage_directory) = clear;
+}
+
+auto tests::unit::resting::file::File::test_constructor() -> void {
+  tunitas::apanolio::resting::File f(temporary_storage_directory);
+  CPPUNIT_ASSERT(true);
+}
+
+auto tests::unit::resting::file::File::test_destructor() -> void {
+  {
+    tunitas::apanolio::resting::File f(temporary_storage_directory);
+    f.finalize(KEEP);
+    // FIXME ... this is going to leave crap in /tmp
+    CPPUNIT_ASSERT(true);
+  } {
+    tunitas::apanolio::resting::File f(temporary_storage_directory);
+    f.finalize(KILL);
+    CPPUNIT_ASSERT(true);
+  }
+}
+
+#import uuid.generate.time_unsafe
+#import uuid.unparsing.lower
+#import std.move
+auto tests::unit::resting::file::File::generate() -> std::string {
+  auto raw = uuid::generate::time_unsafe();
+  std:: string ret;
+  uuid::unparsing::lower(raw, ret);
+  return std::move(ret);
+}
+
+auto tests::unit::resting::file::File::test_write() -> void {
+  {
+    tunitas::apanolio::resting::File f(temporary_storage_directory);
+    for (int i(0), e(REPETITION_LIMIT); e != i; ++i) {
+      std::string bulk(generate());
+      auto &s = f.write(bulk.data(), bulk.size());
+      CPPUNIT_ASSERT(s.good());
+    }
+    // FIXME ... this is going to leave crap in /tmp
+  } {
+    tunitas::apanolio::resting::File f(temporary_storage_directory);
+    for (int i(0), e(REPETITION_LIMIT); e != i; ++i) {
+      std::string bulk(generate());
+      auto &s = f.write(bulk.data(), bulk.size());
+      CPPUNIT_ASSERT(s.good());
+    }
+    f.finalize(KILL);
+    CPPUNIT_ASSERT(true);
+  }
+}
+
+auto tests::unit::resting::file::File::test_finalize_keep() -> void {
+  // Huh ... we already tested this above.
+  CPPUNIT_ASSERT(true);
+}
+
+auto tests::unit::resting::file::File::test_finalize_kill() -> void {
+  // Huh ... we already tested this above.
+  CPPUNIT_ASSERT(true);
+}
+
+#import rigging.suite.io
+auto tests::unit::resting::file::File::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("file");
+  series << call("constructor", &File::test_constructor)
+         << call("destructor", &File::test_destructor)
+         << call("write", &File::test_write)
+         << call("keep", &File::test_finalize_keep)
+         << call("kill", &File::test_finalize_kill)
+    ;
+  return finalize(series);
+}
+#endiv

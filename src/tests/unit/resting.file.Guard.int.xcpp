@@ -1,0 +1,26 @@
+// -*- c++ -*- and wrapped in the SCOLD stylings
+#divert <hpp>
+#import tests.unit.resting.file.Guard
+#import tests.unit.resting.file.Pair
+namespace tests {
+  namespace unit {
+    namespace resting {
+      namespace file {
+        //
+        // Upon destruction, close both file descriptors mentioned in the subject
+        //
+        template<> inline Guard<Pair<int>>::~Guard();
+      }
+    }
+  }
+}
+#endiv
+#divert <ipp>
+#import sys.posix.close
+template<> tests::unit::resting::file::Guard<tests::unit::resting::file::Pair<int>>::~Guard() {
+  // Try our best ... don't even report the failures
+  using ::sys::posix::close;
+  close(subject.first);
+  close(subject.second);
+}
+#endiv

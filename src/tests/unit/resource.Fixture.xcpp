@@ -39,10 +39,10 @@ auto tests::unit::resource::Fixture::suite() -> cppunit::Test * {
     use << call("Identifier", &Fixture::test_usage_Identifier)
         << call("Record", &Fixture::test_usage_Record)
       ;
-    series << add(use.release());
+    series << move(use);
   }
-  series << add(Identifier::suite())
-         << add(Record::suite())
+  series << add<Identifier>()
+         << add<Record>()
     ;
   return finalize(series);
 }

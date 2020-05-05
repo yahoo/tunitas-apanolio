@@ -30,14 +30,22 @@ class tunitas::apanolio::exception::Null : public exception::Aspect, public std:
     using Exception = std::invalid_argument;
   };
 public:
+  // i.e. for when you don't have anything else to say
   inline Null();
+  // e.g. "server config"
+  inline explicit Null(std::string const &object);
   auto what() const noexcept -> char const * override;
 };
 #endiv
 #divert <ipp>
-tunitas::apanolio::exception::Null::Null()
-  : ancestors::Exception{"nullptr"}
-{ }
+namespace tunitas::apanolio::exception {
+  Null::Null()
+    : ancestors::Exception{"nullptr"}
+  { }
+  Null::Null(std::string const &object)
+    : ancestors::Exception{object}
+  { }
+}
 #endiv
 #divert <cpp>
 auto tunitas::apanolio::exception::Null::what() const noexcept -> char const * {

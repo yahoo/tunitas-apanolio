@@ -17,6 +17,7 @@ class tunitas::apanolio::storage::engine::configuration::Prototype {
 protected:
   ~Prototype() = default;
 public:
+  Prototype() = default;
   // Perhaps the descendants can have move semantics, but that's unlikely to be helpful.
   Prototype(Prototype const &) = delete;
   auto operator=(Prototype const &) -> Prototype & = delete;

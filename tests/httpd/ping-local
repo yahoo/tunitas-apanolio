@@ -15,6 +15,8 @@ function show_last_few() {
 }
 
 echo
+echo "--- OPTIONS -------------------------------------------"
+do_curl -X OPTIONS http://localhost:8888/apanolio
 echo "--- GET -------------------------------------------"
 do_curl http://localhost:8888/apanolio
 do_curl http://localhost:8888/apanolio/

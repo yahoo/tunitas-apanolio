@@ -10,6 +10,11 @@ namespace tunitas::apanolio::resource {
   //   or can conveniently fit in a DNS extended text record; see Engine<SCARPET>
   //
   // These things are, at present, pretty opaque.
+  // Needs to be a distinct type so that ADL will work.
+  //
+  // Usage:
+  //
+  //   oh come on.
   //
   class Record;
 }
@@ -18,31 +23,31 @@ namespace tunitas::apanolio::resource {
 #import std.byte
 #import std.vector
 class tunitas::apanolio::resource::Record : private std::vector<std::byte> {
-  using ancestor = std::vector<std::byte>;
+  using Ancestor = std::vector<std::byte>;
 public:
   Record() = default;
-  using ancestor::vector;
-  inline explicit Record(ancestor const &);
-  inline explicit Record(ancestor &&);
-  using Value = ancestor::value_type; // ... New School
+  using Ancestor::vector;
+  inline explicit Record(Ancestor const &);
+  inline explicit Record(Ancestor &&);
+  using Value = Ancestor::value_type; // ... New School
   using value_type = Value; // ............. old_school
-  using ancestor::empty;
-  using ancestor::size;
-  using ancestor::data;
-  using ancestor::iterator;
-  using ancestor::const_iterator;
-  using ancestor::begin;
-  using ancestor::end;
-  using ancestor::clear;
-  using ancestor::push_back; // need std::copy to work
-  using ancestor::reserve;
-  using ancestor::resize;
+  using Ancestor::empty;
+  using Ancestor::size;
+  using Ancestor::data;
+  using Ancestor::iterator;
+  using Ancestor::const_iterator;
+  using Ancestor::begin;
+  using Ancestor::end;
+  using Ancestor::clear;
+  using Ancestor::push_back; // need std::copy to work
+  using Ancestor::reserve;
+  using Ancestor::resize;
 };
 #endiv
 #divert <ipp>
 #import std.forward
 namespace tunitas::apanolio::resource {
-  Record::Record(ancestor const &a) : ancestor{a} { }
-  Record::Record(ancestor &&a) : ancestor{std::forward<ancestor>(a)} { }
+  Record::Record(Ancestor const &a) : Ancestor{a} { }
+  Record::Record(Ancestor &&a) : Ancestor{std::forward<Ancestor>(a)} { }
 }
 #endiv

@@ -9,6 +9,7 @@ namespace mod::apanolio {
   // The standard handler callback interface
   //
   // WATCHOUT - no exceptions may leak back out to the C runtime.
+  // WATCHOUT - exceptions MUST NOT leak back out to the C runtime (there, said it the IETF way).
   //
   namespace packaging::handler::function {
     namespace HTTP = apache::httpd::status::HTTP;
@@ -27,19 +28,21 @@ namespace mod::apanolio {
 #import mod.apanolio.module
 #import mod.apanolio.config.Specification
 #import nonstd.exception.Unreachable
+#import mod.apanolio.method.Deleter
 #import mod.apanolio.method.Getter
+#import mod.apanolio.method.Optioner
 #import mod.apanolio.method.Poster
 #import mod.apanolio.method.Putter
 #import nonstd.exception.Unimplemented
+#import tunitas.apanolio.exception.Null
 #import strcmp
 #import std.cerr
 #import std.exception
-#import std.runtime_error
 #import std.string
 #import want.null_maybe
 auto mod::apanolio::packaging::handler::function::handler(request_rec *r) noexcept -> int try {
   //
-  // reminder: the word "apanolio: is the name of the declared module
+  // reminder: the word "apanolio" is the name of the declared module
   // and appears in configuration files and also in variables herein
   //
   // module.conf
@@ -58,11 +61,11 @@ auto mod::apanolio::packaging::handler::function::handler(request_rec *r) noexce
   if (nullptr == r || nullptr == r->handler || 0 != strcmp(r->handler, HANDLER_NAME)) {
     return HANDLER::DECLINED;
   }
-  ap_log_rerror(APLOG_MARK, APLOG_TRACE4, /*status*/ 0, r, "%s (accepted %s)", HANDLER_NAME, r->uri);
+  ap_log_rerror(APLOG_MARK, APLOG_TRACE4, /*status*/ 0, r, "%s (accepted %s(%d) %s)", HANDLER_NAME, r->method, r->method_number, r->uri);
   namespace module_config = apache::httpd::module_config;
-  auto const *spec = module_config::get<config::Specification>(r->server, apanolio_module);
+  auto *spec = module_config::get<config::Specification>(r->server, apanolio_module);
   if (nullptr == spec) {
-    throw std::runtime_error("null server config");
+    throw tunitas::apanolio::exception::Null{"null server config"};
   }
   namespace io = apache::httpd::io;
   io::Stream rs(r);
@@ -70,25 +73,39 @@ auto mod::apanolio::packaging::handler::function::handler(request_rec *r) noexce
   if (false) {
   } else if (method::GET == r->method_number) {
     //
-    // GET /{ID} HTTP/5.0
+    // GET /{ID} HTTP/5.6
     // ...stuff...
     //
     method::Getter GET(r, spec);
     return GET();
   } else if (method::POST == r->method_number) {
     //
-    // POST / HTTP/5.0       no {ID} in the URL path
+    // POST / HTTP/6.7       no {ID} in the URL path
     // ...stuff...
     //
     method::Poster POST(r, spec);
     return POST();
   } else if (method::PUT == r->method_number) {
     //
-    // PUT /{ID} HTTP/6.7
+    // PUT /{ID} HTTP/7.8
     // ...stuff...
     //
     method::Putter PUT(r, spec);
     return PUT();
+  } else if (method::DELETE == r->method_number) {
+    //
+    // DELETE /{ID} HTTP/8.9
+    // ...stuff...
+    //
+    method::Deleter DELETE(r, spec);
+    return DELETE();
+  } else if (method::OPTIONS == r->method_number) {
+    //
+    // OPTIONS /...blahblahblah HTTP/0.0
+    // ...stuff...
+    //
+    method::Optioner OPTIONS(r, spec);
+    return OPTIONS();
   } else {
     using namespace io::keywords;
     rs << html << br
@@ -100,11 +117,12 @@ auto mod::apanolio::packaging::handler::function::handler(request_rec *r) noexce
   throw nonstd::exception::Unreachable{__FUNCTION__, __FILE__, __LINE__};
 } catch (...) {
   // WATCHOUT -- again no C++ exception can escape back out to the C runtime.
+  //             C++ exceptions MUST NOT escape back out to the C runtime.
   try {
     throw;
   } catch (nonstd::exception::Unimplemented const &e) {
     // We know it is unimplemented, and there is a special code for that
-    ap_log_rerror(APLOG_MARK, APLOG_TRACE1, /*status*/ 0, r, "we know %s", e.what());
+    ap_log_rerror(APLOG_MARK, APLOG_TRACE1, /*status*/ 0, r, "we know [it is an] %s", e.what());
     return HTTP::NOT_IMPLEMENTED;
   } catch (std::exception const &e) {
     // Ours and maybe someone else's exceptions.

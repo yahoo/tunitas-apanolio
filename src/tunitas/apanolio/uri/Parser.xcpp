@@ -2,7 +2,7 @@
 // Copyright 2019-2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace tunitas::apanolio::url {
+namespace tunitas::apanolio::uri {
   //
   // The URI parser
   //
@@ -14,8 +14,8 @@ namespace tunitas::apanolio::url {
 #endiv
 #divert <hpp>
 #import std.string
-#import tunitas.apanolio.url.URI
-class tunitas::apanolio::url::Parser {
+#import tunitas.apanolio.uri.URI
+class tunitas::apanolio::uri::Parser {
 public:
   inline explicit Parser(std::string const &bare_prefix);
   inline auto operator()(std::string const &syntax) -> URI;
@@ -32,23 +32,23 @@ protected:
 #import std.all_of
 #import std.max
 #import std.move
-#import std.invalid_argument
-namespace tunitas::apanolio {
-  url::Parser::Parser(std::string const &prefix)
+#import tunitas.apanolio.exception.Argument
+namespace tunitas::apanolio::uri {
+  Parser::Parser(std::string const &prefix)
     : prefix_slash{prefix} {
     if (prefix_slash.empty() || '/' != prefix_slash.back()) {
       prefix_slash += '/';
     }
   }
-  auto url::Parser::isidentifier(char specimen) -> bool {
+  auto Parser::isidentifier(char specimen) -> bool {
     return std::isalnum(specimen) || '-' == specimen || '_' == specimen || '.' == specimen;
   }
-  auto url::Parser::isidentifier_thereon(std::string const &syntax, std::string::size_type start_at) -> bool {
+  auto Parser::isidentifier_thereon(std::string const &syntax, std::string::size_type start_at) -> bool {
     auto start = syntax.begin() + start_at;
     auto finish = syntax.end();
     return std::all_of(start, finish, isidentifier);
   }
-  auto url::Parser::operator()(std::string const &syntax) -> URI {
+  auto Parser::operator()(std::string const &syntax) -> URI {
     //
     // With a trivial prefix of '/'
     //
@@ -72,7 +72,7 @@ namespace tunitas::apanolio {
     // but slashes further down in the string are separators.
     //
     if ('/' != prefix_slash.back()) {
-      throw std::invalid_argument{"no trailing slash"};
+      throw exception::Argument{"no trailing slash"};
     }
     std::string::size_type rest_index = prefix_slash.size();
     if (0 != syntax.find(prefix_slash) || syntax.size() < rest_index+1 || !isidentifier_thereon(syntax, rest_index)) {

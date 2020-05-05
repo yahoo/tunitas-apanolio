@@ -1,14 +1,18 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright 2019-2019, Oath Inc.
+# Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
 # Licensed under the terms of the Apache-2.0 license.
-# See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
-
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#
 lib_libtunitas_apanolio_la = lib/libtunitas-apanolio.la
+# [[FIXTHIS]] -ltunitas-app should be should be -ltunitas-service, something like that (-ltunitas-app has the command line options parsing)
 lib_libtunitas_apanolio_la_LIBADD = \
+  $(lib_libtunitas_apanolio_resting_la) \
+  $(lib_libtunitas_apanolio_schema_la) \
+  $(lib_libtunitas_apanolio_storage_la) \
   $(lib_libwant_la) \
-  -lrabinpoly-module \
-  -llevel-module \
   -ltunitas-app \
+ -lnonstd-module \
   $(end)
 lib_libtunitas_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 lib_libtunitas_apanolio_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunitas_apanolio_la_SOURCES))
@@ -29,8 +33,10 @@ lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/exception/namespace.cpp \
   obj/src/tunitas/apanolio/exception/Aspect.cpp \
   obj/src/tunitas/apanolio/exception/Argument.cpp \
+  obj/src/tunitas/apanolio/exception/Identifier.cpp \
   obj/src/tunitas/apanolio/exception/Invariant.cpp \
   obj/src/tunitas/apanolio/exception/Null.cpp \
+  obj/src/tunitas/apanolio/exception/Record.cpp \
   obj/src/tunitas/apanolio/exception/Storage.cpp \
   obj/src/tunitas/apanolio/exception/System.cpp \
   obj/src/tunitas/apanolio/exception/Version.cpp \
@@ -41,64 +47,18 @@ lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/resource/identifier.construct.cpp \
   obj/src/tunitas/apanolio/resource/Record.cpp \
   \
-  obj/src/tunitas/apanolio/Storage.cpp \
-  obj/src/tunitas/apanolio/storage/namespace.cpp \
-  obj/src/tunitas/apanolio/storage/Storage.cpp \
-  obj/src/tunitas/apanolio/storage/open.cpp \
-  \
-  obj/src/tunitas/apanolio/storage/Engine.cpp \
-  obj/src/tunitas/apanolio/storage/engine/namespace.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Name.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Prototype.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.declaration.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.NONE.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.MEMORY.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.FILES.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.LEVELDB.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.SQLITE.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.MYSQL.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.PGSQL.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.RAMCLOUD.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.FABRIC.cpp \
-  obj/src/tunitas/apanolio/storage/engine/Engine.SCARPET.cpp \
-  \
-  obj/src/tunitas/apanolio/storage/engine/level/namespace.cpp \
-  obj/src/tunitas/apanolio/storage/engine/level/db2.Sink.cpp \
-  obj/src/tunitas/apanolio/storage/engine/level/db2.Recorder.declaration.cpp \
-  obj/src/tunitas/apanolio/storage/engine/level/db2.Recorder.Record.cpp \
-  obj/src/tunitas/apanolio/storage/engine/level/db2.Recorder.cpp \
-  \
-  obj/src/tunitas/apanolio/storage/engine/Configuration.cpp \
-  obj/src/tunitas/apanolio/storage/engine/configuration/namespace.cpp \
-  obj/src/tunitas/apanolio/storage/engine/configuration/Prototype.cpp \
-  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.declaration.cpp \
-  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.cpp \
-  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.FABRIC.cpp \
-  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.MYSQL.cpp \
-  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.PGSQL.cpp \
-  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.RAMCLOUD.cpp \
-  obj/src/tunitas/apanolio/storage/engine/configuration/Configuration.SCARPET.cpp \
-  \
-  obj/src/tunitas/apanolio/storage/engine/State.cpp \
-  obj/src/tunitas/apanolio/storage/engine/state/namespace.cpp \
-  obj/src/tunitas/apanolio/storage/engine/state/Prototype.cpp \
-  obj/src/tunitas/apanolio/storage/engine/state/State.declaration.cpp \
-  obj/src/tunitas/apanolio/storage/engine/state/State.cpp \
-  obj/src/tunitas/apanolio/storage/engine/state/State.FABRIC.cpp \
-  obj/src/tunitas/apanolio/storage/engine/state/State.MYSQL.cpp \
-  obj/src/tunitas/apanolio/storage/engine/state/State.PGSQL.cpp \
-  obj/src/tunitas/apanolio/storage/engine/state/State.RAMCLOUD.cpp \
-  obj/src/tunitas/apanolio/storage/engine/state/State.SCARPET.cpp \
-  \
-  obj/src/tunitas/apanolio/url/namespace.cpp \
-  obj/src/tunitas/apanolio/url/Parser.cpp \
-  obj/src/tunitas/apanolio/url/URI.cpp \
+  obj/src/tunitas/apanolio/uri/namespace.cpp \
+  obj/src/tunitas/apanolio/uri/Parser.cpp \
+  obj/src/tunitas/apanolio/uri/URI.cpp \
+  obj/src/tunitas/apanolio/url.Parser.cpp \
+  obj/src/tunitas/apanolio/url.URI.cpp \
   $(end)
+$(lib_libtunitas_apanolio_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_DISAGGREGATE_COMPILE, $@)
+	$(TF_V_DUN) test -e $@
 $(scold_cxxdir)/tunitas/apanolio/dependencies.mk:
-	$(AM_V_BB1ST) $(call TF_DISAGGREGATE_COMPILE, $(lib_libtunitas_apanolio_la_SOURCES))
-	$(AM_V_BB2ND) $(call TF_DEPENDENCIES_COMPILE, $(lib_libtunitas_apanolio_la_SOURCES))
-	@test -e $@
+	$(TF_V_COM) $(call TF_COMPILE, $(lib_libtunitas_apanolio_la_SOURCES))
+	$(TF_V_DUN) test -e $@
 include $(scold_cxxdir)/tunitas/apanolio/dependencies.mk
 clean-dependencies::
 	rm -f $(scold_cxxdir)/tunitas/apanolio/dependencies.mk

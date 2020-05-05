@@ -1,0 +1,142 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resting::file {
+  //
+  // Pull the inbound HTTP stream into a file.
+  // This is normally used to implement POST or PUT where the body of the request is the payload.
+  // Sometimes that tmpfile will become a permenent file.
+  //
+  // [[FIXTHIS]] document what happens when a write fails,
+  //  e.g. out of space, filesystem refuses to rename or otherwise commit data
+  //
+  // Exceptions:
+  //    throws at least std:ios::failure if the tmpfile cannot be opened.
+  //
+  // Usage:
+  //
+  //   file::File posted(spec->storage_directory.value);
+  //   file::Gulp gulp(this->req, posted);
+  //   auto gulped = gulp();
+  //   if (!ok(gulped)) {
+  //     banner_failure_gulp(gulp, gulped);
+  //     auto failed = status(gulped);
+  //     detect_inadvertent_HTTP_OK(failed);
+  //     return failed;
+  //   }
+  //   file.finalize(File::KEEP);
+  //
+  class File;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.resting.file.Finalizer
+#import std.ofstream
+#import std.size_t
+#import std.string
+class tunitas::apanolio::resting::file::File {
+public:
+  // Within the directory, a name is synthesized with a uuid
+  inline explicit File(std::string const &directory);
+  // Within the directory, a filename is supplied (for safety, basename is applied to it)
+  File(std::string const &directory, std::string const &filename);
+  // the finalized file name
+  inline auto name() const -> std::string;
+  inline auto write(char const *, std::size_t) -> std::ostream &;
+  // Kill or keep (kill by default, see Finalizer)
+  enum Choice {
+    KILL = file::Finalizer::KILL,
+    KEEP = file::Finalizer::KEEP
+  };
+  // Define and affect the choice ... i.e. run it.
+  inline auto finalize(Choice) -> void;
+protected:
+  static auto tempname(std::string const &directory) -> std::string;
+  std::string final; // the final filename
+  std::string tempy; // the temporary "not done yet" file
+  // RAII ... to move tempy or kill it.
+  file::Finalizer finalizer;
+  // The stream
+  std::ofstream outbound;
+  // The filename can't be empty, ".", ".." or a relative path (with a '/')
+  inline static auto is_allowed_filename(std::string const &filename) -> bool;
+};
+#endiv
+#divert <ipp>
+#import tunitas.apanolio.resting.file.tempname
+namespace tunitas::apanolio::resting::file {
+  File::File(std::string const &directory)
+    : File(directory, file::tempname()) {
+    ;
+  }
+  auto File::name() const -> std::string {
+    return final;
+  }
+  auto File::write(char const *data, std::size_t size) -> std::ostream & {
+    // [[FIXTHIS]] We hope, but have not documented enough, that this throws an exception on write failure.
+    // i.e. the expectation is that badbit is set if the write fails, thus triggering an exception
+    return outbound.write(data, size);
+  }
+  auto File::finalize(Choice choice) -> void {
+    // Choose and prefigure what will happen upon destruction.
+    // The caller wants to "finalize", so do it all.
+    //
+    // Amplify the File::Choice into a Finalizer::Choice
+    auto redo = (file::Finalizer::Choice)(choice);
+    finalizer.choose(redo);
+    // Close the outbound so its data is flushed out.
+    outbound.close();
+    finalizer.run();
+  }
+  auto File::is_allowed_filename(std::string const &filename) -> bool {
+    if (filename.empty()) {
+      return false;
+    }
+    if (1 == filename.size() && '.' == filename.front()) {
+      return false;
+    }
+    if (2 == filename.size() && '.' == filename[0] && '.' == filename[1]) {
+      return false;
+    }
+    if (std::string::npos != filename.find('/')) {
+      return false;
+    }
+    return true;
+  }
+}
+#endiv
+#divert <cpp>
+#import path.filename.workbench
+#import tunitas.apanolio.exception.Argument
+tunitas::apanolio::resting::file::File::File(std::string const &directory, std::string const &filename)
+  : final{+(path::filename::workbench() * directory / filename)}
+  , tempy{final + "~"}
+  , finalizer{tempy, final}
+  , outbound{} {
+  //
+  // BE SAFE ... don't let the filename component allow for an escape.
+  // It is the caller's responsibility to ensure that this doesn't happen.
+  // All we do here is ensure that badness is disallowed so it cannot even occur.
+  if ( ! is_allowed_filename(filename) ) {
+    throw exception::Argument{"the filename is dis-allowed"};
+  }
+  //
+  // http://www.cplusplus.com/reference/ios/ios/good/
+  //   failbit   Logical error on i/o operation .... a logical I/O operation (not an actual I/O error)
+  //   badbit    Read/writing error on i/o operation
+  //
+  // badbit implies failbit
+  // failbit is set on open (not badbit)
+  // once open, failbit is set by badness
+  // once open, badbit is set when I/O error occurs.
+  // 
+  outbound.exceptions(std::ios::badbit | std::ios::failbit);
+  auto open_flags = std::ios::out | std::ios::trunc; // there is no analog of the flags O::EXCL or :O::CREAT(E)
+  outbound.open(tempy, open_flags);
+  // we want exceptions if the underlying write syscall fails.
+  // that exception will be std::ios::failure descending from std::system_error
+  // so the error code will be recoverable.
+  outbound.exceptions(std::ios::badbit);
+}
+#endiv

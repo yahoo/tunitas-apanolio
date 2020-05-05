@@ -1,7 +1,8 @@
 #!/bin/bash
-# Copyright 2019-2019, Oath Inc.
+# Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
 # Licensed under the terms of the Apache-2.0 license.
-# See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #
 # the full end-to-end build using the "nearby" development trees
 #
@@ -19,9 +20,25 @@
 #   with_temerarious_flagship=/opt/tunitas \
 #   ./maintenance/nearby
 # 
-# to build without submodules
+# Debugging the flow
 #
-#  with_submodules=no ./maintenance/nearby       (this works because --with-THING=no is --without-THING)
+# If you see this
+#
+#      ./maintenance/nearby
+#      ...lots of output...
+#      config.status: executing depfiles commands
+#      config.status: error: in `/build/tunitas/apanolio':
+#      config.status: error: Something went wrong bootstrapping makefile fragments
+#          for automatic dependency tracking.  Try re-running configure with the
+#          '--disable-dependency-tracking' option to at least be able to build
+#          the package (albeit without support for automatic dependency tracking).
+#     See `config.log' for more details
+#
+# Then do this
+#
+#   enable_dependency_tracking=no ./maintenance/nearby
+#
+# Other helpful hints:
 #
 # The scold module "with" variables will naturally default to /opt/scold
 # The tunitas "with" variables would be expected to be in /opt/tunitas
@@ -77,9 +94,6 @@ if [[ -d ${PWD%/*/*}/hyperledger ]] ; then
 elif [[ -d ${PWD%/*/*/*}/hyperledger ]] ; then
     : ${with_hyping:=${PWD%/*/*/*}/hyperledger}
     : ${with_fabricating:=${with_hyping?}/fabric}
-elif [[ -d /build/state-space ]] ; then
-    : ${with_hyping:=/build/state-space}
-    : ${with_fabricating:=${with_hyping?}}
 elif [[ -d /build/hyperledger ]] ; then
     : ${with_hyping:=/build/hyperledger}
     : ${with_fabricating:=${with_hyping}/fabric}
@@ -171,12 +185,10 @@ function set_all_defaults_relatively() {
             : ${with_hyperledger_fabric_ca:=yes}
         fi
     fi
-set -xv
     : ${with_hyperledger_fabric_ca:=yes}
     : ${with_hyperledger_fabric_db:=yes}
     : ${with_hyperledger_fabric:=${with_hyperledger_fabric_db%/*}}
     : ${with_hyperledger:=${with_hyperledger_fabric?}} # ${with_hyperledger_fabric%/*}}
-set +xv
     : ${with_apache_httpd_api:=${2:-$1}/apache-httpd-api}
     : ${with_module_boost:=$1/module-boost}
     : ${with_module_c:=$1/module-c}

@@ -2,5 +2,10 @@
 // Copyright 2019-2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace tunitas::apanolio::exception { }
+#import nonstd.exception
+#import tunitas.apanolio // matryoshka (which will surface nonstd::exception::Unimplemented)
+namespace tunitas::apanolio::exception {
+  using namespace nonstd::exception; // cascade the namespaces
+  // [[FIXTHIS]] cascade from tunitas::exception ---> using namespace tunitas::exception <--- 
+}
 #endiv

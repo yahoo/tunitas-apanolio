@@ -1,0 +1,45 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace mod::apanolio::method {
+  //
+  // DELETE /{ID} HTTP/X.Y
+  // <body is ignored>
+  //
+  // Expectations of URL routing consistency are enforced
+  //
+  // Usage:
+  //   Deleter deleter{r, spec};
+  //   return deleter();
+  //
+  class Deleter;
+}
+#endiv
+#divert <hpp>
+#import apache.httpd.status.Code
+#import mod.apanolio.method.Prototype
+class mod::apanolio::method::Deleter : public method::Prototype {
+  using ancestor = Prototype;
+public:
+  using ancestor::Prototype;
+  auto operator()() -> apache::httpd::status::Code;
+};
+#endiv
+#divert <cpp>
+#import autotools.autoconf.Config.mod.apanolio.CONFIG
+#import std.string
+auto mod::apanolio::method::Deleter::operator()() -> apache::httpd::status::Code {
+  std::string uri{req->uri};
+  auto parsed = uri_parser(uri);
+  if (!ok(parsed)) {
+    return HTTP::BAD_REQUEST;
+  }
+  if (prefix(parsed) != spec->location_prefix.value) {
+    // How then, did this get routed here?
+    return HTTP::NOT_FOUND;
+  }
+  // [[FIXTHIS]] or maybe not.  We don't delete things herein.  We just "revoke" the previously-declared (consent).
+  return HTTP::METHOD_NOT_ALLOWED;
+}
+#endiv

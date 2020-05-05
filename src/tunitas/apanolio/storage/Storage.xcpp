@@ -9,8 +9,21 @@ namespace tunitas::apanolio::storage {
   //
   // Usage:
   //
-  //   auto engine = ...somehow...
-  //   Storage storage = construct(engine);
+  //   constexpr auto ENGINE = ...somehow...   one of NONE, MEMORY, FILES, LEVELDB, SQLITE, ...blah blah blah...
+  //
+  // Depending upon whether the engine takes a directory name or not
+  //
+  //   Storage store = storage::open<ENGINE>();
+  //   Storage store = storage::open<ENGINE>(path);
+  //
+  //   auto probed = store.PROBE(identifier)
+  //   auto found = ok(probed) && value(probed);
+  //
+  //   auto got = store.GET(identifier)
+  //   if (ok(got)) { ... }
+  //
+  //   auto sat = store.SET(identifier, record);
+  //   if (ok(sat)) { ... }
   //
   class Storage;
 }
@@ -21,6 +34,8 @@ namespace tunitas::apanolio::storage {
 #import tunitas.apanolio.storage.open
 #import tunitas.apanolio.resource.Identifier
 #import tunitas.apanolio.resource.Record
+#import tunitas.Success
+#import tunitas.Outcome
 #import std.unique_ptr
 class tunitas::apanolio::storage::Storage {
 public:
@@ -29,6 +44,9 @@ public:
   Storage() = default;
   Storage(Storage const &) = delete;
   auto operator=(Storage const &) -> Storage & = delete;
+  Storage(Storage &&) = default;
+  auto operator=(Storage &&) -> Storage & = default;
+  inline auto PROBE(Identifier const &) -> Success; // either SUCCESS or Code::MISSING or some other reason for the failure
   inline auto GET(Identifier const &) -> Outcome<Record>;
   inline auto SET(Identifier const &, Record const &) -> Success;
 protected:
@@ -60,6 +78,7 @@ namespace tunitas::apanolio::storage {
   }
   auto Storage::guarded_get() -> Engine::pointer { return gettable(engine); }
   auto Storage::guarded_get() const -> Engine::element_type const * { return gettable(engine); }
+  auto Storage::PROBE(Identifier const &identifier) -> Success { return guarded_get()->probe(identifier); }
   auto Storage::GET(Identifier const &identifier) -> Outcome<Record> { return guarded_get()->get(identifier); }
   auto Storage::SET(Identifier const &identifier, Record const &record) -> Success { return guarded_get()->set(identifier, record); }
 }

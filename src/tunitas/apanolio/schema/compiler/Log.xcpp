@@ -1,0 +1,76 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::schema::compiler {
+  //
+  // The logging aspect of the compiler system.
+  // Descendants only.
+  // SHOULD use private inheritance
+  //
+  // Set up for either:
+  // 0. our own null streambuf.
+  // 1. a borrowed streambuf from somewhere else.
+  //
+  // Lifetimes
+  //   If supplied, the lifetime of the lending Stream must be longer than that of the Log
+  //
+  // Usage:
+  //
+  //   class my::Compiler  : private compiler::Log, public compiler::Prototype {
+  //   public:
+  //     Compiler()
+  //     explicit Compiler(Stream &lending)
+  //     ...more...
+  //   };
+  //
+  class Log;
+}
+#endiv
+#divert <hpp>
+#import std.ostream
+#import nonstd.stream.Nullbuf
+#import std.unique_ptr
+class tunitas::apanolio::schema::compiler::Log {
+protected:
+  ~Log() = default;
+public:
+  // [[FIXTHIS, MAYBE]] sure, thin characters only for error messaging.
+  //             however JSON is defined for UTF-8 with national character sets
+  using Stream = std::ostream;
+  inline Log();
+  inline explicit Log(Stream &);
+  Log(Log const &) = delete;
+protected:
+  using Nullbuf = nonstd::stream::Nullbuf<Stream::char_type>;
+  std::unique_ptr<Nullbuf> buf;
+  std::ostream log;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::schema::compiler {
+  Log::Log()
+    : buf{new Nullbuf{}}
+    , log{buf.get()}
+  { }
+  Log::Log(Stream &lending)
+    : buf{}
+    , log{lending.rdbuf()}
+  { }
+}
+#endiv
+#divert <cpp>
+#import std.is_copy_constructible
+#import std.is_copy_assignable
+#import std.is_move_constructible
+#import std.is_move_assignable
+namespace tunitas::apanolio::schema::compiler {
+  // ANd to belabor the point:
+  // https://en.cppreference.com/w/cpp/language/copy_assignment
+  // <quote>The generation of the implicitly-defined copy assignment operator is deprecated(since C++11) // if T has a user-declared destructor or user-declared copy constructor.</quote>
+  static_assert(!std::is_copy_constructible_v<Log>);
+  static_assert(!std::is_copy_assignable_v<Log>);
+  static_assert(!std::is_move_constructible_v<Log>);
+  static_assert(!std::is_move_assignable_v<Log>);
+}
+#endiv

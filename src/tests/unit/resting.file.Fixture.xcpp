@@ -1,0 +1,103 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::file { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::resting::file::Fixture : public cppunit::test::Fixture {
+public:
+  auto test_tempname_0arg() -> void;
+  auto test_tempname_1arg() -> void;
+  auto test_gulp() -> void;
+  static auto suite() -> cppunit::Test *;
+protected:
+  static constexpr auto const TEMPNAME_ITERATION_LIMIT = 10;
+  static constexpr auto const GULP_ITERATION_SIZE_LIMIT = 9;
+  inline static auto generate_content(std::size_t) -> std::string;
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.resting.file.tempname
+#import std.set
+#import std.string
+auto tests::unit::resting::file::Fixture::test_tempname_0arg() -> void {
+  using tunitas::apanolio::resting::file::tempname;
+  std::set<std::string> save;
+  for (int i(0), e(TEMPNAME_ITERATION_LIMIT); e != i; ++i) {
+    auto n = tempname(); // <---------------------------- testing this
+    // We want to see no repeats
+    CPPUNIT_ASSERT(save.end() == save.find(n));
+    save.insert(n);
+  }
+}
+auto tests::unit::resting::file::Fixture::test_tempname_1arg() -> void {
+  using tunitas::apanolio::resting::file::tempname;
+  std::string some_directory = "/tmp";
+  std::set<std::string> save;
+  for (int i(0), e(TEMPNAME_ITERATION_LIMIT); e != i; ++i) {
+    auto n = tempname(some_directory); // ---------------- testing this
+    // We want to see no repeats
+    CPPUNIT_ASSERT(save.end() == save.find(n));
+    save.insert(n);
+  }
+}
+#import std.move
+auto tests::unit::resting::file::Fixture::generate_content(std::size_t size) -> std::string {
+  std::string ret;
+  for (std::size_t i(0), e(size); e != i; ++i) {
+    char ch = '0' + (i % 10);
+    ret += ch;
+  }
+  if (ret.empty()) {
+    ret = "empty!";
+  }
+  return std::move(ret);
+}
+#import tests.unit.resting.file.Unlinker
+#import tunitas.apanolio.resting.File
+#import tunitas.apanolio.resting.file.gulp
+#import rigging.httpd.Dummy
+#import std.cerr
+#import sys.posix.tmpdir
+#import slurp.file.read
+auto tests::unit::resting::file::Fixture::test_gulp() -> void {
+  rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
+  for (std::size_t i(0), e(GULP_ITERATION_SIZE_LIMIT); e != i; ++i) {
+    std::string specimen = generate_content(i);
+    dummy.set_Content(specimen);
+    dummy.prepare();
+    tunitas::apanolio::resting::File testfile(sys::posix::tmpdir()); // <--- see this
+    std::cerr << "final testfile is " << testfile.name() << '\n';
+    Unlinker un(testfile.name());
+    auto s = tunitas::apanolio::resting::file::gulp(dummy, testfile); // <---------------- testing this
+    std::cerr << "status = " << (int)(status(s)) << '\n';
+    testfile.finalize(tunitas::apanolio::resting::File::KEEP);
+    auto slurped = ::slurp::file::read<std::string>(testfile.name());
+    std::string expected = specimen;
+    std::string actual = slurped;
+    CPPUNIT_ASSERT_EQUAL(expected, actual);
+  }
+}
+#import tests.unit.resting.file.File
+#import tests.unit.resting.file.Finalizer
+#import tests.unit.resting.file.Gulp
+#import tests.unit.resting.file.Move
+#import rigging.suite.io
+auto tests::unit::resting::file::Fixture::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  namespace suite = ::rigging::suite;
+  suite::Stream series("file");
+  series << call("tempname-0arg", &Fixture::test_tempname_0arg)
+         << call("tempname-1arg", &Fixture::test_tempname_1arg)
+         << call("gulp", &Fixture::test_gulp)
+         << add<File>()
+         << add<Finalizer>()
+         << add<Gulp>()
+         << add<Move>()
+    ;
+  return finalize(series);
+}
+#endiv

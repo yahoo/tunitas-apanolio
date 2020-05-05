@@ -1,0 +1,103 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#import tunitas.apanolio.resource.Identifier
+#import tunitas.apanolio.resource.Record
+#import tunitas.apanolio.resting.Buffer
+#import std.tuple
+namespace tunitas::apanolio::resting::buffer {
+  //
+  // Validate the inbound buffer
+  // Return pairwise the identifier (integer) and the record as (bytes)
+  //
+  // Invalid buffers are considered exceptional.
+  //
+  // Exceptions:
+  //   exception::Record when the JSON is bogus or incomplete in any way
+  //   exception::Identifier when the identifier within the record is invalid, e.g. not a number, not less than 2^128
+  //
+  // Usage:
+  //
+  //   try {
+  //     buffer = Buffer{...somehow...};
+  //     auto [identifier, record] = validate(buffer);
+  //     ...great you got good stuff ...
+  //   } catch (exception::Identifier const &) {
+  //    ... bad identifier in otherwise-good JSON ...
+  //   } catch (exception::Record const &) {
+  //     ... bad record, maybe bad JSON ...
+  //   } catch (exception::Aspect const &) {
+  //     ... something else bad ... (of ours, which is unexpected)
+  //   } catch (std::exception const &) {
+  //     ... huh? ...
+  //   } catch (...) {
+  //     ... oh come on ...
+  //   }
+  //
+  namespace packaging::validate_function {
+    using resource::Identifier;
+    using resource::Record;
+    using Result = std::tuple<Identifier, Record>;
+    auto validate(Buffer const &) -> Result;
+  }
+  using packaging::validate_function::validate;
+}
+#endiv
+#divert <cpp>
+//
+// [[FIXTHIS]] this is strongly suboptimal; the Aspect inheritance sense should be used [[FIXTHEM]]
+//
+// As of jsoncpp-devel-1.8.4-5.fc29.x86_64 we find an inheritance hierarchy as follows:
+//
+//   --- std::exception --\ (down)
+//                        |
+//                        +-- Generic --\ (a.k.a. json::Exception, a.k.a. json::exception::Generic)
+//                                      |
+//                                      +-- Runtime (does NOT inherit from std::runtime_error)
+//                                      +-- Logic   (does NOT inherit form std::logic_error)
+//                                      |
+//                                      +-- Messaging --\    (descendants only)
+//                                                      |
+//                                                      +-- Cast         (ours)
+//                                                      +-- Syntax       (ours)
+//                                                      +-- ...etc...
+//
+// Method
+//
+//   1. parse the JSON
+//   2. check for all the members
+//      and no others members
+//      check for type and boundary values
+//   3. reserialize it to make it "safe" and get rid of any other artifacts
+//   4. return the validated & safe object
+//      success
+//
+
+#import json.exception.Generic
+#import json.parse
+#import json.to
+#import tunitas.apanolio.exception.Record
+#import tunitas.apanolio.exception.Identifier
+#import tunitas.apanolio.schema.v0.Compiler
+#import std.cerr
+namespace tunitas::apanolio::resting::buffer::packaging {
+  auto validate_function::validate(Buffer const &buffer) -> Result {
+    try {
+      auto found = [&buffer]() -> json::Value {
+                     // [[FIXTHIS]] the JSON parsing API is very very clunky.  Surely some well-crafted ADL would help here
+                     using namespace json;
+                     return parse(failure::THROWING, to(STRING{}, buffer.begin(), buffer.end()));
+                   }();
+      schema::v0::Compiler compiler{std::cerr}; // the default constructor is silent
+      compiler.grab(found);
+      if (!compiler.check()) {
+        throw exception::Record{"Validation Fails"};
+      }
+      return {compiler.identify(), compiler.sanitize()};
+    } catch (json::exception::Generic const &) {
+      throw exception::Record{"bad JSON"};
+    }
+  }
+}
+#endiv

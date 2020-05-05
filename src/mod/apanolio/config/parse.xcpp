@@ -69,6 +69,7 @@ auto mod::apanolio::config::parse(httpd::cmd_parms *cmd, void */*???*/, char con
     auto const &value(tokens[1]);
 
     bool matched = false;
+    matched |= specification->storage_engine.set_if(name, value);
     matched |= specification->storage_directory.set_if(name, value);
     matched |= specification->location_prefix.set_if(name, value);
     if ( ! matched ) {
@@ -87,6 +88,13 @@ auto mod::apanolio::config::parse(httpd::cmd_parms *cmd, void */*???*/, char con
     //
     specification->storage_directory.value = finalize(path::filename::workbench() * apache::httpd::server::root() / specification->storage_directory.value);
   }
+  if (specification->storage_engine.value.empty()) {
+    //
+    // We are consciously NOT setting it to 'none' here so that the self-check in open_logs(...) will fail
+    //
+    specification->storage_engine.value = "(unset)";
+  };
+  
   // All is good.
   return nullptr;
 }

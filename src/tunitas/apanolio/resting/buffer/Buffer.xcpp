@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resting::buffer {
+  //
+  // A (character) buffer.
+  // This is expected to have some JSON blobbery in it, which per specification is actually UTF-8.
+  // But here, it is char, and specifically not std::byte_t
+  //
+  // Like a vector<char> but with a more limited interface.
+  // Needs to be a distinct type so that ADL will work.
+  //
+  // Usage:
+  //
+  //   oh come on.
+  //
+  class Buffer;
+}
+#endiv
+#divert <hpp>
+#import std.byte
+#import std.vector
+class tunitas::apanolio::resting::buffer::Buffer : private std::vector<char> {
+  using Ancestor = std::vector<char>;
+public:
+  Buffer() = default;
+  using Ancestor::vector;
+  inline explicit Buffer(Ancestor const &);
+  inline explicit Buffer(Ancestor &&);
+  using Value = Ancestor::value_type; // ... New School
+  using value_type = Value; // ............. old_school
+  using Ancestor::empty;
+  using Ancestor::size;
+  using Ancestor::data;
+  using Ancestor::iterator;
+  using Ancestor::const_iterator;
+  using Ancestor::begin;
+  using Ancestor::end;
+  using Ancestor::clear;
+  using Ancestor::push_back; // need std::copy to work
+  using Ancestor::reserve;
+  using Ancestor::resize;
+};
+#endiv
+#divert <ipp>
+#import std.forward
+namespace tunitas::apanolio::resting::buffer {
+  Buffer::Buffer(Ancestor const &a) : Ancestor{a} { }
+  Buffer::Buffer(Ancestor &&a) : Ancestor{std::forward<Ancestor>(a)} { }
+}
+#endiv

@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resting::file {
+  //
+  // The same as POSIX' rename
+  // but capture the filenames ati issue.
+  //
+  // Usage:
+  //     std::string source = ...something-here...
+  //     std::string target = ...something-there...
+  //     Move move(source, target);
+  //     auto r = move();
+  //
+  class Move;
+}
+#endiv
+#divert <hpp>
+#import std.string
+#import sys.call.Result
+class tunitas::apanolio::resting::file::Move {
+public:
+  inline Move(std::string const &source, std::string const &target);
+  using result_type = sys::call::Result;
+  inline auto operator()() -> result_type;
+  inline auto source() const -> std::string const &;
+  inline auto target() const -> std::string const &;
+protected:
+  std::string source_pathname;
+  std::string target_pathname;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::resting::file {
+  Move::Move(std::string const &arg_source, std::string const &arg_target)
+    : source_pathname(arg_source)
+    , target_pathname(arg_target) {
+    ;
+  }
+  auto Move::source() const -> std::string const & { return source_pathname; }
+  auto Move::target() const -> std::string const & { return target_pathname; }
+}
+#import sys.posix.rename
+auto tunitas::apanolio::resting::file::Move::operator()() -> result_type {
+  return ::sys::posix::rename(source_pathname, target_pathname);
+}
+#endiv

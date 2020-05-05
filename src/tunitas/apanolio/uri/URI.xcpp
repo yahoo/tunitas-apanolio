@@ -1,0 +1,61 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::uri {
+  //
+  // The URI (Identifier, they prefer the term "Indicator" instead of Location)
+  //
+  //   /prefix/{ID}  ->  ( /prefix, ID )
+  //
+  // The URI (Identifier) is in the URL (ell as in Llama)
+  // https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+  //
+  //   Uniform Resource Identifier.
+  //   URI is a text which is used to identify any resource or name on Internet.
+  //   URI has two specializations in the form of
+  //      URL (Uniform Resource Locator), has a host name (which they call "an authority")
+  //   and
+  //      URN (Uniform Resource Name), anything you want.
+  //
+  // Usage:
+  //
+  //   Parser
+  class URI;
+}
+#endiv
+#divert <hpp>
+#import std.string
+namespace tunitas::apanolio::uri {
+  inline auto ok(URI const &) -> bool;
+  //
+  inline auto prefix(URI const &) -> std::string const &;
+  inline auto prefix(URI &) -> std::string &;
+  inline auto prefix(URI &&) -> std::string;
+  //
+  inline auto identifier(URI const &) -> std::string const &;
+  inline auto identifier(URI &) -> std::string &;
+  inline auto identifier(URI &&) -> std::string;
+}
+#import std.tuple
+class tunitas::apanolio::uri::URI : public std::tuple<bool, std::string, std::string> {
+  using ancestor = std::tuple<bool, std::string, std::string>;
+public:
+  using Tuple = ancestor;
+  URI() = default;
+  using ancestor::tuple;
+};
+#endiv
+#divert <ipp>
+#import std.get
+#import std.forward
+namespace tunitas::apanolio {
+  auto uri::ok(URI const &u) -> bool { return std::get<0>(static_cast<URI::Tuple const &>(u)); }
+  auto uri::prefix(URI const &u) -> std::string const & { return std::get<1>(static_cast<URI::Tuple const &>(u)); }
+  auto uri::prefix(URI &u) -> std::string &             { return std::get<1>(static_cast<URI::Tuple &>(u)); }
+  auto uri::prefix(URI &&anon) -> std::string           { return std::get<1>(std::forward<URI::Tuple>(anon)); }
+  auto uri::identifier(URI const &u) -> std::string const & { return std::get<2>(static_cast<URI::Tuple const &>(u)); }
+  auto uri::identifier(URI &u) -> std::string &             { return std::get<2>(static_cast<URI::Tuple &>(u)); }
+  auto uri::identifier(URI &&u) -> std::string              { return std::get<2>(std::forward<URI::Tuple>(u)); }
+}
+#endiv

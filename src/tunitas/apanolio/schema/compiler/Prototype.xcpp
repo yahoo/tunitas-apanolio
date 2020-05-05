@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::schema::compiler {
+  //
+  // The prototype of the compiler, something every compiler has
+  // Descendants only.
+  //
+  // Expects to be paired with a Log in a public-private pairwise MI scenario.
+  // See compiler::Log.
+  //
+  // Usage:
+  //
+  //   class my::Compiler : private compiler::Log, public compiler::Prototype {
+  //     ...etc...
+  //   }
+  //
+  class Prototype;
+}
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.schema.compiler.Interface
+#import std.optional
+class tunitas::apanolio::schema::compiler::Prototype : virtual public Interface {
+protected:
+  virtual ~Prototype() = default;
+public:
+  inline Prototype();
+  Prototype(Prototype const &) = delete;
+  auto grab(Reference) -> void override;
+  auto release() -> Reference override;
+protected:
+  using Pointer = std::optional<Reference>;
+  // Whereas std::optional<Reference> is ill-defined and is basically a pointer anyway;.
+  Object *grabbed;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::schema::compiler {
+  Prototype::Prototype()
+    : grabbed{nullptr}
+  { }
+}
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.exception.Null
+#import std.swap
+namespace tunitas::apanolio::schema::compiler {
+  auto Prototype::grab(Reference that) -> void {
+    Object &referenced = that;
+    grabbed = &referenced;
+  }
+  auto Prototype::release() -> Reference {
+    if (nullptr == grabbed) {
+      throw exception::Null{};
+    }
+    auto tmp = decltype(grabbed){};
+    std::swap(tmp, grabbed);
+    return Reference{*tmp};
+  }
+}
+#endiv

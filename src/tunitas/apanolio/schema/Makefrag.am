@@ -1,0 +1,43 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#
+lib_libtunitas_apanolio_schema_la = lib/libtunitas-apanolio-schema.la
+lib_libtunitas_apanolio_schema_la_LIBADD = -ljson-module -lnonstd-module
+lib_libtunitas_apanolio_schema_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+lib_libtunitas_apanolio_schema_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunitas_apanolio_schema_la_SOURCES))
+lib_libtunitas_apanolio_schema_la_SOURCES = \
+  obj/src/tunitas/apanolio/schema/namespace.cpp \
+  obj/src/tunitas/apanolio/schema/io.cpp \
+  obj/src/tunitas/apanolio/schema/limits.cpp \
+  \
+  obj/src/tunitas/apanolio/schema/compiler/namespace.cpp \
+  obj/src/tunitas/apanolio/schema/compiler/Interface.cpp \
+  obj/src/tunitas/apanolio/schema/compiler/Interface.Guard.cpp \
+  obj/src/tunitas/apanolio/schema/compiler/Log.cpp \
+  obj/src/tunitas/apanolio/schema/compiler/Prototype.cpp \
+  \
+  obj/src/tunitas/apanolio/schema/v0/namespace.cpp \
+  obj/src/tunitas/apanolio/schema/v0/Compiler.cpp \
+  obj/src/tunitas/apanolio/schema/v0/Field.cpp \
+  obj/src/tunitas/apanolio/schema/v0/field.Limits.cpp \
+  obj/src/tunitas/apanolio/schema/v0/field.Specification.cpp \
+  \
+  obj/src/tunitas/apanolio/schema/v1/namespace.cpp \
+  obj/src/tunitas/apanolio/schema/v1/Compiler.cpp \
+  \
+  obj/src/tunitas/apanolio/schema/v2/namespace.cpp \
+  obj/src/tunitas/apanolio/schema/v2/Compiler.cpp \
+  \
+  $(end)
+$(lib_libtunitas_apanolio_schema_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_DISAGGREGATE_COMPILE, $@)
+	$(TF_V_DUN) test -e $@
+$(scold_cxxdir)/tunitas/apanolio/schema/dependencies.mk:
+	$(TF_V_COM) $(call TF_COMPILE, $(lib_libtunitas_apanolio_schema_la_SOURCES))
+	$(TF_V_DUN) test -e $@
+include $(scold_cxxdir)/tunitas/apanolio/schema/dependencies.mk
+clean-dependencies::
+	rm -f $(scold_cxxdir)/tunitas/apanolio/schema/dependencies.mk

@@ -1,0 +1,30 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <hpp>
+#import apache.httpd.request_rec
+#import tunitas.apanolio.resting.file.File
+#import tunitas.apanolio.resting.file.Gulp
+namespace tunitas::apanolio::resting::file {
+  //
+  // Create the gulper and do the gulp all in one shot.  
+  //
+  // Usage:
+  //
+  //   auto req = request_req *{...somehow...}
+  //   auto file = File{...somehow...};
+  //
+  //   auto gulped = gulp(req, file);
+  //   if (ok(gulped)) {
+  //     ....
+  //   }
+  //
+  inline auto gulp(apache::httpd::request_rec *req, [[out]] File &file) -> Gulp::Result;
+}
+#endiv
+#divert <ipp>
+auto tunitas::apanolio::resting::file::gulp(apache::httpd::request_rec *req, File &file) -> Gulp::Result {
+  Gulp gulp(req, file);
+  return gulp();
+}
+#endiv

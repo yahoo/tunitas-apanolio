@@ -28,54 +28,21 @@ namespace mod::apanolio::method {
 #endiv
 #divert <hpp>
 #import apache.httpd.status.Code
-#import mod.apanolio.method.Prototype
-class mod::apanolio::method::Poster : public method::Prototype {
-  using ancestor = method::Prototype;
+#import mod.apanolio.method.Emplacer
+class mod::apanolio::method::Poster : public Emplacer {
+  using Ancestor = Emplacer;
 public:
-  using ancestor::Prototype;
+  using Ancestor::Emplacer;
   auto operator()() -> apache::httpd::status::Code;
-protected:
-  auto banner_failure() -> void;
 };
 #endiv
 #divert <cpp>
-#import nonstd.exception.Unimplemented
 #import std.string
 auto mod::apanolio::method::Poster::operator()() -> apache::httpd::status::Code {
   if (std::string{this->req->uri} != spec->location_prefix.value) {
     // How then, did this get routed here?
     return HTTP::NOT_FOUND;
   }
-  throw nonstd::exception::Unimplemented{__FUNCTION__, __FILE__, __LINE__};
-#if 0
-  // This will throw std:ios::failure if the tmpfile cannot be opened.
-  file::File posted(spec->storage_directory.value);
-  file::Gulp gulp(this->req, posted);
-  auto gulped = gulp();
-  if (!ok(gulped)) {
-    banner_failure_gulp(gulp, gulped);
-    auto failed = status(gulped);
-    detect_inadvertent_HTTP_OK(failed);
-    return failed;
-  }
-  io::Stream rs(this->req);
-  // Maybe this should be vomitted out in json? or xml? or other format-du-jour
-  ap_set_content_type(this->req, "text/text"); // FIXME as ap::set_content_type(...)
-  // FIXME ... should return a URI of the new resource, not just the (uuid) of the new filename
-  rs << posted.name() << ' ' << size(gulped);
-  return handler::OK; // not  HTTP::OK
-#endif
-}
-#import apache.httpd.io.keywords
-#import autotools.autoconf.Config.mod.apanolio.CONFIG
-auto mod::apanolio::method::Poster::banner_failure() -> void {
-  using namespace io::keywords;
-  ap_set_content_type(this->req, "text/html"); // [[FIXTHIS]] as ap::set_content_type(...)
-  rs << html << br
-     << head << autotools::autoconf::Config<CONFIG>::package_name() << _head << br
-     << body << p << "the POST fails"
-    // with no reason stated
-     << _p << _body
-     << _html;
+  return emplace("POST");
 }
 #endiv

@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tunitas::apanolio::resting::file {
+  //
+  // What does it do?
+  //
+  // Usage:
+  //
+  //   how do you use it?
+  //
+  class Remove;
+}
+#endiv
+#divert <hpp>
+#import std.string
+#import sys.call.Result
+class tunitas::apanolio::resting::file::Remove {
+public:
+  inline explicit Remove(std::string const &filename);
+  inline auto filename() const -> std::string const &;
+  inline auto exists() const -> bool;
+  using result_type = sys::call::Result;
+  inline auto operator()() const -> result_type;
+protected:
+  std::string doomed_filename;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::apanolio::resting::file {
+  Remove::Remove(std::string const &arg_filename)
+    : doomed_filename(arg_filename) {
+    ;
+  }
+  auto Remove::filename() const -> std::string const & {
+    return doomed_filename;
+  }
+}
+#import sys.posix.exists
+auto tunitas::apanolio::resting::file::Remove::exists() const -> bool {
+  return sys::posix::exists(doomed_filename);
+}
+#import sys.posix.unlink
+auto tunitas::apanolio::resting::file::Remove::operator()() const -> sys::call::Result {
+  return sys::posix::unlink(doomed_filename);
+}
+#endiv

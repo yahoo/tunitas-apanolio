@@ -1,0 +1,88 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::resting::file { class Move; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import std.string
+class tests::unit::resting::file::Move : public cppunit::test::Fixture {
+public:
+  auto test_constructor() -> void;
+  auto test_operator_call() -> void;
+  auto test_accessors() -> void;
+
+  static auto suite() -> cppunit::Test *;
+protected:
+  auto generate_file() -> std::string;
+  auto generate_filename() -> std::string;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.resting.file.Unlinker
+#import tunitas.apanolio.resting.file.Move
+
+#import sys.posix.touch
+auto tests::unit::resting::file::Move::generate_file() -> std::string {
+  auto name = generate_filename();
+  auto touched = sys::posix::touch(name, 0666);
+  CPPUNIT_ASSERT(ok(touched));
+  return name;
+}
+
+#import path.filename.workbench
+#import sys.posix.mktemp
+#import sys.posix.tmpdir
+auto tests::unit::resting::file::Move::generate_filename() -> std::string {
+  using path::filename::workbench;
+  using namespace sys::posix;
+  auto penultimate = finalize(workbench() * tmpdir() / "t99.tests.unit.resting.file.Move.XXXXXX");
+  auto result = mktemp(penultimate);
+  CPPUNIT_ASSERT(ok(result));
+  return value(result);
+}
+
+auto tests::unit::resting::file::Move::test_constructor() -> void {
+  auto a = generate_filename();
+  auto b = generate_filename();
+  tunitas::apanolio::resting::file::Move move(a, b); // 
+  CPPUNIT_ASSERT(!a.empty());
+  CPPUNIT_ASSERT(!b.empty());
+  CPPUNIT_ASSERT(true);
+}
+
+#import tests.unit.resting.file.Unlinker
+auto tests::unit::resting::file::Move::test_operator_call() -> void {
+  auto a = generate_file();
+  Unlinker una(a);
+  auto b = generate_filename();
+  Unlinker unb(b);
+  tunitas::apanolio::resting::file::Move move(a, b);
+  CPPUNIT_ASSERT(!move.source().empty());
+  CPPUNIT_ASSERT(!move.target().empty());
+  auto moved = move();
+  CPPUNIT_ASSERT(ok(moved));
+  CPPUNIT_ASSERT(!error_code(moved).message().empty()); // <---- especially test the failure message
+}
+
+auto tests::unit::resting::file::Move::test_accessors() -> void {
+  auto a = generate_filename();
+  auto b = generate_filename();
+  tunitas::apanolio::resting::file::Move move(a, b);
+  CPPUNIT_ASSERT_EQUAL(a, move.source());
+  CPPUNIT_ASSERT_EQUAL(b, move.target());
+}
+
+#import rigging.suite.io
+auto tests::unit::resting::file::Move::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("Move");
+  series << call("constructor", &Move::test_constructor)
+         << call("operator()", &Move::test_operator_call)
+         << call("accessors", &Move::test_accessors)
+    ;
+  return finalize(series);
+}
+#endiv

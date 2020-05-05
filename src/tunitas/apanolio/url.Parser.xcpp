@@ -1,0 +1,10 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#import tunitas.apanolio.uri.Parser
+#import tunitas.apanolio.uri.URI // because it has the namespace deprecation declaration in it in lieu of a namespace.xcpp
+namespace tunitas::apanolio::url {
+  using Parser [[deprecated("avoid url::URI; instead use uri::URI; URI is the preferred term of the W3C for (universal) name-of-resource thingies")]] = uri::Parser;
+}
+#endiv

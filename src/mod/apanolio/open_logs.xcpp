@@ -3,14 +3,29 @@
 // Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 #divert <hpp>
 #import mod.apanolio.httpd
+#forward mod.apanolio.config.Specification
 namespace mod::apanolio {
   //
   // The open_logs callback
   //
   // WATCHOUT - exceptions must not escape back out into the C runtime.
+  // WATCHOUT - exceptions MUST NOT escape back out into the C runtime.
   //
   auto open_logs(apache::runtime::pool_t *config, apache::runtime::pool_t *logging, apache::runtime::pool_t *temporary, apache::httpd::server_rec *) noexcept -> int;
+  namespace detail {
+    using config::Specification;
+    //
+    // Generally it just admonishes (warns) that there is going to be a problem.
+    // Can throw on hard failure to validate.
+    auto validate_storage_directory(Specification const &, apache::httpd::server_rec *) -> void;
+    //
+    // Do just that
+    auto choose_storage_engine([[modified]] Specification &lhs, apache::httpd::server_rec *) -> void;
+  }
 }
+#endiv
+#divert <ipp>
+#import mod.apanolio.config.Specification
 #endiv
 #divert <cpp>
 //
@@ -27,55 +42,116 @@ namespace mod::apanolio {
 //        Depending on platform, the module is then completely unloaded.
 //                 It means that global and static variables are reset.
 //                 This also means any cleanups left pointing into the module against the process pool will go boom on exit.
-//                           <editor>their words ... surely this is but a colorful metaphor; the sound card is not to be activated</editor>
+//                           <narrator>their words ... surely this is but a colorful metaphor; the sound card is not to be activated</narrator>
+//
 //    Second execution "live"
 //        The module is loaded again if necessary.
 //        The configuration is parsed again, for real this time.
 //        The module post_init hook is called for the 2nd time.
 //        Children processes are started.
-//                   They may be forked (Unix) or spawned (Windows).
+//                   They may be forked (Unix) <strike>or spawned (Windows).</strike>
 //        The pre_init/post_init hooks are never called in the forked (Unix) child process,
 //                   see the child_init hook instead.
-//        If the children are spawned (as on Windows),
+//        <strike>If the children are spawned (as on Windows),
 //                   they repeat the whole startup,
 //                   and the post_config hook is called exactly twice again in the children
-//                   (and never a third time on graceful restart). 
+//                   (and never a third time on graceful restart). </strike>
 //
 // HTTPd restart:
 //
 //    On graceful restart, the module is unloaded and reloaded/init, and the post_config hook is called (still in the parent process) once, not twice.
-//    On Windows, a new spawned child process is created by the parent upon a graceful restart.
+//    <strike>On Windows, a new spawned child process is created by the parent upon a graceful restart.</strike>
 //    During a graceful restart, new children processes may be running on the new configuration while old children on the old configuration are still serving out their requests. 
 //
 #import apache.httpd.log // APLOG_MARK is from <httpd/http_log.h>
 #import apache.httpd.module_config.get
 #import autotools.autoconf.Config.mod.apanolio.CONFIG
-#import mod.apanolio.config.Specification
+#import mod.apanolio.module // presents the global variable ::apanolio_module and enables ap_log_error(...)
 #import std.exception
-#import sys.posix.stat
-#import sys.posix.isdir
-#import mod.apanolio.module // presents ::apanolio_module
 auto mod::apanolio::open_logs(apache::runtime::pool_t *config, apache::runtime::pool_t *logging, apache::runtime::pool_t *temporary, apache::httpd::server_rec *s) noexcept -> int try {
-  auto const *spec = apache::httpd::module_config::get<config::Specification>(s, apanolio_module);
+  auto &spec = [](apache::httpd::server_rec *server) -> config::Specification & {
+                 auto *spec = apache::httpd::module_config::get<config::Specification>(server, apanolio_module);
+                 if (nullptr == spec) {
+                   throw tunitas::apanolio::exception::Null{};
+                 }
+                 return *spec;
+               }(s);
 
+  // [[FIXTHIS]] ... this should be in the server's module configuration
   // If you don't protect in this manner then the second 'start' directive will fail
   static bool is_started = false;
+  if (is_started != spec.is_started) {
+    ap_log_error(APLOG_MARK, APLOG_TRACE4, /*status*/0, s, "%s is_started is out of sync %d != %d", autotools::autoconf::Config<CONFIG>::package_name(), is_started, spec.is_started);
+  }
   if ( ! is_started ) {
-    is_started = true;
+    spec.is_started = is_started = true;
     // start something
   }
-
-  auto statted = sys::posix::stat(spec->storage_directory.value);
-  if (!ok(statted)) {
-    ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, s, "the %s upload storage directory %s is missing", autotools::autoconf::Config<CONFIG>::package_name(), spec->storage_directory.value.data());
-    // but try to continue to OK (maybe the directory will show up later)
-  } else if (!sys::posix::isdir(value(statted))) {
-    ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, s, "the %s upload storage directory %s is not a directory", autotools::autoconf::Config<CONFIG>::package_name(), spec->storage_directory.value.data());
-    // but try to continue to OK (maybe the directory will show up later)
-  }
+  detail::choose_storage_engine(spec, s);
   return httpd::OK;
 } catch (std::exception const &e) {
-  ap_log_error(APLOG_MARK, APLOG_CRIT, /*status*/0, s, "could not start something at %%s at %%s because %s", e.what());
+  ap_log_error(APLOG_MARK, APLOG_CRIT, /*status*/0, s, "could not start %s because %s", autotools::autoconf::Config<CONFIG>::package_name(), e.what());
   return httpd::INTERNAL_SERVER_ERROR;
+}
+#import sys.posix.stat
+#import sys.posix.isdir
+#import std.string_literals
+#import tunitas.apanolio.exception.Argument // [[FIXTHIS]] maybe this should be exception:Configuration not exception::Argument
+#import tunitas.apanolio.storage.open
+#import tunitas.apanolio.storage.Engine
+#import tunitas.apanolio.storage.engine.Configuration
+namespace mod::apanolio {
+  auto detail::validate_storage_directory(Specification const &spec, apache::httpd::server_rec *s) -> void {
+    ap_log_error(APLOG_MARK, APLOG_TRACE4, /*status*/0, s, "the %s upload storage directory is declared as %s", autotools::autoconf::Config<CONFIG>::package_name(), spec.storage_directory.value.data());
+    auto statted = sys::posix::stat(spec.storage_directory.value);
+    if (!ok(statted)) {
+      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, s, "the %s upload storage directory %s is missing", autotools::autoconf::Config<CONFIG>::package_name(), spec.storage_directory.value.data());
+      // but try to continue to OK (maybe the directory will show up later)
+    } else if (!sys::posix::isdir(value(statted))) {
+      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, s, "the %s upload storage directory %s is not a directory", autotools::autoconf::Config<CONFIG>::package_name(), spec.storage_directory.value.data());
+      // but try to continue to OK (maybe the directory will show up later)
+    }
+  }
+  auto detail::choose_storage_engine(Specification &spec, apache::httpd::server_rec *server) -> void {
+    using namespace std::string_literals;
+    namespace storage = tunitas::apanolio::storage;
+    auto const &storage_engine = spec.storage_engine.value;
+    if (storage_engine.empty()) {
+      // This error message is likely the only thing that will clue you in thta StorageEngine was unset.  make it good.
+      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, server, "undefined %s storage engine (try using 'StorageEngine none')", autotools::autoconf::Config<CONFIG>::package_name());
+      throw tunitas::apanolio::exception::Argument{storage_engine};
+    } else if ("none"s == storage_engine ||"null"s == storage_engine) {
+      spec.storage = storage::open<storage::engine::NONE>();
+    } else if ("memory"s == storage_engine) {
+      spec.storage = storage::open<storage::engine::MEMORY>();
+    } else if ("files"s == storage_engine) {
+      validate_storage_directory(spec, server);
+      spec.storage = storage::open<storage::engine::FILES>(spec.storage_directory.value);
+    } else if ("leveldb"s == storage_engine) {
+      validate_storage_directory(spec, server);
+      spec.storage = storage::open<storage::engine::LEVELDB>(spec.storage_directory.value);
+    } else if ("sqlite"s == storage_engine) {
+      validate_storage_directory(spec, server);
+      spec.storage = storage::open<storage::engine::SQLITE>(spec.storage_directory.value);
+    } else if ("mysql"s == storage_engine || "mariadb"s == storage_engine) {
+      spec.storage = storage::open<storage::engine::MYSQL>(storage::engine::Configuration<storage::engine::MYSQL>{});
+    } else if ("pgsql"s == storage_engine || "postgresql"s == storage_engine || "postgres"s == storage_engine) {
+      spec.storage = storage::open<storage::engine::PGSQL>(storage::engine::Configuration<storage::engine::PGSQL>{});
+    } else if ("ramcloud"s == storage_engine) {
+      spec.storage = storage::open<storage::engine::RAMCLOUD>(storage::engine::Configuration<storage::engine::RAMCLOUD>{});
+    } else if ("fabric"s == storage_engine) {
+      spec.storage = storage::open<storage::engine::FABRIC>(storage::engine::Configuration<storage::engine::FABRIC>{});
+    } else if ("scarpet"s == storage_engine) {
+      spec.storage = storage::open<storage::engine::SCARPET>(storage::engine::Configuration<storage::engine::SCARPET>{});
+    } else {
+      auto printable = spec.storage_engine.value;
+      if (printable.empty()) {
+        printable = "(empty)"s;
+      }
+      // This error message is likely the only thing that will clue you in thta StorageEngine was unset.  make it good.
+      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, server, "invalid %s storage engine %s (try using 'StorageEngine none')", autotools::autoconf::Config<CONFIG>::package_name(), c::str(printable));
+      throw tunitas::apanolio::exception::Argument{storage_engine};
+    }
+  }
 }
 #endiv
