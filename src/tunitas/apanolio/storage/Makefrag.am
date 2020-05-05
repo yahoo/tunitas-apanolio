@@ -1,8 +1,9 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright 2019-2019, Oath Inc.
+# Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
 # Licensed under the terms of the Apache-2.0 license.
-# See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
-
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#
 lib_libtunitas_apanolio_storage_la = lib/libtunitas-apanolio-storage.la
 lib_libtunitas_apanolio_storage_la_LIBADD = \
   -lrabinpoly-module \
@@ -62,10 +63,12 @@ lib_libtunitas_apanolio_storage_la_SOURCES = \
   obj/src/tunitas/apanolio/storage/engine/state/State.RAMCLOUD.cpp \
   obj/src/tunitas/apanolio/storage/engine/state/State.SCARPET.cpp \
   $(end)
+$(lib_libtunitas_apanolio_storage_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_DISAGGREGATE_COMPILE, $@)
+	$(TF_V_DUN) test -e $@
 $(scold_cxxdir)/tunitas/apanolio/storage/dependencies.mk:
-	$(AM_V_BB1ST) $(call TF_DISAGGREGATE_COMPILE, $(lib_libtunitas_apanolio_storage_la_SOURCES))
-	$(AM_V_BB2ND) $(call TF_DEPENDENCIES_COMPILE, $(lib_libtunitas_apanolio_storage_la_SOURCES))
-	@test -e $@
+	$(TF_V_COM) $(call TF_COMPILE, $(lib_libtunitas_apanolio_storage_la_SOURCES))
+	$(TF_V_DUN) test -e $@
 include $(scold_cxxdir)/tunitas/apanolio/storage/dependencies.mk
 clean-dependencies::
 	rm -f $(scold_cxxdir)/tunitas/apanolio/storage/dependencies.mk

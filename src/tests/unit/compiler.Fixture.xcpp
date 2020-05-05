@@ -1,0 +1,67 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::compiler { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::compiler::Fixture : public cppunit::test::Fixture {
+public:
+  auto test_Interface() -> void;
+  auto test_Interface_Guard() -> void;
+  auto test_Log() -> void;
+  static auto suite() -> cppunit::Test *;
+protected:
+  struct Recompiler;
+  struct Relog;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.compiler.Fixture.Recompiler
+auto tests::unit::compiler::Fixture::test_Interface() -> void {
+  Recompiler recompiler;
+  Recompiler::Object object;
+  recompiler.grab(object); // testing grab, check, identify, sanitize, release as API calls.
+  CPPUNIT_ASSERT(recompiler.check());
+  if (recompiler.check()) {
+    auto identifier = recompiler.identify();
+    auto record = recompiler.sanitize();
+    // the Recompiler doesn't produce anything meaningful
+    CPPUNIT_ASSERT(decltype(identifier){} == identifier);
+    CPPUNIT_ASSERT(record.empty());
+  }
+  recompiler.release();
+}
+#import tunitas.apanolio.schema.compiler.Interface.Guard
+auto tests::unit::compiler::Fixture::test_Interface_Guard() -> void {
+  Recompiler recompiler;
+  Recompiler::Object object;
+  Recompiler::Guard guard{recompiler, object}; // <----------------- testing this
+  CPPUNIT_ASSERT(recompiler.check());
+  if (recompiler.check()) {
+    auto identifier = recompiler.identify();
+    auto record = recompiler.sanitize();
+    // the Recompiler doesn't produce anything meaningful
+    CPPUNIT_ASSERT(decltype(identifier){} == identifier);
+    CPPUNIT_ASSERT(record.empty());
+  }
+  // NO NEED --> recompiler.release() <-- NO NEED
+}
+#import tests.unit.compiler.Fixture.Relog
+auto tests::unit::compiler::Fixture::test_Log() -> void {
+  Relog relog;
+  CPPUNIT_ASSERT(true);
+}
+#import rigging.suite.io
+auto tests::unit::compiler::Fixture::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("compiler");
+  series << call("Interface", &Fixture::test_Interface)
+         << call("Interface::Guard", &Fixture::test_Interface_Guard)
+         << call("Log", &Fixture::test_Log)
+    ;
+  return finalize(series);
+}
+#endiv

@@ -4,12 +4,14 @@
 #divert <cpp>
 #import rigging.bench.Main
 #import tests.unit.apanolio.Fixture
+#import tests.unit.compiler.Fixture
 #import tests.unit.concurrent.Fixture
 #import tests.unit.engine.Fixture
 #import tests.unit.error.Fixture
 #import tests.unit.exception.Fixture
 #import tests.unit.resource.Fixture
 #import tests.unit.resting.Fixture
+#import tests.unit.schema.Fixture
 #import tests.unit.storage.Fixture
 #import tests.unit.uri.Fixture
 #import tests.unit.want.Fixture
@@ -18,12 +20,14 @@ auto main(int argc, char **argv) -> int {
   namespace tu = tests::unit;
   using namespace tu;
   Main remain(apanolio::Fixture::suite(),
+              compiler::Fixture::suite(),
               concurrent::Fixture::suite(),
               engine::Fixture::suite(),
               error::Fixture::suite(),
               exception::Fixture::suite(),
               resource::Fixture::suite(),
               resting::Fixture::suite(),
+              schema::Fixture::suite(),
               storage::Fixture::suite(),
               uri::Fixture::suite(),
               tu::want::Fixture::suite());

@@ -1,0 +1,30 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+#include <tests.unit.compiler.Fixture>
+#endiv
+#divert <hpp>
+#import tunitas.apanolio.schema.compiler.Log
+class tests::unit::compiler::Fixture::Relog : public ::tunitas::apanolio::schema::compiler::Log {
+  using Ancestor = ::tunitas::apanolio::schema::compiler::Log;
+public:
+  Relog();
+  explicit Relog(Stream &);
+  auto utter_something() -> void;
+};
+#endiv
+#divert <cpp>
+namespace tests::unit::compiler {
+  Fixture::Relog::Relog()
+    : Ancestor{}
+  { }
+  Fixture::Relog::Relog(Stream &outbound)
+    : Ancestor{outbound}
+  { }
+  auto Fixture::Relog::utter_something() -> void {
+    // Either this will utter something or it will be silent depending upon how the object was constructed
+    log << "peep peep peep peep peep peep peep\n";
+  }
+}
+#endiv

@@ -1,8 +1,9 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright 2019-2019, Oath Inc.
+# Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
 # Licensed under the terms of the Apache-2.0 license.
-# See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
-
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#
 lib_libwant_la = lib/libwant.la
 lib_libwant_la_LIBADD = $(nothing)
 lib_libwant_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
@@ -14,11 +15,12 @@ lib_libwant_la_SOURCES = \
   obj/src/want/rigging/exception/SetUp.cpp \
   obj/src/want/rigging/exception/TearDown.cpp \
   $(end)
-
-$(scold_cxxdir)/want/dependencies.mk: Makefile
-	$(AM_V_BB1ST) $(call TF_DISAGGREGATE_COMPILE, $(lib_libwant_la_SOURCES))
-	$(AM_V_BB2ND) $(call TF_DEPENDENCIES_COMPILE, $(lib_libwant_la_SOURCES))
-	@test -e $@
+$(lib_libwant_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_DISAGGREGATE_COMPILE, $@)
+	$(TF_V_DUN) test -e $@
+$(scold_cxxdir)/want/dependencies.mk:
+	$(TF_V_COM) $(call TF_DEPENDENCIES_COMPILE, $(lib_libwant_la_SOURCES))
+	$(TF_V_DUN) test -e $@
 include $(scold_cxxdir)/want/dependencies.mk
 clean-local::
 	rm -f $(scold_cxxdir)/want/dependencies.mk

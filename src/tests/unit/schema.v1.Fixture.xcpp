@@ -1,0 +1,40 @@
+// This is -*- c++ -*- C++2a in the stylings of S.C.O.L.D. stylings that are so popular these days.
+// Copyright 2019-2019, Oath Inc.
+// Licensed under the terms of the Apache-2.0 license. See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
+#divert <fpp>
+namespace tests::unit::schema::v1 { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::schema::v1::Fixture : public cppunit::test::Fixture {
+public:
+  auto test_usage_Compiler() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import tunitas.apanolio.schema.v1.Compiler
+#import std.cerr
+auto tests::unit::schema::v1::Fixture::test_usage_Compiler() -> void {
+  using Subject = ::tunitas::apanolio::schema::v1::Compiler;
+  Subject subject0;
+  Subject subject1{std::cerr};
+  CPPUNIT_ASSERT(&subject0 != &subject1); // yup, they constructed
+}
+#import tests.unit.schema.v1.Compiler
+#import rigging.suite.io
+auto tests::unit::schema::v1::Fixture::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("v1");
+  series << []() {
+              Stream use("usage");
+              use << call("Compiler", &Fixture::test_usage_Compiler)
+                ;
+              return move(use);
+            }()
+         << add<Compiler>()
+    ;
+  return finalize(series);
+}
+#endiv

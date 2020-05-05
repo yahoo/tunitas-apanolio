@@ -1,0 +1,35 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Verizon Media.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::schema::v2 { class Compiler; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import tunitas.apanolio.schema.v2.Compiler
+class tests::unit::schema::v2::Compiler : public cppunit::test::Fixture {
+public:
+  using Subject = ::tunitas::apanolio::schema::v2::Compiler;
+  auto test_constructor() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import std.cerr
+auto tests::unit::schema::v2::Compiler::test_constructor() -> void {
+  Subject subject0;
+  Subject subject1{std::cerr};
+  CPPUNIT_ASSERT(&subject0 != &subject1);
+}
+#import rigging.suite.io
+auto tests::unit::schema::v2::Compiler::suite() -> cppunit::Test * {
+  using namespace ::rigging::suite;
+  Stream series("Compiler");
+  series << call("constructor", &Compiler::test_constructor)
+    ;
+  return finalize(series);
+}
+#endiv

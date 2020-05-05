@@ -1,8 +1,9 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright 2019-2019, Oath Inc.
+# Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
 # Licensed under the terms of the Apache-2.0 license.
-# See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
-
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#
 check_bin_unit = check/bin/unit
 check_bin_unit_LDADD = \
   $(lib_libmod_apanolio_la) \
@@ -19,6 +20,9 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/main.cpp \
   obj/src/tests/unit/apanolio.Fixture.cpp \
   obj/src/tests/unit/concurrent.Fixture.cpp \
+  obj/src/tests/unit/compiler.Fixture.cpp \
+  obj/src/tests/unit/compiler.Fixture.Recompiler.cpp \
+  obj/src/tests/unit/compiler.Fixture.Relog.cpp \
   obj/src/tests/unit/engine.Fixture.cpp \
   obj/src/tests/unit/engine.Record_Generator.cpp \
   obj/src/tests/unit/engine.Temporary_Data_Base.cpp \
@@ -71,6 +75,13 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/resting.stream.Iterator.cpp \
   obj/src/tests/unit/resting.stream.Stream.cpp \
   obj/src/tests/unit/resting.Validate.cpp \
+  obj/src/tests/unit/schema.Fixture.cpp \
+  obj/src/tests/unit/schema.v0.Fixture.cpp \
+  obj/src/tests/unit/schema.v0.Compiler.cpp \
+  obj/src/tests/unit/schema.v1.Fixture.cpp \
+  obj/src/tests/unit/schema.v1.Compiler.cpp \
+  obj/src/tests/unit/schema.v2.Fixture.cpp \
+  obj/src/tests/unit/schema.v2.Compiler.cpp \
   obj/src/tests/unit/storage.Fixture.cpp \
   obj/src/tests/unit/temporary.Prototype.cpp \
   obj/src/tests/unit/temporary.Directory.declaration.cpp \
@@ -83,11 +94,12 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/want.Fixture.cpp \
   obj/src/tests/unit/want.rigging.exception.Fixture.cpp \
   $(end)
-
-$(scold_cxxdir)/tests/unit/dependencies.mk: Makefile
-	$(AM_V_BB1ST) $(call TF_DISAGGREGATE_COMPILE, $(check_bin_unit_SOURCES))
-	$(AM_V_BB2ND) $(call TF_DEPENDENCIES_COMPILE, $(check_bin_unit_SOURCES))
-	@test -e $@
+$(check_bin_unit_SOURCES) : obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_DISAGGREGATE_COMPILE, $@)
+	$(TF_V_DUN) test -e $@
+$(scold_cxxdir)/tests/unit/dependencies.mk:
+	$(TF_V_COM) $(call TF_COMPILE, $(check_bin_unit_SOURCES))
+	$(TF_V_DUN) test -e $@
 include $(scold_cxxdir)/tests/unit/dependencies.mk
 clean-local::
 	rm -f $(scold_cxxdir)/tests/unit/dependencies.mk
