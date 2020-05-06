@@ -18,6 +18,7 @@ lib_libtunitas_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 lib_libtunitas_apanolio_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunitas_apanolio_la_SOURCES))
 lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/namespace.cpp \
+  obj/src/tunitas/apanolio/required.cpp \
   \
   obj/src/tunitas/apanolio/concurrent/namespace.cpp \
   obj/src/tunitas/apanolio/concurrent/Guardian.cpp \
@@ -44,6 +45,8 @@ lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/resource/namespace.cpp \
   obj/src/tunitas/apanolio/resource/Identifier.cpp \
   obj/src/tunitas/apanolio/resource/to_string.cpp \
+  obj/src/tunitas/apanolio/resource/identifier.Identifier.cpp \
+  obj/src/tunitas/apanolio/resource/identifier.to_string.cpp \
   obj/src/tunitas/apanolio/resource/identifier.construct.cpp \
   obj/src/tunitas/apanolio/resource/Record.cpp \
   \

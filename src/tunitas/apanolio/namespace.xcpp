@@ -5,6 +5,6 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #divert <fpp>
 namespace tunitas::apanolio { }
-// Many things have need of seeing this
+// Many places have need of seeing this (there is much that is unimplemented)
 #import nonstd.exception.Unimplemented
 #endiv

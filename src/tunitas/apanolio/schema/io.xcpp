@@ -16,7 +16,7 @@ namespace tunitas::apanolio::schema::io {
   //
   //   cout << " wow " << io::identifier << some_id << " wow "
   //
-  inline auto identifier(std::ios &) -> std::ios &;
+  inline auto identifier(std::ios &) -> std::ios &; // [[FIXTHIS]] maybe? to use ios_base and not be dependent upon ostreams
   //
   // Deal with time
   // https://en.cppreference.com/w/cpp/io/manip/put_time 
@@ -40,9 +40,13 @@ namespace tunitas::apanolio::schema::io {
 #import tunitas.apanolio.resource.Identifier
 namespace tunitas::apanolio::schema {
   auto io::identifier(std::ios &ios) -> std::ios & {
-    auto const IDENTIFIER_WIDTH = sizeof (resource::Identifier) / 4; // it will be hexidecimal
+    auto const BYTES = sizeof (resource::Identifier);
+    auto const BITS_per_BYTE = 8u;
+    auto const BITS_per_CHAR = 4u;
+    auto const IDENTIFIER_WIDTH = BYTES * BITS_per_BYTE / BITS_per_CHAR; // gives us chars
+    static_assert(32u == IDENTIFIER_WIDTH);
     ios.width(IDENTIFIER_WIDTH);
-    ios.fill('0'); //<------------- cannot work against std::ios_base because we utter a (thin) character literal here
+    ios.fill('0'); //<------------- [[FIXTHIS]] cannot work against std::ios_base because we utter a (thin) character literal here
     ios.setf(std::ios::hex, std::ios::basefield);
     return ios;
   }

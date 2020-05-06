@@ -17,14 +17,43 @@ public:
 };
 #endiv
 #divert <cpp>
-#import tunitas.apanolio.schema.io
+#import tunitas.apanolio.schema.io // io::identifier
+#import tunitas.apanolio.resource.Identifier
+#import std.cerr
+#import std.ostringstream
 auto tests::unit::schema::Fixture::test_io_identifier() -> void {
-#warning WRITETHIS auto tests::unit::schema::Fixture::test_io_identifier() -> void
-  CPPUNIT_ASSERT(true);
+  using ::tunitas::apanolio::schema::io::identifier;
+  using ::tunitas::apanolio::resource::Identifier;
+  {
+    std::ostringstream buf;
+    buf << identifier << Identifier{};
+    auto syntax = buf.str();
+    std::cerr << "debug: q(" << syntax << ") - length " << syntax.size() << "\n";
+    auto const expected = (4lu * 2 * sizeof (nonstd::uint128_t)) /*bits*/ / 4 /*bits/char-nibble*/ ;
+    CPPUNIT_ASSERT_EQUAL(expected, syntax.size());
+  } {
+    std::ostringstream buf;
+    auto some_id0 = Identifier{};
+    buf << "wow--(hex)-->" << identifier << some_id0 << "<--(hex)--wow\n";
+    auto some_id1 = Identifier{1};
+    buf << "wow--(hex)-->" << identifier << some_id1 << "<--(hex)--wow\n";
+    auto some_id2 = Identifier{2};
+    buf << "wow--(hex)-->" << identifier << some_id2 << "<--(hex)--wow\n";
+    std::cerr << buf.str();
+  }
 }
+#import tunitas.apanolio.schema.io // io::put
+#import tunitas.time.Clock
+#import tunitas.time.Point
+#import std.ostringstream
 auto tests::unit::schema::Fixture::test_io_put() -> void {
-#warning WRITETHIS auto tests::unit::schema::Fixture::test_io_put() -> void
-  CPPUNIT_ASSERT(true);
+  std::ostringstream buf;
+  auto const point = ::tunitas::time::Clock::now();
+  buf << "blah blah --->"
+      << ::tunitas::apanolio::schema::io::put(point, "%Y-%m-%dT%H:%M:%S") // <------------ test this ... same as tunitas::time::put.
+      << "<---blah blah";
+  auto const syntax = buf.str();
+  CPPUNIT_ASSERT(!syntax.empty());
 }
 #import tests.unit.schema.v0.Fixture
 #import tests.unit.schema.v1.Fixture

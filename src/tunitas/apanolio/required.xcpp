@@ -4,8 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #divert <fpp>
-#import tunitas.apanolio.resource.identifier.Identifier
-namespace tunitas::apanolio::resource {
-  using identifier::Identifier; // hoist, for the convenience
+#import tunitas.required
+#import nonstd.required
+namespace tunitas::apanolio::required {
+  using namespace tunitas::required; // ... cascade the namespaces
+  using namespace nonstd::required; // .... ibidem
 }
 #endiv
