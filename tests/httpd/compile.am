@@ -1,5 +1,9 @@
 # This -*- Makefile -*- fragment is included by automake in ../../Makefile.am
-# it is never ever used herein within ./Makefile (.../tests/httpd/Makefile)
-
+# Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#
+# This fragment is never ever used herein within ./Makefile (.../tests/httpd/Makefile)
+#
 tests_httpd_MAKE_OPTIONS = $(none)
-
