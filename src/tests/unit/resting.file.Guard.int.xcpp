@@ -23,7 +23,7 @@ namespace tests {
 #import sys.posix.close
 template<> tests::unit::resting::file::Guard<tests::unit::resting::file::Pair<int>>::~Guard() {
   // Try our best ... don't even report the failures
-  using ::sys::posix::close;
+  using ::sys::posix::native::close; // [[FIXTHIS]] use the newfangled close(id::File)
   close(subject.first);
   close(subject.second);
 }

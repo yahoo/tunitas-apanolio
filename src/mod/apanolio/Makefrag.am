@@ -37,12 +37,14 @@ lib_libmod_apanolio_la_SOURCES = \
   obj/src/mod/apanolio/method/Poster.cpp \
   obj/src/mod/apanolio/method/Putter.cpp \
   $(end)
+#
+$(scold_cxxdir)/mod/apanolio/dependencies.mk: $(lib_libmod_apanolio_la_SOURCES)
 $(lib_libmod_apanolio_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
-	$(TF_V_DIS) $(call TF_DISAGGREGATE_COMPILE, $@)
-	$(TF_V_DUN) test -e $@
+	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
+	$(TF_V_DONE) test -e $@
 $(scold_cxxdir)/mod/apanolio/dependencies.mk:
-	$(TF_V_COM) $(call TF_COMPILE, $(lib_libmod_apanolio_la_SOURCES))
-	$(TF_V_DUN) test -e $@
+	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
+	$(TF_V_DONE) test -e $@
 include $(scold_cxxdir)/mod/apanolio/dependencies.mk
 clean-local::
 	rm -f $(scold_cxxdir)/mod/apanolio/dependencies.mk

@@ -9,8 +9,10 @@ namespace tests::unit::resting::buffer { class Gulp; }
 #divert <hpp>
 #import cppunit.Test
 #import cppunit.test.Fixture
-class tests::unit::resting::buffer::Gulp : public cppunit::test::Fixture {
-public:
+#import rigging.httpd.fixture.Runtime // WATCHOUT - cricical to ensure the Apache Runtime system is initialized before the test
+struct tests::unit::resting::buffer::Gulp : public cppunit::test::Fixture, private rigging::httpd::fixture::Runtime {
+  auto setUp() -> void override final    { Runtime::setUp(); }
+  auto tearDown() -> void override final { Runtime::tearDown(); }
   auto test_constructor() -> void;
   auto test_operator_call() -> void;
   auto test_accessors() -> void;
@@ -29,15 +31,16 @@ protected:
 auto tests::unit::resting::buffer::Gulp::test_constructor() -> void {
   rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
   tunitas::apanolio::resting::buffer::Buffer testbuff;
-  dummy.set_Content(generate_some_content(GENERATED_CONTENT_SIZE_LIMIT));
+  dummy.request.set_Content(generate_some_content(GENERATED_CONTENT_SIZE_LIMIT));
   dummy.prepare();
   tunitas::apanolio::resting::buffer::Gulp gulp(dummy, testbuff); // <------ test this
 }
+#import std.cerr
 auto tests::unit::resting::buffer::Gulp::test_operator_call() -> void {
   rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
   tunitas::apanolio::resting::buffer::Buffer testbuff;
-  auto specimen = generate_some_content(GENERATED_CONTENT_SIZE_LIMIT);
-  dummy.set_Content(specimen);
+  auto const expected = generate_some_content(GENERATED_CONTENT_SIZE_LIMIT);
+  dummy.request.set_Content(std::string{expected}); // you MUST copy it
   dummy.prepare();
   tunitas::apanolio::resting::buffer::Gulp gulp(dummy, testbuff);
   auto gulped = gulp();// <------ test this
@@ -49,8 +52,7 @@ auto tests::unit::resting::buffer::Gulp::test_operator_call() -> void {
   namespace handler = apache::httpd::status::handler;
   detect_inadvertent_HTTP_OK(status(gulped));
   CPPUNIT_ASSERT(handler::OK == status(gulped));
-  CPPUNIT_ASSERT_EQUAL(specimen.size(), size(gulped));
-  std::string expected = specimen;
+  CPPUNIT_ASSERT_EQUAL(expected.size(), size(gulped));
   std::string actual = std::string{testbuff.begin(), testbuff.end()};
   CPPUNIT_ASSERT_EQUAL(expected, actual);
 }

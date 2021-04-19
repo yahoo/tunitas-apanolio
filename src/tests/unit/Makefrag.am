@@ -94,12 +94,14 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/want.Fixture.cpp \
   obj/src/tests/unit/want.rigging.exception.Fixture.cpp \
   $(end)
+#
+$(scold_cxxdir)/tests/unit/dependencies.mk: $(check_bin_unit_SOURCES)
 $(check_bin_unit_SOURCES) : obj/src/%.cpp : src/%.xcpp
-	$(TF_V_DIS) $(call TF_DISAGGREGATE_COMPILE, $@)
-	$(TF_V_DUN) test -e $@
+	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
+	$(TF_V_DONE) test -e $@
 $(scold_cxxdir)/tests/unit/dependencies.mk:
-	$(TF_V_COM) $(call TF_COMPILE, $(check_bin_unit_SOURCES))
-	$(TF_V_DUN) test -e $@
+	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
+	$(TF_V_DONE) test -e $@
 include $(scold_cxxdir)/tests/unit/dependencies.mk
 clean-local::
 	rm -f $(scold_cxxdir)/tests/unit/dependencies.mk

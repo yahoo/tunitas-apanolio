@@ -21,11 +21,11 @@ namespace tests {
 #import sys.posix.create
 #import tunitas.apanolio.exception.System
 auto tests::unit::resting::file::open(Pair<std::string> const &names) -> Pair<int> {
-  using ::sys::posix::create;
+  using ::sys::posix::native::create; // [[FIXTHIS]] modify this to use the newfangled id::File and create(...) and close(id::File)
   auto c1 = create(names.first, 0666);
   // DO NOT open names.second ... the whole point is that we only 
   if (!ok(c1)) {
-    using ::sys::posix::close;
+    using ::sys::posix::native::close; // [[FIXTHIS]] ibidem.
     // then kill them both
     close(value(c1));
     auto ec = std_system_error_code(c1);

@@ -101,7 +101,7 @@ AC_LANG([C++])
 TF_CHECK_GCC
  # Checks for packages
 TF_CHECK_CPPUNIT
-TF_CHECK_APACHE_HTTPD
+TF_CHECK_APACHE_HTTPD dnl unchecked: requires apache-httpd-api >= 0.7.0 with the dummy<request_rec> aggregation (a breaking change)
 TF_CHECK_BOOST
 TF_CHECK_CPPUNIT
 TF_CHECK_LEVELDB

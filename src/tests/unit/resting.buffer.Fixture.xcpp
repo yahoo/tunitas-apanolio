@@ -9,8 +9,10 @@ namespace tests::unit::resting::buffer { class Fixture; }
 #divert <hpp>
 #import cppunit.Test
 #import cppunit.test.Fixture
-class tests::unit::resting::buffer::Fixture : public cppunit::test::Fixture {
-public:
+#import rigging.httpd.fixture.Runtime // WATCHOUT - cricical to ensure the Apache Runtime system is initialized before the test
+struct tests::unit::resting::buffer::Fixture : public cppunit::test::Fixture, private rigging::httpd::fixture::Runtime {
+  auto setUp() -> void override final    { Runtime::setUp(); }
+  auto tearDown() -> void override final { Runtime::tearDown(); }
   auto test_gulp() -> void;
   static auto suite() -> cppunit::Test *;
 protected:
@@ -40,14 +42,13 @@ auto tests::unit::resting::buffer::Fixture::generate_content(std::size_t size) -
 auto tests::unit::resting::buffer::Fixture::test_gulp() -> void {
   rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
   for (std::size_t i(0), e(GULP_ITERATION_SIZE_LIMIT); e != i; ++i) {
-    std::string specimen = generate_content(i);
-    dummy.set_Content(specimen);
+    std::string const expected = generate_content(i);
+    dummy.request.set_Content(std::string{expected}); // you MUST copy it
     dummy.prepare();
     tunitas::apanolio::resting::Buffer testbuff;
     auto s = tunitas::apanolio::resting::buffer::gulp(dummy, testbuff); // <---------------- testing this
     std::cerr << "status = " << (int)(status(s)) << '\n';
     CPPUNIT_ASSERT(::apache::httpd::status::HANDLER::OK == status(s));
-    std::string expected = specimen;
     std::string actual = std::string{testbuff.begin(), testbuff.end()};
     CPPUNIT_ASSERT_EQUAL(expected, actual);
   }

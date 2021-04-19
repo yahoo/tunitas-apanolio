@@ -15,12 +15,14 @@ lib_libwant_la_SOURCES = \
   obj/src/want/rigging/exception/SetUp.cpp \
   obj/src/want/rigging/exception/TearDown.cpp \
   $(end)
+#
+$(scold_cxxdir)/want/dependencies.mk: $(lib_libwant_la_SOURCES)
 $(lib_libwant_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
-	$(TF_V_DIS) $(call TF_DISAGGREGATE_COMPILE, $@)
-	$(TF_V_DUN) test -e $@
+	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
+	$(TF_V_DONE) test -e $@
 $(scold_cxxdir)/want/dependencies.mk:
-	$(TF_V_COM) $(call TF_DEPENDENCIES_COMPILE, $(lib_libwant_la_SOURCES))
-	$(TF_V_DUN) test -e $@
+	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
+	$(TF_V_DONE) test -e $@
 include $(scold_cxxdir)/want/dependencies.mk
 clean-local::
 	rm -f $(scold_cxxdir)/want/dependencies.mk

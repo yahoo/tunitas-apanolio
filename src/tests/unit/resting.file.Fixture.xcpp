@@ -9,8 +9,10 @@ namespace tests::unit::resting::file { class Fixture; }
 #divert <hpp>
 #import cppunit.Test
 #import cppunit.test.Fixture
-class tests::unit::resting::file::Fixture : public cppunit::test::Fixture {
-public:
+#import rigging.httpd.fixture.Runtime // WATCHOUT - cricical to ensure the Apache Runtime system is initialized before the test
+struct tests::unit::resting::file::Fixture : public cppunit::test::Fixture, private rigging::httpd::fixture::Runtime {
+  auto setUp() -> void override final    { Runtime::setUp(); }
+  auto tearDown() -> void override final { Runtime::tearDown(); }
   auto test_tempname_0arg() -> void;
   auto test_tempname_1arg() -> void;
   auto test_gulp() -> void;
@@ -68,8 +70,8 @@ auto tests::unit::resting::file::Fixture::generate_content(std::size_t size) -> 
 auto tests::unit::resting::file::Fixture::test_gulp() -> void {
   rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
   for (std::size_t i(0), e(GULP_ITERATION_SIZE_LIMIT); e != i; ++i) {
-    std::string specimen = generate_content(i);
-    dummy.set_Content(specimen);
+    std::string const expected = generate_content(i);
+    dummy.request.set_Content(std::string{expected}); // you MUST copy it
     dummy.prepare();
     tunitas::apanolio::resting::File testfile(sys::posix::tmpdir()); // <--- see this
     std::cerr << "final testfile is " << testfile.name() << '\n';
@@ -78,7 +80,6 @@ auto tests::unit::resting::file::Fixture::test_gulp() -> void {
     std::cerr << "status = " << (int)(status(s)) << '\n';
     testfile.finalize(tunitas::apanolio::resting::File::KEEP);
     auto slurped = ::slurp::file::read<std::string>(testfile.name());
-    std::string expected = specimen;
     std::string actual = slurped;
     CPPUNIT_ASSERT_EQUAL(expected, actual);
   }

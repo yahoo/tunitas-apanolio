@@ -9,8 +9,10 @@ namespace tests::unit::resting::file { class Gulp; }
 #divert <hpp>
 #import cppunit.Test
 #import cppunit.test.Fixture
-class tests::unit::resting::file::Gulp : public cppunit::test::Fixture {
-public:
+#import rigging.httpd.fixture.Runtime // WATCHOUT - cricical to ensure the Apache Runtime system is initialized before the test
+struct tests::unit::resting::file::Gulp : public cppunit::test::Fixture, private rigging::httpd::fixture::Runtime {
+  auto setUp() -> void override final    { Runtime::setUp(); }
+  auto tearDown() -> void override final { Runtime::tearDown(); }
   auto test_constructor() -> void;
   auto test_operator_call() -> void;
   auto test_accessors() -> void;
@@ -30,7 +32,7 @@ auto tests::unit::resting::file::Gulp::test_constructor() -> void {
   rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
   tunitas::apanolio::resting::file::File testfile(sys::posix::tmpdir());
   Unlinker un(testfile.name());
-  dummy.set_Content(generate_some_content(GENERATED_CONTENT_SIZE_LIMIT));
+  dummy.request.set_Content(generate_some_content(GENERATED_CONTENT_SIZE_LIMIT));
   dummy.prepare();
   tunitas::apanolio::resting::file::Gulp gulp(dummy, testfile); // <------ test this
 }
@@ -40,8 +42,8 @@ auto tests::unit::resting::file::Gulp::test_operator_call() -> void {
   rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
   tunitas::apanolio::resting::file::File testfile(sys::posix::tmpdir());
   Unlinker un(testfile.name());
-  auto specimen = generate_some_content(GENERATED_CONTENT_SIZE_LIMIT);
-  dummy.set_Content(specimen);
+  auto const expected = generate_some_content(GENERATED_CONTENT_SIZE_LIMIT);
+  dummy.request.set_Content(std::string{expected});
   dummy.prepare();
   tunitas::apanolio::resting::file::Gulp gulp(dummy, testfile);
   auto gulped = gulp();// <------ test this
@@ -53,10 +55,9 @@ auto tests::unit::resting::file::Gulp::test_operator_call() -> void {
   namespace handler = apache::httpd::status::handler;
   detect_inadvertent_HTTP_OK(status(gulped));
   CPPUNIT_ASSERT(handler::OK == status(gulped));
-  CPPUNIT_ASSERT_EQUAL(specimen.size(), size(gulped));
+  CPPUNIT_ASSERT_EQUAL(expected.size(), size(gulped));
   testfile.finalize(tunitas::apanolio::resting::File::KEEP);
   auto slurped = ::slurp::file::read<std::string>(testfile.name());
-  std::string expected = specimen;
   std::string actual = slurped;
   CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
