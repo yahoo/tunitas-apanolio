@@ -32,7 +32,7 @@ namespace tunitas::apanolio::storage::engine {
 #import std.uintmax_t
 namespace tunitas::apanolio::storage::engine {
   template<> struct Engine<MEMORY> : public Prototype {
-    using ancestor = Prototype;
+    using Ancestor = Prototype;
   public:
     // The default constructor must exist so that storage::open() can do its magic.
     // It is not helpful to have a configuration constructor; e.g. Engine(Count)

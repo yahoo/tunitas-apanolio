@@ -35,7 +35,7 @@ namespace want::rigging::exception {
 #import std.runtime_error
 #import want.rigging.exception.Aspect
 class want::rigging::exception::TearDown : public Aspect, public std::runtime_error {
-  struct ancestors {
+  struct Ancestors {
     using Aspect = rigging::exception::Aspect;
     using Exception = std::runtime_error;
   };
@@ -46,13 +46,13 @@ public:
 #endiv
 #divert <ipp>
 namespace want::rigging::exception {
-  TearDown::TearDown(std::string const &reason) : ancestors::Exception{reason} { }
+  TearDown::TearDown(std::string const &reason) : Ancestors::Exception{reason} { }
 }
 #endiv
 #divert <cpp>
 namespace want::rigging::exception {
   auto TearDown::what() const noexcept -> char const * {
-    return ancestors::Exception::what();
+    return Ancestors::Exception::what();
   }
 }
 #endiv

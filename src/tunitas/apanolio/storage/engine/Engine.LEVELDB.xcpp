@@ -16,7 +16,7 @@ namespace tunitas::apanolio::storage::engine {
 #import tunitas.apanolio.storage.engine.Prototype
 namespace tunitas::apanolio::storage::engine {
   template<> class Engine<LEVELDB> : public Prototype {
-    using ancestor = Prototype;
+    using Ancestor = Prototype;
   public:
     inline explicit Engine(std::filesystem::path storage_directory);
     auto probe(Identifier const &) -> Success final;

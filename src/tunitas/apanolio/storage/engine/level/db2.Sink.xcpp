@@ -19,7 +19,7 @@ namespace tunitas::apanolio::storage::engine::level::db2 {
 #divert <hpp>
 #import level.db2.Value
 class tunitas::apanolio::storage::engine::level::db2::Sink : public level::db2::Value {
-  using ancestor = level::db2::Value;
+  using Ancestor = level::db2::Value;
 public:
   Sink() = default;
   auto assign(char const *data, size_t size) -> Value & final;

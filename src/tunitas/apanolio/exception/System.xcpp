@@ -32,7 +32,7 @@ namespace tunitas::apanolio::exception {
 #import std.error_code
 #import std.system_error
 class tunitas::apanolio::exception::System : public exception::Aspect, public std::system_error {
-  struct ancestors {
+  struct Ancestors {
     using Aspect = apanolio::exception::Aspect;
     using Exception = std::system_error;
   };
@@ -48,18 +48,18 @@ public:
 #import std.system_category
 namespace tunitas::apanolio::exception {
   System::System(int code, std::error_category const &category, std::string const &reason)
-    : ancestors::Exception{std::error_code{code, category}, reason}
+    : Ancestors::Exception{std::error_code{code, category}, reason}
   { } 
   System::System(std::errc code, std::string const &reason)
-    : ancestors::Exception{std::error_code{std::error_condition{code}.value(), std::system_category()}, reason}
+    : Ancestors::Exception{std::error_code{std::error_condition{code}.value(), std::system_category()}, reason}
   { }
   System::System(std::error_code ec, std::string const &reason)
-    : ancestors::Exception{ec, reason}
+    : Ancestors::Exception{ec, reason}
   { }
 }
 #endiv
 #divert <cpp>
 auto tunitas::apanolio::exception::System::what() const noexcept -> char const * {
-  return ancestors::Exception::what();
+  return Ancestors::Exception::what();
 }
 #endiv

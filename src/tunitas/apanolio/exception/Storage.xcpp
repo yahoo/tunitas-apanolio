@@ -32,7 +32,7 @@ namespace tunitas::apanolio::exception {
 #import std.error_code
 #import std.runtime_error
 class tunitas::apanolio::exception::Storage : public exception::Aspect, public std::runtime_error {
-  struct ancestors {
+  struct Ancestors {
     using Aspect = apanolio::exception::Aspect;
     using Exception = std::runtime_error;
   };
@@ -50,19 +50,19 @@ protected:
 #divert <ipp>
 namespace tunitas::apanolio::exception {
   Storage::Storage(error::Code code)
-    : ancestors::Exception{"no reason given"}
+    : Ancestors::Exception{"no reason given"}
     , offending_error_code{code}
   { }
   Storage::Storage(std::error_code ec)
-    : ancestors::Exception{"no reason given"}
+    : Ancestors::Exception{"no reason given"}
     , offending_error_code{ec}
   { }
   Storage::Storage(error::Code code, std::string const &reason)
-    : ancestors::Exception{reason}
+    : Ancestors::Exception{reason}
     , offending_error_code{code}
   { }
   Storage::Storage(std::error_code ec, std::string const &reason)
-    : ancestors::Exception{reason}
+    : Ancestors::Exception{reason}
     , offending_error_code{ec}
   { }
   auto Storage::code() const noexcept -> std::error_code {
@@ -72,6 +72,6 @@ namespace tunitas::apanolio::exception {
 #endiv
 #divert <cpp>
 auto tunitas::apanolio::exception::Storage::what() const noexcept -> char const * {
-  return ancestors::Exception::what();
+  return Ancestors::Exception::what();
 }
 #endiv

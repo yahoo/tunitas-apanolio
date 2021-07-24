@@ -32,7 +32,7 @@ namespace tunitas::apanolio::exception {
 #import std.string
 #import std.exception
 class tunitas::apanolio::exception::Version : public tunitas::app::exception::Version, public tunitas::app::exception::Messaging, public std::exception {
-  struct ancestors {
+  struct Ancestors {
     using Version = tunitas::app::exception::Version;
     using Messaging = tunitas::app::exception::Messaging;
     using Exception = std::exception;
@@ -47,9 +47,9 @@ private:
 #divert <ipp>
 #import sys.exits.constants
 tunitas::apanolio::exception::Version::Version(std::string const &NAME)
-  : ancestors::Version{}
-  , ancestors::Messaging{format(NAME)}
-  , ancestors::Exception{}
+  : Ancestors::Version{}
+  , Ancestors::Messaging{format(NAME)}
+  , Ancestors::Exception{}
 { }
 #endiv
 #divert <cpp>

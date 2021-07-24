@@ -41,11 +41,11 @@ namespace tunitas::apanolio::uri {
 }
 #import std.tuple
 class tunitas::apanolio::uri::URI : public std::tuple<bool, std::string, std::string> {
-  using ancestor = std::tuple<bool, std::string, std::string>;
+  using Ancestor = std::tuple<bool, std::string, std::string>;
 public:
-  using Tuple = ancestor;
+  using Tuple = Ancestor;
   URI() = default;
-  using ancestor::tuple;
+  using Ancestor::tuple;
 };
 #endiv
 #divert <ipp>

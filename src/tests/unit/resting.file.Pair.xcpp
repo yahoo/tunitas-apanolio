@@ -23,9 +23,9 @@ namespace tests::unit::resting::file {
 }
 #import std.pair
 template<typename TYPE> class tests::unit::resting::file::Pair : public std::pair<TYPE, TYPE> {
-  using ancestor = std::pair<TYPE, TYPE>;
+  using Ancestor = std::pair<TYPE, TYPE>;
 public:
-  using ancestor::pair;
+  using Ancestor::pair;
 };
 #endiv
 #divert <ipp>

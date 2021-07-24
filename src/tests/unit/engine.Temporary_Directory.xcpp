@@ -65,7 +65,7 @@ namespace tests::unit::engine {
 #import std.ostringstream
 #import sys.posix.mkdirp
 auto tests::unit::engine::Temporary_Directory::setUp() -> void {
-  // [[FIXTHIS]] this should use temporary::Directory<SOMETHING> as the ancestor, somehow.
+  // [[FIXTHIS]] this should use temporary::Directory<SOMETHING> as the Ancestor, somehow.
   auto ith = ++per_process_serial_number_for_even_more_guaranted_uniqueness__yes_yes_even_more_unique;
   auto unique_name = [this, ith]() -> std::string {
                        std::ostringstream buf;

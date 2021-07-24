@@ -21,7 +21,7 @@ namespace tunitas::apanolio::resting::stream {
 #import tunitas.apanolio.resting.stream.Opened
 #forward tunitas.apanolio.resting.stream.Iterator
 class tunitas::apanolio::resting::stream::Stream : public std::ifstream {
-  using ancestor = std::ifstream;
+  using Ancestor = std::ifstream;
 public:
   inline explicit Stream(std::string const &);
   inline auto exists() -> bool;
@@ -37,9 +37,9 @@ protected:
 #endiv
 #divert <ipp>
 tunitas::apanolio::resting::stream::Stream::Stream(std::string const &arg_filename)
-  : ancestor()
+  : Ancestor()
   , source_filename(arg_filename) {
-  ; // DO NOT open the ancestor's stream
+  ; // DO NOT open the Ancestor's stream
 }
 #import sys.posix.exists
 auto tunitas::apanolio::resting::stream::Stream::exists() -> bool {
@@ -54,9 +54,9 @@ auto tunitas::apanolio::resting::stream::Stream::exists() -> bool {
 #include <cerrno>
 namespace tunitas::apanolio::resting::stream {
   auto Stream::open() -> opened_type {
-    ancestor::open(source_filename, std::ios::in);
+    Ancestor::open(source_filename, std::ios::in);
     int error_num = errno; // capture this immediately, independent of success
-    if (ancestor::fail()) {
+    if (Ancestor::fail()) {
       std::error_code ec(error_num, std::system_category());
       return stream::make(false, ec);
     } else {

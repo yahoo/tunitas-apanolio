@@ -29,7 +29,7 @@ namespace tunitas::apanolio::exception {
 #import tunitas.apanolio.exception.Aspect
 #import std.invalid_argument
 class tunitas::apanolio::exception::Identifier : public exception::Aspect, public std::invalid_argument {
-  struct ancestors {
+  struct Ancestors {
     using Aspect = apanolio::exception::Aspect;
     using Exception = std::invalid_argument;
   };
@@ -44,15 +44,15 @@ public:
 #divert <ipp>
 namespace tunitas::apanolio::exception {
   Identifier::Identifier()
-    : ancestors::Exception{"identifier"}
+    : Ancestors::Exception{"identifier"}
   { }
   Identifier::Identifier(std::string const &object)
-    : ancestors::Exception{object}
+    : Ancestors::Exception{object}
   { }
 }
 #endiv
 #divert <cpp>
 auto tunitas::apanolio::exception::Identifier::what() const noexcept -> char const * {
-  return ancestors::Exception::what();
+  return Ancestors::Exception::what();
 }
 #endiv

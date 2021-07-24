@@ -18,7 +18,7 @@ namespace tunitas::apanolio::storage::engine::configuration {
 #import std.optional
 namespace tunitas::apanolio::storage::engine::configuration {
   template<> class Configuration<MYSQL> : public Prototype {
-    using ancestor = Prototype;
+    using Ancestor = Prototype;
   public:
     Configuration() = default;
     std::optional<std::string> user, pass, host, port, ca, crt, key, database;
