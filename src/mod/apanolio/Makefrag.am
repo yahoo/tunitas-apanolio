@@ -9,7 +9,7 @@ lib_libmod_apanolio_la_LIBADD = \
   $(lib_libtunitas_apanolio_la) \
   $(lib_libautotools_autoconf_la) \
   $(lib_libwant_la) \
-  -lapache-httpd-module \
+  -lapache-httpd \
   -lsys-posix-module \
   $(end)
 lib_libmod_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)

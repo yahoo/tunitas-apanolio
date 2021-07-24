@@ -86,11 +86,28 @@ namespace tests::unit::resting {
     //
     // And yet another other object
     //
-    // one hundred days ago (from today) ... echo $((-100*86400 + $(date +%s)))
-    auto const specimen = R"json(  { "id" : 28001580, "expires" : 1562691790, "consentType" : "tcf 2.0", "status" : "very good" }  )json"_Buffer;
+    // WATCHOUT [[FIXTHIS]] this test will fail in "about one hundred days" from today 1626375422 $(date +%s)
+    //
+    // one hundred days ago (from today) ... 
+    //   Formula: echo $((-100*86400 + $(date +%s)))
+    //   Example: 1617735077
+    //
+    // WATCHOUT this is a date, and it will "expire" at which time this test will fail
+    // See namespace tunitas::apanolio::schema::limits::expires
+    //      constants PAST & FUTURE
+    // See the PAST tunitas::apanolio::schema::v0::field::Limits<EXPIRES>
+    //
+    //                                    (now)
+    //              PAST |------------------+-----------------------------------------| EXPIRES
+    //                                      ^
+    //                                      |
+    // WATCHOUT ----------------------------/---------------------\ (here)
+    //                                                            |
+    //                                                            v
+    auto const specimen = R"json(  { "id" : 28001580, "expires" : 1617735114, "consentType" : "tcf 2.0", "status" : "very good" }  )json"_Buffer;
     auto [identifier, record] = validate(specimen);
     CPPUNIT_ASSERT(Identifier{28001580} == identifier);
-    auto const expected = R"json({"consentType":"tcf 2.0","expires":1562691790,"id":28001580,"status":"very good"})json"s;
+    auto const expected = R"json({"consentType":"tcf 2.0","expires":1617735114,"id":28001580,"status":"very good"})json"s;
     CPPUNIT_ASSERT_EQUAL(expected, actualize(record));
   }
 }
