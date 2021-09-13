@@ -1,5 +1,5 @@
 dnl This is a GNU -*- autoconf -*- specification that is processed by Autoconf.
-dnl Copyright 2019-2019, Oath Inc.
+dnl Yahoo Inc. 2021
 dnl Licensed under the terms of the Apache-2.0 license.
 dnl See the LICENSE file in https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE for terms.
 dnl

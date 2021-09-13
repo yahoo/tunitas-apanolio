@@ -127,10 +127,10 @@ The Apaniolo service is intended to facilitate access to a data base technology 
 Please refer to [the contributing.md file](Contributing.md) for information about how to get involved. We welcome issues, questions, and pull requests. Pull Requests are welcome.
 
 ## Maintainers
-- Wendell Baker <wbaker@verizonmedia.com>
-- The Tunitas Team at Verizon Media.
+- Wendell Baker <wbaker@yahooinc.com>
+- The Tunitas Team at Yahoo.
 
-You may contact us at least at <tunitas@verizonmedia.com>
+You may contact us at least at <tunitas@yahooinc.com>
 
 ## License
 
