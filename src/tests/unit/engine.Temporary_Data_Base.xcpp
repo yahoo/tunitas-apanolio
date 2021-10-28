@@ -36,7 +36,6 @@ protected:
 };
 #endiv
 #divert <cpp>
-#import cppunit.test.Assert // CPPUNIT_ASSERT
 #import getpid
 #import std.to_string
 auto tests::unit::engine::Temporary_Data_Base::setUp() -> void {

@@ -4,7 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #divert <cpp>
-#import rigging.bench.Main
 #import tests.unit.apanolio.Fixture
 #import tests.unit.compiler.Fixture
 #import tests.unit.concurrent.Fixture
@@ -17,6 +16,7 @@
 #import tests.unit.storage.Fixture
 #import tests.unit.uri.Fixture
 #import tests.unit.want.Fixture
+#import rigging.bench.Main
 auto main(int argc, char **argv) -> int {
   using rigging::bench::Main;
   namespace tu = tests::unit;

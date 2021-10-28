@@ -24,7 +24,7 @@ namespace tunitas::apanolio::storage::engine::level::db2 {
 #import level.db2.Value
 namespace tunitas::apanolio::storage::engine::level::db2 {
   template<> class Recorder<resource::Record> : public level::db2::Value {
-    using ancestor = level::db2::Value;
+    using Ancestor = level::db2::Value;
   public:
     inline explicit Recorder(resource::Record &filled);
     auto assign(char const *data, size_t size) -> Value & final;

@@ -27,7 +27,7 @@ namespace tunitas::apanolio::schema::limits {
     // How far in the past or future?
     //
     inline constexpr auto FUTURE = 10_years;
-    inline constexpr auto PAST = 2_years;
+    inline constexpr auto PAST = 5_years;
   }
   namespace consent {
     namespace type {
@@ -64,4 +64,7 @@ namespace tunitas::apanolio::schema::limits {
     }
   }
 }
+#endiv
+#divert <cpp>
+#warning [[FIXTHAT]] the use of -5_years ... +10_years can make some of the moribund unit tests fail at surprising times.
 #endiv

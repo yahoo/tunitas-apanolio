@@ -8,8 +8,6 @@
 namespace tests::unit::engine { template<> class Engine<PGSQL>; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import tunitas.apanolio.storage.engine.configuration.Configuration.PGSQL
 #import tunitas.apanolio.storage.engine.Engine.PGSQL
 namespace tests::unit::engine {
@@ -89,7 +87,6 @@ namespace tests::unit::engine {
     }
   }
 }
-#import rigging.suite.io
 namespace tests::unit::engine {
   auto Engine<PGSQL>::suite() -> cppunit::Test * {
     using namespace ::rigging::suite;

@@ -7,9 +7,6 @@
 namespace tests::unit::resting::file { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
-#import rigging.httpd.fixture.Runtime // WATCHOUT - cricical to ensure the Apache Runtime system is initialized before the test
 struct tests::unit::resting::file::Fixture : public cppunit::test::Fixture, private rigging::httpd::fixture::Runtime {
   auto setUp() -> void override final    { Runtime::setUp(); }
   auto tearDown() -> void override final { Runtime::tearDown(); }
@@ -63,7 +60,6 @@ auto tests::unit::resting::file::Fixture::generate_content(std::size_t size) -> 
 #import tests.unit.resting.file.Unlinker
 #import tunitas.apanolio.resting.File
 #import tunitas.apanolio.resting.file.gulp
-#import rigging.httpd.Dummy
 #import std.cerr
 #import sys.posix.tmpdir
 #import slurp.file.read
@@ -88,7 +84,6 @@ auto tests::unit::resting::file::Fixture::test_gulp() -> void {
 #import tests.unit.resting.file.Finalizer
 #import tests.unit.resting.file.Gulp
 #import tests.unit.resting.file.Move
-#import rigging.suite.io
 auto tests::unit::resting::file::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   namespace suite = ::rigging::suite;

@@ -7,8 +7,6 @@
 namespace tests::unit::resting::file { class Move; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import std.string
 class tests::unit::resting::file::Move : public cppunit::test::Fixture {
 public:
@@ -77,7 +75,6 @@ auto tests::unit::resting::file::Move::test_accessors() -> void {
   CPPUNIT_ASSERT_EQUAL(b, move.target());
 }
 
-#import rigging.suite.io
 auto tests::unit::resting::file::Move::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("Move");

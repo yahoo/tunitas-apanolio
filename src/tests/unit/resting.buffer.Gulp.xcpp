@@ -7,9 +7,6 @@
 namespace tests::unit::resting::buffer { class Gulp; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
-#import rigging.httpd.fixture.Runtime // WATCHOUT - cricical to ensure the Apache Runtime system is initialized before the test
 struct tests::unit::resting::buffer::Gulp : public cppunit::test::Fixture, private rigging::httpd::fixture::Runtime {
   auto setUp() -> void override final    { Runtime::setUp(); }
   auto tearDown() -> void override final { Runtime::tearDown(); }
@@ -26,7 +23,6 @@ protected:
 #divert <cpp>
 #import tunitas.apanolio.resting.buffer.Gulp
 #import tunitas.apanolio.resting.buffer.Buffer
-#import rigging.httpd.Dummy
 #import tests.unit.generate_some_content
 auto tests::unit::resting::buffer::Gulp::test_constructor() -> void {
   rigging::httpd::Dummy<::apache::httpd::request_rec> dummy;
@@ -60,7 +56,6 @@ auto tests::unit::resting::buffer::Gulp::test_accessors() -> void {
   // There are no accessors
   CPPUNIT_ASSERT(true);
 }
-#import rigging.suite.io
 auto tests::unit::resting::buffer::Gulp::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("Gulp");

@@ -7,8 +7,6 @@
 namespace tests::unit::apanolio { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 class tests::unit::apanolio::Fixture : public cppunit::test::Fixture {
 public:
   auto test_something() -> void;
@@ -19,7 +17,6 @@ public:
 auto tests::unit::apanolio::Fixture::test_something() -> void {
   CPPUNIT_ASSERT(true);
 }
-#import rigging.suite.io
 auto tests::unit::apanolio::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("apanolio");

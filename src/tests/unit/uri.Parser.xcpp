@@ -7,8 +7,6 @@
 namespace tests::unit::uri { class Parser; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import tunitas.apanolio.uri.Parser
 class tests::unit::uri::Parser : public cppunit::test::Fixture {
 public:
@@ -135,7 +133,6 @@ auto tests::unit::uri::Parser::test_bad_identifier_3_not_isidentifier() -> void 
   { auto u = parser("/prefix/|/home/you"); // <--- malformed identifier (with slash)
     CPPUNIT_ASSERT(!ok(u)); }
 }
-#import rigging.suite.io
 auto tests::unit::uri::Parser::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("Parser");

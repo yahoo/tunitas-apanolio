@@ -52,7 +52,7 @@ namespace {
 
 // Define our module as an entity and assign a function for registering hooks
 // WATCHOUT - this has to be at global scope, otherwise the apache runtime DSO exploration won't find it.
-module AP_MODULE_DECLARE_DATA apanolio_module = {
+module_struct AP_MODULE_DECLARE_DATA apanolio_module = {
     STANDARD20_MODULE_STUFF,
     nullptr, //register_directory_config .... per-directory configuration handler
     nullptr, //register_directory_merge ..... merge for per-directory configurations

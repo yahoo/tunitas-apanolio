@@ -41,9 +41,9 @@ namespace mod::apanolio::method {
 #import apache.httpd.status.Code
 #import mod.apanolio.method.Prototype
 class mod::apanolio::method::Optioner : public method::Prototype {
-  using ancestor = Prototype;
+  using Ancestor = Prototype;
 public:
-  using ancestor::Prototype;
+  using Ancestor::Prototype;
   auto operator()() -> apache::httpd::status::Code;
 };
 #endiv

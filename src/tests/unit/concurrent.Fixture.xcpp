@@ -7,8 +7,6 @@
 namespace tests::unit::concurrent { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 class tests::unit::concurrent::Fixture : public cppunit::test::Fixture {
 public:
   auto test_usage_Conditions() -> void;
@@ -58,7 +56,6 @@ auto tests::unit::concurrent::Fixture::test_usage_Operation() -> void {
   // We already tested this in usage_Guardian
   CPPUNIT_ASSERT(true);
 }
-#import rigging.suite.io
 auto tests::unit::concurrent::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("concurrent");

@@ -32,7 +32,8 @@ DEVELOPMENT_AREAS = \
   $(module_boost_prefix) \
   $(module_c_prefix) \
   $(module_format_prefix) \
-  $(module_leveldb_prefix) \
+  $(module_langu_prefix) \
+  $(module_level_prefix) $(module_leveldb_prefix) \
   $(module_json_prefix) \
   $(module_mysql_prefix) \
   $(module_nonstd_prefix) \
@@ -41,6 +42,7 @@ DEVELOPMENT_AREAS = \
   $(module_pgsql_prefix) \
   $(module_rabinpoly_prefix) \
   $(module_ramcloud_prefix) \
+  $(module_shell_prefix) \
   $(module_sqlite_prefix) \
   $(module_std_prefix) \
   $(module_slurp_prefix) \

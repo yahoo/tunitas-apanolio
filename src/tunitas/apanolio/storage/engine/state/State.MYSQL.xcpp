@@ -14,7 +14,7 @@ namespace tunitas::apanolio::storage::engine::state {
 #import tunitas.apanolio.storage.engine.state.Prototype
 namespace tunitas::apanolio::storage::engine::state {
   template<> class State<MYSQL> : public Prototype {
-    using ancestor = Prototype;
+    using Ancestor = Prototype;
   public:
     State() = default;
   };

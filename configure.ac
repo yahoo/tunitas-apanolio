@@ -4,7 +4,7 @@ dnl Licensed under the terms of the Apache-2.0 license.
 dnl For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
 dnl For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 
-AC_INIT([apanolio], [0.2.0], [tunitas@yahooinc.com])
+AC_INIT([apanolio], [0.3.0], [tunitas@yahooinc.com])
 TF_INIT(AC_PACKAGE_NAME, AC_PACKAGE_VERSION, AC_PACKAGE_BUGREPORT)
 
 TF_COMPONENT_METADIRECTORY_TIERS
@@ -36,7 +36,9 @@ TF_MSG_VERBOSE([development subsystems (S.C.O.L.D.)])
 TF_WITH_MODULE([boost])
 TF_WITH_MODULE([c])
 TF_WITH_MODULE([format])
-TF_WITH_MODULE([leveldb])
+TF_WITH_MODULE([langu])
+TF_WITH_MODULE([level]) dnl ..... prefer
+TF_WITH_MODULE([leveldb]) dnl ... [[deprecating]]
 TF_WITH_MODULE([half]) dnl mentioned in module-nonstd but you will not need it
 TF_WITH_MODULE([json])
 TF_WITH_MODULE([mysql])
@@ -46,6 +48,7 @@ TF_WITH_MODULE([pgsql])
 TF_WITH_MODULE([posix])
 TF_WITH_MODULE([rabinpoly])
 TF_WITH_MODULE([ramcloud])
+TF_WITH_MODULE([shell])
 TF_WITH_MODULE([slurp])
 TF_WITH_MODULE([sqlite])
 TF_WITH_MODULE([std])

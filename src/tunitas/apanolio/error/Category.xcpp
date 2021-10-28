@@ -25,7 +25,7 @@ namespace tunitas::apanolio::error {
 #import std.error_condition
 #import std.string
 class tunitas::apanolio::error::Category : public std::error_category {
-  using ancestor = std::error_category;
+  using Ancestor = std::error_category;
   friend auto category() -> Category const &;
   Category() = default;
 public:

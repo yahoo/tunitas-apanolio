@@ -7,8 +7,6 @@
 namespace tests::unit::exception { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 class tests::unit::exception::Fixture : public cppunit::test::Fixture {
 public:
   auto test_Argument() -> void;
@@ -97,7 +95,6 @@ auto tests::unit::exception::Fixture::test_System() -> void {
 #import tunitas.apanolio.exception.Null
 #import tunitas.apanolio.exception.Storage
 #import tunitas.apanolio.exception.System
-#import rigging.suite.io
 auto tests::unit::exception::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("exception");

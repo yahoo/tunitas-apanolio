@@ -7,8 +7,9 @@
 check_bin_unit = check/bin/unit
 check_bin_unit_LDADD = \
   $(lib_libmod_apanolio_la) \
-  -lrigging-httpd-module \
-  -lrigging-bench-module \
+  -lsys++-slurp \
+  -lrigging++-httpd \
+  -lrigging++ \
   $(end)
 $(check_bin_unit_OBJECTS): AM_CPPFLAGS+=$(AND_CHECK_CPPFLAGS_SET)
 $(check_bin_unit_OBJECTS): AM_CXXFLAGS+=$(AND_CHECK_CXXFLAGS_SET) -Wno-deprecated-declarations

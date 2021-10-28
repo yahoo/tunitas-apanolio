@@ -7,8 +7,6 @@
 namespace tests::unit::resting::stream { class Stream; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 class tests::unit::resting::stream::Stream : public cppunit::test::Fixture {
 public:
   auto test_constructor() -> void;
@@ -97,7 +95,6 @@ auto tests::unit::resting::stream::Stream::test_copy_idiom() -> void {
   std::string result = sink.str();
   CPPUNIT_ASSERT(100000 < result.size());
 }
-#import rigging.suite.io
 auto tests::unit::resting::stream::Stream::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   namespace suite = ::rigging::suite; // because nearby Stream occludes it

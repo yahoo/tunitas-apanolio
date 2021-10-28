@@ -7,8 +7,6 @@
 namespace tests::unit::resting::file { class Finalizer; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 class tests::unit::resting::file::Finalizer : public cppunit::test::Fixture {
 public:
   auto test_constructor() -> void;
@@ -144,7 +142,6 @@ auto tests::unit::resting::file::Finalizer::test_run() -> void {
   CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
 }
 
-#import rigging.suite.io
 auto tests::unit::resting::file::Finalizer::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("Finalizer");

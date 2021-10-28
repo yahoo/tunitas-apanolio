@@ -7,8 +7,6 @@
 namespace tests::unit::resting::stream { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 class tests::unit::resting::stream::Fixture : public cppunit::test::Fixture {
 public:
   auto test_something_anything() -> void;
@@ -21,7 +19,6 @@ auto tests::unit::resting::stream::Fixture::test_something_anything() -> void {
 }
 #import tests.unit.resting.stream.Stream
 #import tests.unit.resting.stream.Iterator
-#import rigging.suite.io
 auto tests::unit::resting::stream::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   namespace suite = ::rigging::suite;

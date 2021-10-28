@@ -6,13 +6,28 @@
 #divert <fpp>
 #import std.string
 #import std.string_view
-namespace tests::unit { }
+namespace tests::unit {
+  using std::string;
+  using std::string_view;
+}
 #endiv
 #divert <hpp>
+// Because all test fixtures will need these
+#import tests.cppunit.Test
+#import tests.cppunit.test.Fixture
+#import tests.cppunit.ASSERT
+//
+// Because starting and stopping the Apache HTTPd runtime is a required part of almost all tests
+#import rigging.httpd.fixture.Runtime
+#import rigging.httpd.Dummy
+#endiv
+#divert <ipp>
 #import std.string_literals
 #import std.string_view_literals
 #import std.cerr
 namespace tests::unit {
-  using namespace std::literals;
+  using namespace std::string_literals;
+  using namespace std::string_view_literals;
 }
+#import rigging.suite.io
 #endiv

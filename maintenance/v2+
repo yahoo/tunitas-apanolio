@@ -1,0 +1,3 @@
+#!/bin/bash --norc
+TAG=${TAG:-PLUS} \
+exec ${0%/*}/v2

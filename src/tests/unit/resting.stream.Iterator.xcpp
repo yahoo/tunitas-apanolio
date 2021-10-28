@@ -7,8 +7,6 @@
 namespace tests::unit::resting::stream { class Iterator; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 class tests::unit::resting::stream::Iterator : public cppunit::test::Fixture {
 public:
   auto test_constructor_default() -> void;
@@ -132,7 +130,6 @@ auto tests::unit::resting::stream::Iterator::test_reserve() -> void {
   b.reserve(2000); // anything bigger than 512, the default size
   CPPUNIT_ASSERT(2000 == b.capacity());
 }
-#import rigging.suite.io
 auto tests::unit::resting::stream::Iterator::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   namespace suite = ::rigging::suite;
