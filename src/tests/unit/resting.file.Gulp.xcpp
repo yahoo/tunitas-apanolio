@@ -7,9 +7,6 @@
 namespace tests::unit::resting::file { class Gulp; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
-#import rigging.httpd.fixture.Runtime // WATCHOUT - cricical to ensure the Apache Runtime system is initialized before the test
 struct tests::unit::resting::file::Gulp : public cppunit::test::Fixture, private rigging::httpd::fixture::Runtime {
   auto setUp() -> void override final    { Runtime::setUp(); }
   auto tearDown() -> void override final { Runtime::tearDown(); }
@@ -22,7 +19,6 @@ protected:
 };
 #endiv
 #divert <cpp>
-#import rigging.httpd.Dummy
 #import sys.posix.tmpdir
 #import tests.unit.generate_some_content
 #import tests.unit.resting.file.Unlinker
@@ -65,7 +61,6 @@ auto tests::unit::resting::file::Gulp::test_accessors() -> void {
   // There are no accessors
   CPPUNIT_ASSERT(true);
 }
-#import rigging.suite.io
 auto tests::unit::resting::file::Gulp::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("Gulp");

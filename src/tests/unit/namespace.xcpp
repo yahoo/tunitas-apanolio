@@ -13,8 +13,13 @@ namespace tests::unit {
 #endiv
 #divert <hpp>
 // Because all test fixtures will need these
-#import cppunit.Test
-#import cppunit.test.Fixture
+#import tests.cppunit.Test
+#import tests.cppunit.test.Fixture
+#import tests.cppunit.ASSERT
+//
+// Because starting and stopping the Apache HTTPd runtime is a required part of almost all tests
+#import rigging.httpd.fixture.Runtime
+#import rigging.httpd.Dummy
 #endiv
 #divert <ipp>
 #import std.string_literals

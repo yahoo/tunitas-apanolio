@@ -1,5 +1,5 @@
-#!/bin/bash
-# Copyright 2019, Oath Inc.; Copyright 2020, Verizon Media
+#!/bin/bash -p
+# Copyright Yahoo Inc, 2021.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
@@ -73,13 +73,15 @@ if [[ -d ${PWD%/*}/nearby ]] ; then
     : ${with_tunitas_nearby:=${with_nearby?}}
     : ${with_scold_nearby:=${with_nearby?}}
 elif [[ -d /build/tunitas ]] && [[ -d /build/scold ]] ; then
-    : ${with_nearby:=/build}
-    : ${with_tunitas_nearby:=${with_nearby?}/tunitas}
-    : ${with_scold_nearby:=${with_nearby?}/scold}
+    : ${with_build:=/build}
+    : ${with_tunitas_nearby:=${with_build?}/tunitas}
+    : ${with_scold_nearby:=${with_build?}/scold}
+    : ${with_nearby:=${with_scold_nearby?}}
 else
+    : ${with_build:=no}
+    : ${with_tunitas_nearby:=no}
+    : ${with_scold_nearby:=no}
     : ${with_nearby:=no}
-    : ${with_tunitas_nearby:=${with_nearby?}}
-    : ${with_scold_nearby:=${with_nearby?}}
 fi
 if [[ -d ${PWD%/*/*}/useful ]] ; then
     : ${with_useful:=${PWD%/*/*}/useful}
@@ -88,6 +90,8 @@ elif [[ -d ${PWD%/*/*/*}/useful ]] ; then
 else
     : ${with_useful:=${with_nearby?}}
 fi
+# HYPing release of Hyperledger (cross-database componentry)
+# FABRICating release of Hyperledger Fabric
 if [[ -d ${PWD%/*/*}/hyperledger ]] ; then
     : ${with_hyping:=${PWD%/*/*}/hyperledger}
     : ${with_fabricating:=${with_hyping?}/fabric}
@@ -137,7 +141,7 @@ function set_all_defaults_no() {
     : ${with_module_half:=no}
     : ${with_module_json:=no}
     : ${with_module_nonstd:=no}
-    : ${with_module_leveldb:=no}
+    : ${with_module_level:=no} ${with_module_leveldb:=no}
     : ${with_module_mysql:=no}
     : ${with_module_options:=no}
     : ${with_module_posix:=no}
@@ -145,6 +149,7 @@ function set_all_defaults_no() {
     : ${with_module_rabinpoly:=no}
     : ${with_module_ramcloud:=no}
     : ${with_module_rigging:=no}
+    : ${with_module_shell:=no}
     : ${with_module_slurp:=no}
     : ${with_module_sqlite:=no}
     : ${with_module_std:=no}
@@ -195,7 +200,7 @@ function set_all_defaults_relatively() {
     : ${with_module_format:=$1/module-format}
     : ${with_module_half:=$1/module-half}
     : ${with_module_json:=$1/module-json}
-    : ${with_module_leveldb:=$1/module-leveldb}
+    : ${with_module_level:=$1/module-level} ${with_module_leveldb:=$1/module-level}
     : ${with_module_mysql:=$1/module-mysql}
     : ${with_module_nonstd:=$1/module-nonstd}
     : ${with_module_options:=$1/module-options}
@@ -204,6 +209,7 @@ function set_all_defaults_relatively() {
     : ${with_module_rabinpoly:=$1/module-rabinpoly}
     test -d $1/module-ramcloud && : ${with_module_ramcloud:=$1/module-ramcloud}
     : ${with_module_rigging:=$1/module-rigging}
+    : ${with_module_shell:=$1/module-shell}
     : ${with_module_slurp:=$1/module-slurp}
     : ${with_module_sqlite:=$1/module-sqlite}
     : ${with_module_std:=$1/module-std}
@@ -229,8 +235,7 @@ fi
 # ${with_nonstd_jsoncpp:=/opt/nonstd/jsoncpp} # ............... OPTIONAL
 : ${with_temerarious_flagship:=${with_siblings?}/temerarious-flagship}
 : ${with_tunitas_basics:=${with_siblings?}/basics}
-: ${with_scarpet:=${with_siblings?}/scarpet}
-: ${with_butano:=${with_siblings?}/butano}
+: ${with_tunitas_butano:=${with_siblings?}/butano}
 eval \
     ${prefix:+prefix=$prefix} \
     ${with_hypogeal_twilight:+with_hypogeal_twilight=$with_hypogeal_twilight} \
@@ -247,7 +252,6 @@ eval \
     ${with_hypogeal_twilight:+--with-hypogeal-twilight=$with_hypogeal_twilight} \
     ${with_temerarious_flagship:+--with-temerarious-flagship=$with_temerarious_flagship} \
     ${with_apache_httpd_api:+--with-apache-httpd-api=$with_apache_httpd_api} \
-    ${with_butano:+--with-butano=$with_butano} \
     ${with_hyperledger:+--with-hyperledger=$with_hyperledger} \
     ${with_hyperledger_fabric:+--with-hyperledger-fabric=$with_hyperledger_fabric} \
     ${with_hyperledger_fabric_ca:+--with-hyperledger-fabric-ca=$with_hyperledger_fabric_ca} \
@@ -258,7 +262,8 @@ eval \
     ${with_module_half:+--with-module-half=$with_module_half} \
     ${with_nonstd_half:+--with-nonstd-half=$with_nonstd_half} \
     ${with_module_json:+--with-module-json=$with_module_json} \
-    ${with_module_leveldb:+--with-module-leveldb=$with_module_leveldb} \
+    ${with_module_level:+--with-module-level=$with_module_level} \
+    ${with_module_leveldb:+--with-module-leveldb=$with_module_level} \
     ${with_module_mysql:+--with-module-mysql=$with_module_mysql} \
     ${with_module_nonstd:+--with-module-nonstd=$with_module_nonstd} \
     ${with_module_options:+--with-module-options=$with_module_options} \
@@ -267,6 +272,7 @@ eval \
     ${with_module_rabinpoly:+--with-module-rabinpoly=$with_module_rabinpoly} \
     ${with_module_ramcloud:+--with-module-ramcloud=$with_module_ramcloud} \
     ${with_module_rigging:+--with-module-rigging=$with_module_rigging} \
+    ${with_module_shell:+--with-module-shell=$with_module_shell} \
     ${with_module_slurp:+--with-module-slurp=$with_module_slurp} \
     ${with_module_sqlite:+--with-module-sqlite=$with_module_sqlite} \
     ${with_module_std:+--with-module-std=$with_module_std} \
@@ -275,6 +281,7 @@ eval \
     ${with_module_uuid:+--with-module-uuid=$with_module_uuid} \
     ${with_scarpet:+--with-scarpet=$with_scarpet} \
     ${with_tunitas_basics:+--with-tunitas-basics=$with_tunitas_basics} \
+    ${with_tuntias_butano:+--with-tunitas-butano=$with_tunitas_butano --with-butano=$with_tunitas_butano} \
     ${with_std_tunitas:+--with-std-tunitas=$with_std_tunitas} \
     ${with_std_scold:+--with-std-scold=$with_std_scold} \
     ${end} &&

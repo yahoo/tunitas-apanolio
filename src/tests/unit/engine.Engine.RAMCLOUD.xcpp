@@ -8,8 +8,6 @@
 namespace tests::unit::engine { template<> class Engine<RAMCLOUD>; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import tunitas.apanolio.storage.engine.configuration.Configuration.RAMCLOUD
 #import tunitas.apanolio.storage.engine.Engine.RAMCLOUD
 namespace tests::unit::engine {
@@ -89,7 +87,6 @@ namespace tests::unit::engine {
     }
   }
 }
-#import rigging.suite.io
 namespace tests::unit::engine {
   auto Engine<RAMCLOUD>::suite() -> cppunit::Test * {
     using namespace ::rigging::suite;

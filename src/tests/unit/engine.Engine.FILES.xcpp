@@ -8,8 +8,6 @@
 namespace tests::unit::engine { template<> class Engine<FILES>; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import tunitas.apanolio.storage.engine.Engine.FILES
 #import tests.unit.engine.Temporary_Directory
 #import tests.unit.engine.Record_Generator
@@ -90,7 +88,6 @@ namespace tests::unit::engine {
     CPPUNIT_ASSERT(std::equal(specimen.begin(), specimen.end(), recovered.begin(), recovered.end()));
   }
 }
-#import rigging.suite.io
 namespace tests::unit::engine {
   auto Engine<FILES>::suite() -> cppunit::Test * {
     using namespace ::rigging::suite;

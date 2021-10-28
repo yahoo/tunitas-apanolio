@@ -8,8 +8,6 @@
 namespace tests::unit::engine { template<> class Engine<FABRIC>; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import tunitas.apanolio.storage.engine.configuration.Configuration.FABRIC
 #import tunitas.apanolio.storage.engine.Engine.FABRIC
 namespace tests::unit::engine {
@@ -88,7 +86,6 @@ namespace tests::unit::engine {
     }
   }
 }
-#import rigging.suite.io
 namespace tests::unit::engine {
   auto Engine<FABRIC>::suite() -> cppunit::Test * {
     using namespace ::rigging::suite;

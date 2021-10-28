@@ -8,8 +8,6 @@
 namespace tests::unit::engine { template<> class Engine<NONE>; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import tunitas.apanolio.storage.engine.Engine.NONE
 #import tunitas.apanolio.error.Code
 namespace tests::unit::engine {
@@ -72,7 +70,6 @@ namespace tests::unit::engine {
     CPPUNIT_ASSERT(NOT_AVAILABLE == error_code(sat));
   }
 }
-#import rigging.suite.io
 namespace tests::unit::engine {
   auto Engine<NONE>::suite() -> cppunit::Test * {
     using namespace ::rigging::suite;

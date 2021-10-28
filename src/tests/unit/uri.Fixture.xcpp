@@ -7,8 +7,6 @@
 namespace tests::unit::uri { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 class tests::unit::uri::Fixture : public cppunit::test::Fixture {
 public:
   auto test_Parser_slash() -> void;
@@ -71,7 +69,6 @@ auto tests::unit::uri::Fixture::test_Parser_slashprefix() -> void {
       CPPUNIT_ASSERT_EQUAL(expected, actual); } }
 }
 #import tests.unit.uri.Parser
-#import rigging.suite.io
 auto tests::unit::uri::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("uri");

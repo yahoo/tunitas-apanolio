@@ -7,8 +7,6 @@
 namespace tests::unit::error { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 class tests::unit::error::Fixture : public cppunit::test::Fixture {
 public:
   auto test_Condition() -> void;
@@ -52,7 +50,6 @@ auto tests::unit::error::Fixture::test_Category() -> void {
   CPPUNIT_ASSERT(! c.message(0).empty() );
 }
 #import tests.unit.error.Category
-#import rigging.suite.io
 auto tests::unit::error::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("error");

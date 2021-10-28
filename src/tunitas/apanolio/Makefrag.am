@@ -12,7 +12,8 @@ lib_libtunitas_apanolio_la_LIBADD = \
   $(lib_libtunitas_apanolio_storage_la) \
   $(lib_libwant_la) \
   -ltunitas-app \
- -lnonstd-module \
+  -lsys++-slurp \
+  -lnonstd++ \
   $(end)
 lib_libtunitas_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 lib_libtunitas_apanolio_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunitas_apanolio_la_SOURCES))

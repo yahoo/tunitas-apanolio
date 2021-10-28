@@ -36,7 +36,9 @@ TF_MSG_VERBOSE([development subsystems (S.C.O.L.D.)])
 TF_WITH_MODULE([boost])
 TF_WITH_MODULE([c])
 TF_WITH_MODULE([format])
-TF_WITH_MODULE([leveldb])
+TF_WITH_MODULE([langu])
+TF_WITH_MODULE([level]) dnl ..... prefer
+TF_WITH_MODULE([leveldb]) dnl ... [[deprecating]]
 TF_WITH_MODULE([half]) dnl mentioned in module-nonstd but you will not need it
 TF_WITH_MODULE([json])
 TF_WITH_MODULE([mysql])
@@ -46,6 +48,7 @@ TF_WITH_MODULE([pgsql])
 TF_WITH_MODULE([posix])
 TF_WITH_MODULE([rabinpoly])
 TF_WITH_MODULE([ramcloud])
+TF_WITH_MODULE([shell])
 TF_WITH_MODULE([slurp])
 TF_WITH_MODULE([sqlite])
 TF_WITH_MODULE([std])

@@ -43,12 +43,12 @@ namespace tunitas::apanolio::exception {
     // [[FIXTHIS]] move this over to use nonstd::required::Stringlike when such exists circa module-nonstd >= 0.3.0
     //
     namespace crudely {
-      template<typename STRINGLIKE> concept bool Exactly = std::is_same<STRINGLIKE, std::string>::value;
-      template<typename STRINGLIKE> concept bool Approximately = requires(STRINGLIKE stringlike, char const *pointer) {
+      template<typename STRINGLIKE> concept Exactly = std::is_same<STRINGLIKE, std::string>::value;
+      template<typename STRINGLIKE> concept Approximately = requires(STRINGLIKE stringlike, char const *pointer) {
         { STRINGLIKE{pointer} };
       };
     }
-    template<typename STRINGLIKE> concept bool Stringlike = crudely::Exactly<STRINGLIKE> || crudely::Approximately<STRINGLIKE>;
+    template<typename STRINGLIKE> concept Stringlike = crudely::Exactly<STRINGLIKE> || crudely::Approximately<STRINGLIKE>;
   }
 }
 #endiv

@@ -1,0 +1,3 @@
+#!/bin/bash --norc
+TAG=${TAG:-CURRENT} \
+exec ${0%/*}/v2

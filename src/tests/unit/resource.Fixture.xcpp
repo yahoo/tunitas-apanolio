@@ -7,8 +7,6 @@
 namespace tests::unit::resource { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 class tests::unit::resource::Fixture : public cppunit::test::Fixture {
 public:
   auto test_usage_Identifier() -> void;
@@ -32,7 +30,6 @@ auto tests::unit::resource::Fixture::test_usage_Record() -> void {
 }
 #import tests.unit.resource.Identifier
 #import tests.unit.resource.Record
-#import rigging.suite.io
 auto tests::unit::resource::Fixture::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("resource");

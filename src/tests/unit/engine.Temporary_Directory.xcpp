@@ -59,7 +59,6 @@ namespace tests::unit::engine {
   std::string const Temporary_Directory::TEMPORARY_DIRECTORY_BASIS{"t99.tests.unit.engine.Engine"};
   unsigned Temporary_Directory::per_process_serial_number_for_even_more_guaranted_uniqueness__yes_yes_even_more_unique{};
 }
-#import cppunit.test.Assert // CPPUNIT_ASSERT
 #import getpid
 #import ish.shell.TMPDIR
 #import std.ostringstream

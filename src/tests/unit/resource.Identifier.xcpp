@@ -7,8 +7,6 @@
 namespace tests::unit::resource { class Identifier; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import tunitas.apanolio.resource.Identifier
 class tests::unit::resource::Identifier : public cppunit::test::Fixture {
 public:
@@ -52,7 +50,6 @@ auto tests::unit::resource::Identifier::test_constructor_generate() -> void {
   CPPUNIT_ASSERT(0 != (Underlying) subject0);
   CPPUNIT_ASSERT(subject0 != subject1);
 }
-#import rigging.suite.io
 auto tests::unit::resource::Identifier::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("Identifier");

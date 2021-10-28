@@ -7,8 +7,6 @@
 namespace tests::unit::resting::file { class File; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import std.size_t
 #import std.string
 #import tunitas.apanolio.resting.File
@@ -110,7 +108,6 @@ auto tests::unit::resting::file::File::test_finalize_kill() -> void {
   CPPUNIT_ASSERT(true);
 }
 
-#import rigging.suite.io
 auto tests::unit::resting::file::File::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("file");

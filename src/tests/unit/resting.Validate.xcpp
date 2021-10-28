@@ -7,8 +7,6 @@
 namespace tests::unit::resting { class Validate; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import tunitas.apanolio.resource.Record
 #import std.string
 class tests::unit::resting::Validate : public cppunit::test::Fixture {
@@ -174,7 +172,6 @@ namespace tests::unit::resting {
     CPPUNIT_ASSERT(true);
   }
 }
-#import rigging.suite.io
 auto tests::unit::resting::Validate::suite() -> cppunit::Test * {
   using namespace ::rigging::suite;
   Stream series("validate");
