@@ -1,3 +1,3 @@
-#!/bin/bash --norc
+#!/bin/bash -p
 TAG=${TAG:-LATEST} \
 exec ${0%/*}/v2

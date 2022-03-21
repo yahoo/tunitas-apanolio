@@ -4,7 +4,9 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #divert <fpp>
-namespace tunitas::apanolio { }
+namespace tunitas::apanolio {
+  enum CONFIG { };
+}
 // Many places have need of seeing this (there is much that is unimplemented)
 #import nonstd.exception.Unimplemented
 #endiv

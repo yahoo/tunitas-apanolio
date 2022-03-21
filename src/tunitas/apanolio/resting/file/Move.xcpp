@@ -37,9 +37,8 @@ protected:
 namespace tunitas::apanolio::resting::file {
   Move::Move(std::string const &arg_source, std::string const &arg_target)
     : source_pathname(arg_source)
-    , target_pathname(arg_target) {
-    ;
-  }
+    , target_pathname(arg_target)
+  { }
   auto Move::source() const -> std::string const & { return source_pathname; }
   auto Move::target() const -> std::string const & { return target_pathname; }
 }

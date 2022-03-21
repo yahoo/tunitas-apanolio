@@ -69,9 +69,8 @@ protected:
 #import tunitas.apanolio.resting.file.tempname
 namespace tunitas::apanolio::resting::file {
   File::File(std::string const &directory)
-    : File(directory, file::tempname()) {
-    ;
-  }
+    : File(directory, file::tempname())
+  { }
   auto File::name() const -> std::string {
     return final;
   }

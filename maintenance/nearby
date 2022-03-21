@@ -263,7 +263,7 @@ eval \
     ${with_nonstd_half:+--with-nonstd-half=$with_nonstd_half} \
     ${with_module_json:+--with-module-json=$with_module_json} \
     ${with_module_level:+--with-module-level=$with_module_level} \
-    ${with_module_leveldb:+--with-module-leveldb=$with_module_level} \
+    ${with_module_leveldb:+--with-module-leveldb=$with_module_leveldb} \
     ${with_module_mysql:+--with-module-mysql=$with_module_mysql} \
     ${with_module_nonstd:+--with-module-nonstd=$with_module_nonstd} \
     ${with_module_options:+--with-module-options=$with_module_options} \

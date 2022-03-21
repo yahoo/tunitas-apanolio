@@ -7,13 +7,12 @@
 namespace tests::unit::error { class Fixture; }
 #endiv
 #divert <hpp>
-class tests::unit::error::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::error::Fixture : public rigging::suite::Fixture {
   auto test_Condition() -> void;
   auto test_Code() -> void;
   auto test_category() -> void;
   auto test_Category() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -50,15 +49,14 @@ auto tests::unit::error::Fixture::test_Category() -> void {
   CPPUNIT_ASSERT(! c.message(0).empty() );
 }
 #import tests.unit.error.Category
-auto tests::unit::error::Fixture::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("error");
-  series << call("Condition", &Fixture::test_Condition)
-         << call("Code", &Fixture::test_Code)
-         << call("category", &Fixture::test_category)
-         << call("Category", &Fixture::test_Category)
+auto tests::unit::error::Fixture::suite() -> Suite {
+  auto series = Stream{"error"sv};
+  series << add("Condition", &Fixture::test_Condition)
+         << add("Code", &Fixture::test_Code)
+         << add("category", &Fixture::test_category)
+         << add("Category", &Fixture::test_Category)
          << add<Category>()
-    ;
-  return finalize(series);
+         << END;
+  return settle(series);
 }
 #endiv

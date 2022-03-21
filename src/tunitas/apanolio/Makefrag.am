@@ -4,20 +4,7 @@
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #
-lib_libtunitas_apanolio_la = lib/libtunitas-apanolio.la
-# [[FIXTHIS]] -ltunitas-app should be should be -ltunitas-service, something like that (-ltunitas-app has the command line options parsing)
-lib_libtunitas_apanolio_la_LIBADD = \
-  $(lib_libtunitas_apanolio_resting_la) \
-  $(lib_libtunitas_apanolio_schema_la) \
-  $(lib_libtunitas_apanolio_storage_la) \
-  $(lib_libwant_la) \
-  -ltunitas-app \
-  -lsys++-slurp \
-  -lnonstd++ \
-  $(end)
-lib_libtunitas_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
-lib_libtunitas_apanolio_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libtunitas_apanolio_la_SOURCES))
-lib_libtunitas_apanolio_la_SOURCES = \
+tunitas_apanolio_SUBSOURCES = \
   obj/src/tunitas/apanolio/namespace.cpp \
   obj/src/tunitas/apanolio/required.cpp \
   \
@@ -57,14 +44,3 @@ lib_libtunitas_apanolio_la_SOURCES = \
   obj/src/tunitas/apanolio/url.Parser.cpp \
   obj/src/tunitas/apanolio/url.URI.cpp \
   $(end)
-#
-$(scold_cxxdir)/tunitas/apanolio/dependencies.mk: $(lib_libtunitas_apanolio_la_SOURCES)
-$(lib_libtunitas_apanolio_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
-	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
-	$(TF_V_DONE) test -e $@
-$(scold_cxxdir)/tunitas/apanolio/dependencies.mk:
-	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
-	$(TF_V_DONE) test -e $@
-include $(scold_cxxdir)/tunitas/apanolio/dependencies.mk
-clean-dependencies::
-	rm -f $(scold_cxxdir)/tunitas/apanolio/dependencies.mk

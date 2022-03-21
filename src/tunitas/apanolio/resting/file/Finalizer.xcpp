@@ -49,9 +49,8 @@ namespace tunitas::apanolio::resting::file {
   Finalizer::Finalizer(std::string const &arg_tempy, std::string const &arg_final)
     : state(KILL)
     , tempy(arg_tempy)
-    , final(arg_final) {
-    ;
-  }
+    , final(arg_final)
+  { }
   Finalizer::~Finalizer() {
     try {
       run();

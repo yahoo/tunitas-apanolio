@@ -32,9 +32,8 @@ protected:
 #divert <ipp>
 namespace tunitas::apanolio::resting::file {
   Remove::Remove(std::string const &arg_filename)
-    : doomed_filename(arg_filename) {
-    ;
-  }
+    : doomed_filename(arg_filename)
+  { }
   auto Remove::filename() const -> std::string const & {
     return doomed_filename;
   }

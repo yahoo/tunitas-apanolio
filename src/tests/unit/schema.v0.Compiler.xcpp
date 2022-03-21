@@ -8,11 +8,10 @@ namespace tests::unit::schema::v0 { class Compiler; }
 #endiv
 #divert <hpp>
 #import tunitas.apanolio.schema.v0.Compiler
-class tests::unit::schema::v0::Compiler : public cppunit::test::Fixture {
-public:
+struct tests::unit::schema::v0::Compiler : public rigging::suite::Fixture {
   using Subject = ::tunitas::apanolio::schema::v0::Compiler;
   auto test_constructor() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -22,11 +21,10 @@ auto tests::unit::schema::v0::Compiler::test_constructor() -> void {
   Subject subject1{std::cerr};
   CPPUNIT_ASSERT(&subject0 != &subject1);
 }
-auto tests::unit::schema::v0::Compiler::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("Compiler");
-  series << call("constructor", &Compiler::test_constructor)
-    ;
-  return finalize(series);
+auto tests::unit::schema::v0::Compiler::suite() -> Suite {
+  auto series = Stream{"Compiler"sv};
+  series << add("constructor", &Compiler::test_constructor)
+         << END;
+  return settle(series);
 }
 #endiv

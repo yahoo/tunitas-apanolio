@@ -8,8 +8,7 @@ namespace tests::unit::resource { class Identifier; }
 #endiv
 #divert <hpp>
 #import tunitas.apanolio.resource.Identifier
-class tests::unit::resource::Identifier : public cppunit::test::Fixture {
-public:
+struct tests::unit::resource::Identifier : public rigging::suite::Fixture {
   using Subject = ::tunitas::apanolio::resource::Identifier;
   using Underlying = ::tunitas::apanolio::resource::identifier::Underlying;
   auto test_Underlying() -> void;
@@ -17,7 +16,7 @@ public:
   auto test_constructor_fingerprint() -> void;
   auto test_constructor_uuid() -> void;
   auto test_constructor_generate() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -50,20 +49,19 @@ auto tests::unit::resource::Identifier::test_constructor_generate() -> void {
   CPPUNIT_ASSERT(0 != (Underlying) subject0);
   CPPUNIT_ASSERT(subject0 != subject1);
 }
-auto tests::unit::resource::Identifier::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("Identifier");
-  series << call("Underlying", &Identifier::test_Underlying)
-    ;
-  {
-    Stream con("construct");
-    con << call("enum", &Identifier::test_constructor_enum)
-       << call("fingerprint", &Identifier::test_constructor_fingerprint)
-       << call("uuid", &Identifier::test_constructor_uuid)
-       << call("generate", &Identifier::test_constructor_generate)
-      ;
-    series << move(con);
-  }
-  return finalize(series);
+auto tests::unit::resource::Identifier::suite() -> Suite {
+  auto series = Stream{"Identifier"sv};
+  series << add("Underlying", &Identifier::test_Underlying)
+         << []{
+              auto con = Stream{"construct"sv};
+              con << add("enum", &Identifier::test_constructor_enum)
+                  << add("fingerprint", &Identifier::test_constructor_fingerprint)
+                  << add("uuid", &Identifier::test_constructor_uuid)
+                  << add("generate", &Identifier::test_constructor_generate)
+                  << END;
+              return con;
+            }()
+         << END;
+  return settle(series);
 }
 #endiv

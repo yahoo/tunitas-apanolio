@@ -7,15 +7,14 @@
 namespace tests::unit::error { class Category; }
 #endiv
 #divert <hpp>
-class tests::unit::error::Category : public cppunit::test::Fixture {
-public:
+struct tests::unit::error::Category : public rigging::suite::Fixture {
   auto test_name() -> void;
   auto test_default_error_condition_integer() -> void;
   auto test_default_error_condition_Code() -> void;
   auto test_equivalent_error_condition() -> void;
   auto test_equivalent_error_code() -> void;
   auto test_message() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -67,26 +66,25 @@ auto tests::unit::error::Category::test_message() -> void {
     CPPUNIT_ASSERT(!message.empty());
   }
 }
-auto tests::unit::error::Category::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("Category");
-  series << call("name", &Category::test_name)
-    ;
-  {
-    Stream equ("default_error_condition");
-    equ << call("integer", &Category::test_default_error_condition_integer)
-        << call("code", &Category::test_default_error_condition_Code)
-      ;
-    series << move(equ);
-  } {
-    Stream equ("equivalent");
-    equ << call("error_condition", &Category::test_equivalent_error_condition)
-        << call("error_code", &Category::test_equivalent_error_code)
-      ;
-    series << move(equ);
-  }
-  series<< call("message", &Category::test_message)
-    ;
-  return finalize(series);
+auto tests::unit::error::Category::suite() -> Suite {
+  auto series = Stream{"Category"sv};
+  series << add("name", &Category::test_name)
+         << []{
+              auto equ = Stream{"default_error_condition"sv};
+              equ << add("integer", &Category::test_default_error_condition_integer)
+                  << add("code", &Category::test_default_error_condition_Code)
+                  << END;
+              return equ;
+            }()
+         << []{
+              auto equ = Stream{"equivalent"sv};
+              equ << add("error_condition", &Category::test_equivalent_error_condition)
+                  << add("error_code", &Category::test_equivalent_error_code)
+                  << END;
+              return equ;
+            }()
+         << add("message", &Category::test_message)
+         << END;
+  return settle(series);
 }
 #endiv

@@ -29,7 +29,7 @@ public:
 };
 #endiv
 #divert <cpp>
-#import autotools.autoconf.Config.mod.apanolio.CONFIG
+#import autotools.autoconf.Config.tunitas.apanolio.CONFIG
 #import std.string
 auto mod::apanolio::method::Deleter::operator()() -> apache::httpd::status::Code {
   std::string uri{req->uri};

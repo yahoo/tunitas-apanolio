@@ -12,7 +12,9 @@ ACLOCAL_AMFLAGS = -I m4
 LOCAL_ServerRoot = ./httpd
 
 default:
+include tests/Makefrag.am
 include @temerarious_flagship_datadir@/am/build.am
+#
 # configure.ac:  HGTW_CONFIG_SUBMODULES([submodules], [ ...list...])
 # Makefile.am    SUBDIRS = @subdirs@
 
@@ -29,34 +31,27 @@ DEVELOPMENT_AREAS = \
   $(hyperledger_fabric_prefix) \
   $(hyperledger_fabric_ca_prefix) \
   $(hyperledger_fabric_db_prefix) \
-  $(module_boost_prefix) \
-  $(module_c_prefix) \
-  $(module_format_prefix) \
+  $(module_cli_core_prefix) \
+  $(module_cli_shell_prefix) \
   $(module_langu_prefix) \
-  $(module_level_prefix) $(module_leveldb_prefix) \
+  $(module_level_prefix) \
   $(module_json_prefix) \
   $(module_mysql_prefix) \
   $(module_nonstd_prefix) \
-  $(module_options_prefix) \
-  $(module_posix_prefix) \
   $(module_pgsql_prefix) \
   $(module_rabinpoly_prefix) \
   $(module_ramcloud_prefix) \
-  $(module_shell_prefix) \
   $(module_sqlite_prefix) \
-  $(module_std_prefix) \
-  $(module_slurp_prefix) \
-  $(module_sqlite_prefix) \
-  $(module_string_prefix) \
   $(module_sys_prefix) \
-  $(module_uuid_prefix) \
   $(tunitas_basics_prefix) \
   $(tunitas_butano_prefix) \
   $(tunitas_scarpet_prefix) \
+  $(deprecated_DEVELOPMENT_AREAS) \
   $(end)
 TESTING_AREAS = \
   $(module_cppunit_prefix) \
   $(module_rigging_prefix) \
+  $(deprecated_TESTING_AREAS) \
   $(end)
 INSTALLATION_AREAS = \
   $(nonstd_boost_prefix) \
@@ -64,76 +59,53 @@ INSTALLATION_AREAS = \
   $(nonstd_gcc_prefix) \
   $(nonstd_sqlite_prefix) \
   $(std_scold_prefix) \
+  $(deprecated_INSTALLATION_AREAS) \
   $(end)
 
-include src/autotools/autoconf/Makefrag.am
-include src/mod/apanolio/Makefrag.am
-include src/tunitas/apanolio/Makefrag.am
-include src/tunitas/apanolio/resting/Makefrag.am
-include src/tunitas/apanolio/schema/Makefrag.am
-include src/tunitas/apanolio/storage/Makefrag.am
-include src/want/Makefrag.am
-include src/tests/unit/Makefrag.am
+include lib/libmod_apanolio.am
+include noinst/lib/libmod_apanolio.am
 
-#
-# The following three definitions must be consistent
-#
-# Makefile.am module_SOURCE_SET    (future)         the modules (cut & paste header files)
-# Makefile.am module_BB_SOURCE_SET (deprecating)    them.
-# Makefile.am lib_LTLIBRARIES      (current)        the DSO & static libraries
-# tunitas-apanolio.spec the '%files devel' stanza must list the 
-#
-# [[FIXTHIS]] the plurality here is problematic ... done multiple ways
-lib_libtunitas_apanolio_la_MODULE_SOURCES_SET = \
-  $(lib_libautotools_autoconf_la_SOURCES) \
-  $(lib_libmod_apanolio_la_SOURCES) \
-  $(lib_libtunitas_apanolio_la_SOURCES) \
-  $(lib_libwant_la_SOURCES) \
+include lib/libtunitas-apanolio.am
+include noinst/lib/libtunitas-apanolio.am
+include noinst/lib/libtunitas-apanolio-resting.am
+include noinst/lib/libtunitas-apanolio-schema.am
+include noinst/lib/libtunitas-apanolio-storage.am
+include check/bin/unit.am
+
+include noinst/lib/libwant.am
+include noinst/lib/libautotools-autoconf+tunitas-apanolio.am
+
+INSTALL_MODULES = \
+  $(noinst_lib_libautotools_autoconf_tunitas_apanolio_la_MODULES) \
+  $(noinst_lib_libmod_apanolio_la_MODULES) \
+  $(noinst_lib_libtunitas_apanolio_la_MODULES) \
+  $(noinst_lib_libtunitas_apanolio_resting_la_MODULES) \
+  $(noinst_lib_libtunitas_apanolio_schema_la_MODULES) \
+  $(noinst_lib_libtunitas_apanolio_storage_la_MODULES) \
+  $(noinst_lib_libwant_la_MODULES) \
   $(end)
-# [[FIXTHIS]] module_BB_SOURCE_SET should be deprecating real soon now, move to use module_SOURCE_SET, whenever it is ready)
-module_BB_SOURCE_SET = \
-  $(lib_libtunitas_apanolio_la_MODULE_SOURCES_SET) \
-  $(end)
-module_SOURCE_SET = # NO NOT READY YET ---> $(lib_libtunitas_scarpet_la_MODULE_SOURCES_SET)
 
 bin_PROGRAMS = \
   $(end)
 noinst_LTLIBRARIES = \
-  $(lib_libautotools_autoconf_la) \
-  $(lib_libtunitas_apanolio_resting_la) \
-  $(lib_libtunitas_apanolio_schema_la) \
-  $(lib_libtunitas_apanolio_storage_la) \
-  $(lib_libwant_la) \
+  noinst/lib/libtunitas-apanolio.la \
+  noinst/lib/libtunitas-apanolio-resting.la \
+  noinst/lib/libtunitas-apanolio-schema.la \
+  noinst/lib/libtunitas-apanolio-storage.la \
+  noinst/lib/libautotools-autoconf+tunitas-apanolio.la \
+  noinst/lib/libmod_apanolio.la \
+  noinst/lib/libwant.la \
   $(end)
 # WATCHOUT - these MUST be listed in this order so that the sequential install rule will allow the linker to process them.
 #            libtool linking of libmod_apanolio.la MUST see the installed libtunitas-apanolio.la in order to be "finished"
 lib_LTLIBRARIES = \
-  $(lib_libtunitas_apanolio_la) \
-  $(lib_libmod_apanolio_la) \
+  lib/libtunitas-apanolio.la \
+  lib/libmod_apanolio.la \
   $(end)
 check_PROGRAMS = \
-  $(check_bin_unit) \
+  check/bin/unit \
   $(end)
 check_LTLIBRARIES = \
-  $(end)
-
-include tests/unit/Makefrag.am
-
-if ENABLE_SERVER_TESTS
-ENABLED_SERVER_TESTS = \
-  tests/start-contact-stop.test \
-  $(end)
-else
-ENABLED_SERVER_TESTS = 
-endif
-
-XFAIL_TESTS = \
-  $(tests_unit_XFAIL_TESTS) \
-  $(ENABLED_SERVER_XFAIL_TESTS)
-  $(end)
-TESTS = \
-  $(tests_unit_TESTS) \
-  $(ENABLED_SERVER_TESTS)
   $(end)
 
 # NOPE ... you can't say install depends upon check because
@@ -181,4 +153,28 @@ AM_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
 AM_CFLAGS   = $(PACKAGE_CFLAGS_SET)
 AM_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
 AM_LDFLAGS  = $(warning AM_LDFLAGS is not used by automake Makefile final-link invocations) $(PACKAGE_LDFLAGS_SET)
-# end
+
+deprecated_DEVELOPMENT_AREAS = \
+  $(module_boost_prefix) \
+  $(module_c_prefix) \
+  $(module_cli_prefix) \
+  $(module_format_prefix) \
+  $(module_leveldb_prefix) \
+  $(module_options_prefix) \
+  $(module_posix_prefix) \
+  $(module_rabinpoly_prefix) \
+  $(module_shell_prefix) \
+  $(module_std_prefix) \
+  $(module_slurp_prefix) \
+  $(module_string_prefix) \
+  $(module_uuid_prefix) \
+  $(end)
+deprecated_TESTING_AREAS = \
+  $(module_cppunit_prefix) \
+  $(module_rigging_prefix) \
+  $(end)
+deprecated_INSTALLATION_AREAS = \
+  $(nonstd_boost_prefix) \
+  $(nonstd_cppunit_prefix) \
+  $(end)
+

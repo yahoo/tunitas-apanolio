@@ -7,8 +7,7 @@
 namespace tests::unit::resting::file { class Finalizer; }
 #endiv
 #divert <hpp>
-class tests::unit::resting::file::Finalizer : public cppunit::test::Fixture {
-public:
+struct tests::unit::resting::file::Finalizer : public rigging::suite::Fixture {
   auto test_constructor() -> void;
   auto test_destructor_default_KILL() -> void;
   auto test_destructor_choose_KEEP() -> void;
@@ -18,7 +17,7 @@ public:
   auto test_choose_DONE() -> void;
   auto test_run() -> void;
 
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -142,18 +141,17 @@ auto tests::unit::resting::file::Finalizer::test_run() -> void {
   CPPUNIT_ASSERT( !::sys::posix::exists(names.second));
 }
 
-auto tests::unit::resting::file::Finalizer::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("Finalizer");
-  series << call("constructor", &Finalizer::test_constructor)
-         << call("destructor-default-KILL", &Finalizer::test_destructor_default_KILL)
-         << call("destructor-choose-KEEP", &Finalizer::test_destructor_choose_KEEP)
-         << call("destructor-choose-KILL", &Finalizer::test_destructor_choose_KILL)
-         << call("choose-KEEP", &Finalizer::test_choose_KEEP)
-         << call("choose-KILL", &Finalizer::test_choose_KILL)
-         << call("choose-DONE", &Finalizer::test_choose_DONE)
-         << call("run", &Finalizer::test_run)
-    ;
-  return finalize(series);
+auto tests::unit::resting::file::Finalizer::suite() -> Suite {
+  auto series = Stream{"Finalizer"sv};
+  series << add("constructor", &Finalizer::test_constructor)
+         << add("destructor-default-KILL", &Finalizer::test_destructor_default_KILL)
+         << add("destructor-choose-KEEP", &Finalizer::test_destructor_choose_KEEP)
+         << add("destructor-choose-KILL", &Finalizer::test_destructor_choose_KILL)
+         << add("choose-KEEP", &Finalizer::test_choose_KEEP)
+         << add("choose-KILL", &Finalizer::test_choose_KILL)
+         << add("choose-DONE", &Finalizer::test_choose_DONE)
+         << add("run", &Finalizer::test_run)
+         << END;
+  return settle(series);
 }
 #endiv

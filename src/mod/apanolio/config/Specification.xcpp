@@ -61,9 +61,9 @@ public:
 };
 #endiv
 #divert <ipp>
-#import autotools.autoconf.Config.mod.apanolio.CONFIG
+#import autotools.autoconf.Config.tunitas.apanolio.CONFIG
 mod::apanolio::config::Specification::Specification()
-  : storage_directory(autotools::autoconf::Config<CONFIG>::storage_directory())
+  : storage_directory(autotools::autoconf::Config<tunitas::apanolio::CONFIG>::storage_directory())
   , location_prefix("/")
   , is_started{false}
 { }

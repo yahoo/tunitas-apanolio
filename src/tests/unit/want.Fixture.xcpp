@@ -7,10 +7,9 @@
 namespace tests::unit::want { class Fixture; }
 #endiv
 #divert <hpp>
-class tests::unit::want::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::want::Fixture : public rigging::suite::Fixture {
   auto test_something() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -18,17 +17,16 @@ auto tests::unit::want::Fixture::test_something() -> void {
   CPPUNIT_ASSERT(true);
 }
 #import tests.unit.want.rigging.exception.Fixture
-auto tests::unit::want::Fixture::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("want");
-  series << call("something", &Fixture::test_something)
-    ;
-  {
-    Stream rig("rigging");
-    rig << add<rigging::exception::Fixture>()
-      ;
-    series << move(rig);
-  }
-  return finalize(series);
+auto tests::unit::want::Fixture::suite() -> Suite {
+  auto series = Stream{"want"sv};
+  series << add("something", &Fixture::test_something)
+         << []{
+              auto rig = Stream{"rigging"sv};
+              rig << add<rigging::exception::Fixture>()
+                  << END;
+              return rig;
+            }()
+         << END;
+  return settle(series);
 }
 #endiv

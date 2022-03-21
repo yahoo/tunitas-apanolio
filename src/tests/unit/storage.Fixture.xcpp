@@ -10,8 +10,7 @@ namespace tests::unit::storage { class Fixture; }
 #import tunitas.apanolio.storage.engine.Engine
 #import tunitas.apanolio.exception.Storage
 #import nonstd.exception.Unimplemented
-class tests::unit::storage::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::storage::Fixture : public rigging::suite::Fixture {
   auto test_open_function() -> void;
   using Name = ::tunitas::apanolio::storage::engine::Name;
   template<Name ENGINE> auto test_open_template0() -> void;
@@ -19,7 +18,7 @@ public:
   auto test_PROBE() -> void;
   auto test_GET() -> void;
   auto test_SET() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 protected:
   struct exception {
     using Storage = ::tunitas::apanolio::exception::Storage;
@@ -125,36 +124,35 @@ auto tests::unit::storage::Fixture::test_SET() -> void {
   }
 }
 #import tunitas.apanolio.storage.engine.Engine
-auto tests::unit::storage::Fixture::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
+auto tests::unit::storage::Fixture::suite() -> Suite {
   Stream series{"storage"};
   {
-    Stream ope("open");
+    auto ope = Stream{"open"sv};
     namespace engine = ::tunitas::apanolio::storage::engine;
-    ope << call("function", &Fixture::test_open_function)
-        << call("NONE", &Fixture::test_open_template0<engine::NONE>)
-        << call("MEMORY", &Fixture::test_open_template0<engine::MEMORY>)
-        << call("FILES", &Fixture::test_open_template1<engine::FILES>)
-        << call("LEVELDB", &Fixture::test_open_template1<engine::LEVELDB>)
-        << call("SQLITE", &Fixture::test_open_template1<engine::SQLITE>)
+    ope << add("function", &Fixture::test_open_function)
+        << add("NONE", &Fixture::test_open_template0<engine::NONE>)
+        << add("MEMORY", &Fixture::test_open_template0<engine::MEMORY>)
+        << add("FILES", &Fixture::test_open_template1<engine::FILES>)
+        << add("LEVELDB", &Fixture::test_open_template1<engine::LEVELDB>)
+        << add("SQLITE", &Fixture::test_open_template1<engine::SQLITE>)
 #if 0
       // the others are not ready for testing yet
-        << call("MYSQL", &Fixture::test_open_template1<engine::MYSQL>)
-        << call("PGSQL", &Fixture::test_open_template1<engine::PGSQL>)
-        << call("RAMCLOUD", &Fixture::test_open_template1<engine::RAMCLOUD>)
-        << call("FABRIC", &Fixture::test_open_template1<engine::FABRIC>)
-        << call("SCARPET", &Fixture::test_open_template1<engine::SCARPET>)
+        << add("MYSQL", &Fixture::test_open_template1<engine::MYSQL>)
+        << add("PGSQL", &Fixture::test_open_template1<engine::PGSQL>)
+        << add("RAMCLOUD", &Fixture::test_open_template1<engine::RAMCLOUD>)
+        << add("FABRIC", &Fixture::test_open_template1<engine::FABRIC>)
+        << add("SCARPET", &Fixture::test_open_template1<engine::SCARPET>)
 #endif
-    ;
+        << END;
     series << move(ope);
   } {
-    Stream ops("operations");
-    ops << call("PROBE", &Fixture::test_PROBE)
-        << call("GET", &Fixture::test_GET)
-        << call("SET", &Fixture::test_SET)
-      ;
+    auto ops = Stream{"operations"sv};
+    ops << add("PROBE", &Fixture::test_PROBE)
+        << add("GET", &Fixture::test_GET)
+        << add("SET", &Fixture::test_SET)
+        << END;
     series << move(ops);
   }
-  return finalize(series);
+  return settle(series);
 }
 #endiv

@@ -1,0 +1,28 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc. 2022
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+
+include tests/unit/Makefrag.am
+
+if ENABLE_SERVER_TESTS
+ENABLED_SERVER_TESTS = \
+  tests/start-contact-stop.test \
+  $(end)
+else
+ENABLED_SERVER_TESTS = 
+endif
+
+TESTS = \
+  $(tests_unit_TESTS) \
+  $(ENABLED_SERVER_TESTS)
+  $(end)
+XFAIL_TESTS = \
+  $(tests_unit_XFAIL_TESTS) \
+  $(ENABLED_SERVER_XFAIL_TESTS)
+  $(end)
+XGOOD_TESTS = \
+  $(tests_unit_XGOOD_TESTS) \
+  $(ENABLED_SERVER_XGOOD_TESTS)
+  $(end)

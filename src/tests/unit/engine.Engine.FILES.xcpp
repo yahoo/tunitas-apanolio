@@ -12,7 +12,7 @@ namespace tests::unit::engine { template<> class Engine<FILES>; }
 #import tests.unit.engine.Temporary_Directory
 #import tests.unit.engine.Record_Generator
 namespace tests::unit::engine {
-  template<> class Engine<FILES> : public cppunit::test::Fixture, private Temporary_Directory, private Record_Generator {
+  template<> class Engine<FILES> : public rigging::suite::Fixture, private Temporary_Directory, private Record_Generator {
   public:
     using Subject = ::tunitas::apanolio::storage::engine::Engine<FILES>;
     auto directory_suffix() const -> std::string final;
@@ -26,7 +26,7 @@ namespace tests::unit::engine {
     auto test_get() -> void;
     auto test_set() -> void;
     auto test_reget() -> void;
-    static auto suite() -> cppunit::Test *;
+    static auto suite() -> Suite;
   };
 }
 #endiv
@@ -89,18 +89,17 @@ namespace tests::unit::engine {
   }
 }
 namespace tests::unit::engine {
-  auto Engine<FILES>::suite() -> cppunit::Test * {
-    using namespace ::rigging::suite;
-    Stream series("Engine<FILES>");
-    series << call("constructor", &Engine::test_constructor)
-           << call("nocopy", &Engine::test_nocopy)
-           << call("nomove", &Engine::test_nomove)
-           << call("probe", &Engine::test_probe)
-           << call("get", &Engine::test_get)
-           << call("set", &Engine::test_set)
-           << call("reget", &Engine::test_reget)
-      ;
-    return finalize(series);
+  auto Engine<FILES>::suite() -> Suite {
+    auto series = Stream{"Engine<FILES>"sv};
+    series << add("constructor", &Engine::test_constructor)
+           << add("nocopy", &Engine::test_nocopy)
+           << add("nomove", &Engine::test_nomove)
+           << add("probe", &Engine::test_probe)
+           << add("get", &Engine::test_get)
+           << add("set", &Engine::test_set)
+           << add("reget", &Engine::test_reget)
+           << END;
+    return settle(series);
   }
 }
 #endiv

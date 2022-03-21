@@ -10,8 +10,7 @@ namespace tests::unit::resting::file { class File; }
 #import std.size_t
 #import std.string
 #import tunitas.apanolio.resting.File
-class tests::unit::resting::file::File : public cppunit::test::Fixture {
-public:
+struct tests::unit::resting::file::File : public rigging::suite::Fixture {
   auto setUp() -> void;
   auto tearDown() -> void;
 
@@ -26,7 +25,7 @@ public:
   auto test_finalize_keep() -> void;
   auto test_finalize_kill() -> void;
 
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 public:
   static auto generate() -> std::string;
 };
@@ -34,19 +33,14 @@ public:
 #divert <cpp>
 #import tunitas.apanolio.resting.File
 
-#import unit.rigging.lhs
-using unit::rigging::lhs;
-#import unit.rigging.clear
-using unit::rigging::clear;
-
 #import sys.posix.getenv
 auto tests::unit::resting::file::File::setUp() -> void {
   auto got = sys::posix::getenv("TMPDIR");
-  lhs(temporary_storage_directory) = ok(got) ? value(got): std::string("/tmp");
+  temporary_storage_directory = ok(got) ? value(got): std::string("/tmp");
 }
 
 auto tests::unit::resting::file::File::tearDown() -> void {
-  lhs(temporary_storage_directory) = clear;
+  temporary_storage_directory.clear();
 }
 
 auto tests::unit::resting::file::File::test_constructor() -> void {
@@ -58,7 +52,7 @@ auto tests::unit::resting::file::File::test_destructor() -> void {
   {
     tunitas::apanolio::resting::File f(temporary_storage_directory);
     f.finalize(KEEP);
-    // FIXME ... this is going to leave crap in /tmp
+    // FIXME ... this is going to leave crap, uh, we mean "files" in /tmp
     CPPUNIT_ASSERT(true);
   } {
     tunitas::apanolio::resting::File f(temporary_storage_directory);
@@ -85,7 +79,7 @@ auto tests::unit::resting::file::File::test_write() -> void {
       auto &s = f.write(bulk.data(), bulk.size());
       CPPUNIT_ASSERT(s.good());
     }
-    // FIXME ... this is going to leave crap in /tmp
+    // FIXME ... this is going to leave <bleep/> in /tmp
   } {
     tunitas::apanolio::resting::File f(temporary_storage_directory);
     for (int i(0), e(REPETITION_LIMIT); e != i; ++i) {
@@ -108,15 +102,14 @@ auto tests::unit::resting::file::File::test_finalize_kill() -> void {
   CPPUNIT_ASSERT(true);
 }
 
-auto tests::unit::resting::file::File::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("file");
-  series << call("constructor", &File::test_constructor)
-         << call("destructor", &File::test_destructor)
-         << call("write", &File::test_write)
-         << call("keep", &File::test_finalize_keep)
-         << call("kill", &File::test_finalize_kill)
-    ;
-  return finalize(series);
+auto tests::unit::resting::file::File::suite() -> Suite {
+  auto series = Stream{"file"sv};
+  series << add("constructor", &File::test_constructor)
+         << add("destructor", &File::test_destructor)
+         << add("write", &File::test_write)
+         << add("keep", &File::test_finalize_keep)
+         << add("kill", &File::test_finalize_kill)
+         << END;
+  return settle(series);
 }
 #endiv

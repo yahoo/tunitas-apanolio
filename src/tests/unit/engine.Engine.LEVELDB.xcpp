@@ -13,7 +13,7 @@ namespace tests::unit::engine { template<> class Engine<LEVELDB>; }
 #import tunitas.apanolio.storage.engine.Engine.LEVELDB
 #import tunitas.apanolio.error.Code
 namespace tests::unit::engine {
-  template<> class Engine<LEVELDB> : public cppunit::test::Fixture, private Temporary_Data_Base, private Record_Generator {
+  template<> class Engine<LEVELDB> : public rigging::suite::Fixture, private Temporary_Data_Base, private Record_Generator {
   public:
     using Error = ::tunitas::apanolio::error::Code;
     using Subject = ::tunitas::apanolio::storage::engine::Engine<LEVELDB>;
@@ -31,7 +31,7 @@ namespace tests::unit::engine {
     auto test_get99() -> void;
     auto test_set() -> void;
     auto test_reget() -> void;
-    static auto suite() -> cppunit::Test *;
+    static auto suite() -> Suite;
   protected:
   };
 }
@@ -125,20 +125,19 @@ namespace tests::unit::engine {
   }
 }
 namespace tests::unit::engine {
-  auto Engine<LEVELDB>::suite() -> cppunit::Test * {
-    using namespace ::rigging::suite;
-    Stream series("Engine<LEVELDB>");
-    series << call("constructor", &Engine::test_constructor)
-           << call("nocopy", &Engine::test_nocopy)
-           << call("nomove", &Engine::test_nomove)
-           << call("probe", &Engine::test_probe)
-           << call("get0", &Engine::test_get0)
-           << call("get1", &Engine::test_get1)
-           << call("get99", &Engine::test_get99)
-           << call("set", &Engine::test_set)
-           << call("reget", &Engine::test_reget)
-      ;
-    return finalize(series);
+  auto Engine<LEVELDB>::suite() -> Suite {
+    auto series = Stream{"Engine<LEVELDB>"sv};
+    series << add("constructor", &Engine::test_constructor)
+           << add("nocopy", &Engine::test_nocopy)
+           << add("nomove", &Engine::test_nomove)
+           << add("probe", &Engine::test_probe)
+           << add("get0", &Engine::test_get0)
+           << add("get1", &Engine::test_get1)
+           << add("get99", &Engine::test_get99)
+           << add("set", &Engine::test_set)
+           << add("reget", &Engine::test_reget)
+           << END;
+    return settle(series);
   }
 }
 #endiv

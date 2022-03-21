@@ -35,9 +35,8 @@ protected:
 #endiv
 #divert <ipp>
 template<typename SUBJECT> tests::unit::resting::file::Guard<SUBJECT>::Guard(subject_type const &arg_subject)
-  : subject(arg_subject) {
-  ;
-}
+  : subject(arg_subject)
+{ }
 
 // specialization occurs on the destructor to affect the function
 #entail tests.unit.resting.file.Guard.int

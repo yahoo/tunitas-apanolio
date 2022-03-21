@@ -12,7 +12,7 @@ namespace tests::unit::engine { template<> class Engine<MEMORY>; }
 #import tunitas.apanolio.storage.engine.Engine.MEMORY
 #import tunitas.apanolio.error.Code
 namespace tests::unit::engine {
-  template<> class Engine<MEMORY> : public cppunit::test::Fixture, private Record_Generator {
+  template<> class Engine<MEMORY> : public rigging::suite::Fixture, private Record_Generator {
   public:
     using Subject = ::tunitas::apanolio::storage::engine::Engine<MEMORY>;
     auto test_constructor() -> void;
@@ -23,7 +23,7 @@ namespace tests::unit::engine {
     auto test_get2() -> void;
     auto test_set() -> void;
     auto test_reget() -> void;
-    static auto suite() -> cppunit::Test *;
+    static auto suite() -> Suite;
   protected:
     inline static auto const NOT_FOUND = ::tunitas::apanolio::error::Code::NOT_FOUND;
   };
@@ -96,19 +96,18 @@ namespace tests::unit::engine {
   }
 }
 namespace tests::unit::engine {
-  auto Engine<MEMORY>::suite() -> cppunit::Test * {
-    using namespace ::rigging::suite;
-    Stream series("Engine<MEMORY>");
-    series << call("constructor", &Engine::test_constructor)
-           << call("nocopy", &Engine::test_nocopy)
-           << call("nomove", &Engine::test_nomove)
-           << call("probe", &Engine::test_probe)
-           << call("get1", &Engine::test_get1)
-           << call("get2", &Engine::test_get2)
-           << call("set", &Engine::test_set)
-           << call("reget", &Engine::test_reget)
-      ;
-    return finalize(series);
+  auto Engine<MEMORY>::suite() -> Suite {
+    auto series = Stream{"Engine<MEMORY>"sv};
+    series << add("constructor", &Engine::test_constructor)
+           << add("nocopy", &Engine::test_nocopy)
+           << add("nomove", &Engine::test_nomove)
+           << add("probe", &Engine::test_probe)
+           << add("get1", &Engine::test_get1)
+           << add("get2", &Engine::test_get2)
+           << add("set", &Engine::test_set)
+           << add("reget", &Engine::test_reget)
+           << END;
+    return settle(series);
   }
 }
 #endiv

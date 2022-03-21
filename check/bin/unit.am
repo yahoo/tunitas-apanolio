@@ -1,0 +1,30 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc. 2022
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#
+check_bin_unit = check/bin/unit$(error REMOVE)
+check_bin_unit_CPPFLAGS = $(CHECK_CPPFLAGS_SET)
+check_bin_unit_CXXFLAGS = $(CHECK_CXXFLAGS_SET)
+check_bin_unit_LDFLAGS = $(CHECK_LDFLAGS_SET)
+check_bin_unit_LDADD = \
+  lib/libtunitas-apanolio.la \
+  lib/libmod_apanolio.la \
+  -lsys++-slurp \
+  -lrigging++-httpd \
+  -lrigging++ \
+  $(end)
+check_bin_unit_SOURCES = $(tests_unit_SUBSOURCES)
+include src/tests/unit/Makefrag.am
+$(check_bin_unit_SOURCES) : disco_objdir=check/obj
+$(check_bin_unit_SOURCES) : scold_objdir=$(disco_objdir)
+$(check_bin_unit_SOURCES) : check/obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
+	$(TF_V_DONE) test -e $@
+$(tf_check_mkdir)/unit.mk: $(check_bin_unit_SOURCES)
+$(tf_check_mkdir)/unit.mk:
+	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
+	$(TF_V_DONE) test -e $@
+include $(tf_check_mkdir)/unit.mk
+clean-local:: ; rm -f $(tf_check_mkdir)/unit.mk

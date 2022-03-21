@@ -8,13 +8,12 @@ namespace tests::unit::resting::file { class Move; }
 #endiv
 #divert <hpp>
 #import std.string
-class tests::unit::resting::file::Move : public cppunit::test::Fixture {
-public:
+struct tests::unit::resting::file::Move : public rigging::suite::Fixture {
   auto test_constructor() -> void;
   auto test_operator_call() -> void;
   auto test_accessors() -> void;
 
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 protected:
   auto generate_file() -> std::string;
   auto generate_filename() -> std::string;
@@ -75,13 +74,12 @@ auto tests::unit::resting::file::Move::test_accessors() -> void {
   CPPUNIT_ASSERT_EQUAL(b, move.target());
 }
 
-auto tests::unit::resting::file::Move::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("Move");
-  series << call("constructor", &Move::test_constructor)
-         << call("operator()", &Move::test_operator_call)
-         << call("accessors", &Move::test_accessors)
-    ;
-  return finalize(series);
+auto tests::unit::resting::file::Move::suite() -> Suite {
+  auto series = Stream{"Move"sv};
+  series << add("constructor", &Move::test_constructor)
+         << add("operator()", &Move::test_operator_call)
+         << add("accessors", &Move::test_accessors)
+         << END;
+  return settle(series);
 }
 #endiv

@@ -103,12 +103,12 @@ namespace mod::apanolio::method {
   }
 }
 #import apache.httpd.io.keywords
-#import autotools.autoconf.Config.mod.apanolio.CONFIG
+#import autotools.autoconf.Config.tunitas.apanolio.CONFIG
 auto mod::apanolio::method::Emplacer::banner_failure(c::const_stringz method, std::string const &reason) -> void {
   using namespace io::keywords;
   ap_set_content_type(this->req, "text/html"); // [[FIXTHIS]] as ap::set_content_type(...)
   rs << html << br
-     << head << autotools::autoconf::Config<CONFIG>::package_name() << _head << br
+     << head << autotools::autoconf::Config<tunitas::apanolio::CONFIG>::package_name() << _head << br
      << body << p << "the POST fails"
     // with no reason stated
      << _p << _body

@@ -4,105 +4,82 @@
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #
-check_bin_unit = check/bin/unit
-check_bin_unit_LDADD = \
-  $(lib_libmod_apanolio_la) \
-  -lsys++-slurp \
-  -lrigging++-httpd \
-  -lrigging++ \
+tests_unit_SUBSOURCES = \
+  check/obj/src/tests/unit/namespace.cpp \
+  check/obj/src/tests/unit/main.cpp \
+  check/obj/src/tests/unit/apanolio.Fixture.cpp \
+  check/obj/src/tests/unit/concurrent.Fixture.cpp \
+  check/obj/src/tests/unit/compiler.Fixture.cpp \
+  check/obj/src/tests/unit/compiler.Fixture.Recompiler.cpp \
+  check/obj/src/tests/unit/compiler.Fixture.Relog.cpp \
+  check/obj/src/tests/unit/engine.Fixture.cpp \
+  check/obj/src/tests/unit/engine.Record_Generator.cpp \
+  check/obj/src/tests/unit/engine.Temporary_Data_Base.cpp \
+  check/obj/src/tests/unit/engine.Temporary_Directory.cpp \
+  check/obj/src/tests/unit/engine.Engine.declaration.cpp \
+  check/obj/src/tests/unit/engine.Engine.NONE.cpp \
+  check/obj/src/tests/unit/engine.Engine.MEMORY.cpp \
+  check/obj/src/tests/unit/engine.Engine.FILES.cpp \
+  check/obj/src/tests/unit/engine.Engine.LEVELDB.cpp \
+  check/obj/src/tests/unit/engine.Engine.SQLITE.cpp \
+  check/obj/src/tests/unit/engine.Engine.MYSQL.cpp \
+  check/obj/src/tests/unit/engine.Engine.PGSQL.cpp \
+  check/obj/src/tests/unit/engine.Engine.FABRIC.cpp \
+  check/obj/src/tests/unit/engine.Engine.RAMCLOUD.cpp \
+  check/obj/src/tests/unit/engine.Engine.SCARPET.cpp \
+  check/obj/src/tests/unit/engine.Engine.cpp \
+  check/obj/src/tests/unit/error.Fixture.cpp \
+  check/obj/src/tests/unit/error.Category.cpp \
+  check/obj/src/tests/unit/exception.Fixture.cpp \
+  check/obj/src/tests/unit/exception.Fixture.Maker.declaration.cpp \
+  check/obj/src/tests/unit/exception.Fixture.Maker.template.cpp \
+  check/obj/src/tests/unit/exception.Fixture.Maker.Null.cpp \
+  check/obj/src/tests/unit/exception.Fixture.Maker.Storage.cpp \
+  check/obj/src/tests/unit/exception.Fixture.Maker.System.cpp \
+  check/obj/src/tests/unit/exception.Fixture.Maker.cpp \
+  check/obj/src/tests/unit/generate_some_content.cpp \
+  check/obj/src/tests/unit/resource.Fixture.cpp \
+  check/obj/src/tests/unit/resource.Identifier.cpp \
+  check/obj/src/tests/unit/resource.Record.cpp \
+  check/obj/src/tests/unit/resting.Fixture.cpp \
+  check/obj/src/tests/unit/resting.constants.cpp \
+  check/obj/src/tests/unit/resting.buffer.Fixture.cpp \
+  check/obj/src/tests/unit/resting.buffer.Buffer.cpp \
+  check/obj/src/tests/unit/resting.buffer.Gulp.cpp \
+  check/obj/src/tests/unit/resting.file.Fixture.cpp \
+  check/obj/src/tests/unit/resting.file.File.cpp \
+  check/obj/src/tests/unit/resting.file.Finalizer.cpp \
+  check/obj/src/tests/unit/resting.file.generate.descriptors.cpp \
+  check/obj/src/tests/unit/resting.file.generate.filenames.cpp \
+  check/obj/src/tests/unit/resting.file.generate.cpp \
+  check/obj/src/tests/unit/resting.file.Guard.int.cpp \
+  check/obj/src/tests/unit/resting.file.Guard.string.cpp \
+  check/obj/src/tests/unit/resting.file.Guard.cpp \
+  check/obj/src/tests/unit/resting.file.Gulp.cpp \
+  check/obj/src/tests/unit/resting.file.Move.cpp \
+  check/obj/src/tests/unit/resting.file.open.cpp \
+  check/obj/src/tests/unit/resting.file.Pair.cpp \
+  check/obj/src/tests/unit/resting.file.Unlinker.cpp \
+  check/obj/src/tests/unit/resting.stream.Fixture.cpp \
+  check/obj/src/tests/unit/resting.stream.Iterator.cpp \
+  check/obj/src/tests/unit/resting.stream.Stream.cpp \
+  check/obj/src/tests/unit/resting.Validate.cpp \
+  check/obj/src/tests/unit/schema.Fixture.cpp \
+  check/obj/src/tests/unit/schema.v0.Fixture.cpp \
+  check/obj/src/tests/unit/schema.v0.Compiler.cpp \
+  check/obj/src/tests/unit/schema.v1.Fixture.cpp \
+  check/obj/src/tests/unit/schema.v1.Compiler.cpp \
+  check/obj/src/tests/unit/schema.v2.Fixture.cpp \
+  check/obj/src/tests/unit/schema.v2.Compiler.cpp \
+  check/obj/src/tests/unit/storage.Fixture.cpp \
+  check/obj/src/tests/unit/temporary.Prototype.cpp \
+  check/obj/src/tests/unit/temporary.Directory.declaration.cpp \
+  check/obj/src/tests/unit/temporary.Directory.FILES.cpp \
+  check/obj/src/tests/unit/temporary.Directory.LEVELDB.cpp \
+  check/obj/src/tests/unit/temporary.Directory.SQLITE.cpp \
+  check/obj/src/tests/unit/temporary.Directory.cpp \
+  check/obj/src/tests/unit/uri.Fixture.cpp \
+  check/obj/src/tests/unit/uri.Parser.cpp \
+  check/obj/src/tests/unit/want.Fixture.cpp \
+  check/obj/src/tests/unit/want.rigging.exception.Fixture.cpp \
   $(end)
-$(check_bin_unit_OBJECTS): AM_CPPFLAGS+=$(AND_CHECK_CPPFLAGS_SET)
-$(check_bin_unit_OBJECTS): AM_CXXFLAGS+=$(AND_CHECK_CXXFLAGS_SET) -Wno-deprecated-declarations
-# reminder: autotools does not put $(AM_LDFLAGS) into check_bin_unit_LDFLAGS, like it does with CPPFLAGS and CXXFLAGS
-check_bin_unit_LDFLAGS = $(CHECK_LDFLAGS_SET)
-check_bin_unit_MODULES = $(call TF_SOURCEStoMODULES, $(check_bin_unit_SOURCES))
-check_bin_unit_SOURCES = \
-  obj/src/tests/unit/namespace.cpp \
-  obj/src/tests/unit/main.cpp \
-  obj/src/tests/unit/apanolio.Fixture.cpp \
-  obj/src/tests/unit/concurrent.Fixture.cpp \
-  obj/src/tests/unit/compiler.Fixture.cpp \
-  obj/src/tests/unit/compiler.Fixture.Recompiler.cpp \
-  obj/src/tests/unit/compiler.Fixture.Relog.cpp \
-  obj/src/tests/unit/engine.Fixture.cpp \
-  obj/src/tests/unit/engine.Record_Generator.cpp \
-  obj/src/tests/unit/engine.Temporary_Data_Base.cpp \
-  obj/src/tests/unit/engine.Temporary_Directory.cpp \
-  obj/src/tests/unit/engine.Engine.declaration.cpp \
-  obj/src/tests/unit/engine.Engine.NONE.cpp \
-  obj/src/tests/unit/engine.Engine.MEMORY.cpp \
-  obj/src/tests/unit/engine.Engine.FILES.cpp \
-  obj/src/tests/unit/engine.Engine.LEVELDB.cpp \
-  obj/src/tests/unit/engine.Engine.SQLITE.cpp \
-  obj/src/tests/unit/engine.Engine.MYSQL.cpp \
-  obj/src/tests/unit/engine.Engine.PGSQL.cpp \
-  obj/src/tests/unit/engine.Engine.FABRIC.cpp \
-  obj/src/tests/unit/engine.Engine.RAMCLOUD.cpp \
-  obj/src/tests/unit/engine.Engine.SCARPET.cpp \
-  obj/src/tests/unit/engine.Engine.cpp \
-  obj/src/tests/unit/error.Fixture.cpp \
-  obj/src/tests/unit/error.Category.cpp \
-  obj/src/tests/unit/exception.Fixture.cpp \
-  obj/src/tests/unit/exception.Fixture.Maker.declaration.cpp \
-  obj/src/tests/unit/exception.Fixture.Maker.template.cpp \
-  obj/src/tests/unit/exception.Fixture.Maker.Null.cpp \
-  obj/src/tests/unit/exception.Fixture.Maker.Storage.cpp \
-  obj/src/tests/unit/exception.Fixture.Maker.System.cpp \
-  obj/src/tests/unit/exception.Fixture.Maker.cpp \
-  obj/src/tests/unit/generate_some_content.cpp \
-  obj/src/tests/unit/resource.Fixture.cpp \
-  obj/src/tests/unit/resource.Identifier.cpp \
-  obj/src/tests/unit/resource.Record.cpp \
-  obj/src/tests/unit/resting.Fixture.cpp \
-  obj/src/tests/unit/resting.constants.cpp \
-  obj/src/tests/unit/resting.buffer.Fixture.cpp \
-  obj/src/tests/unit/resting.buffer.Buffer.cpp \
-  obj/src/tests/unit/resting.buffer.Gulp.cpp \
-  obj/src/tests/unit/resting.file.Fixture.cpp \
-  obj/src/tests/unit/resting.file.File.cpp \
-  obj/src/tests/unit/resting.file.Finalizer.cpp \
-  obj/src/tests/unit/resting.file.generate.descriptors.cpp \
-  obj/src/tests/unit/resting.file.generate.filenames.cpp \
-  obj/src/tests/unit/resting.file.generate.cpp \
-  obj/src/tests/unit/resting.file.Guard.int.cpp \
-  obj/src/tests/unit/resting.file.Guard.string.cpp \
-  obj/src/tests/unit/resting.file.Guard.cpp \
-  obj/src/tests/unit/resting.file.Gulp.cpp \
-  obj/src/tests/unit/resting.file.Move.cpp \
-  obj/src/tests/unit/resting.file.open.cpp \
-  obj/src/tests/unit/resting.file.Pair.cpp \
-  obj/src/tests/unit/resting.file.Unlinker.cpp \
-  obj/src/tests/unit/resting.stream.Fixture.cpp \
-  obj/src/tests/unit/resting.stream.Iterator.cpp \
-  obj/src/tests/unit/resting.stream.Stream.cpp \
-  obj/src/tests/unit/resting.Validate.cpp \
-  obj/src/tests/unit/schema.Fixture.cpp \
-  obj/src/tests/unit/schema.v0.Fixture.cpp \
-  obj/src/tests/unit/schema.v0.Compiler.cpp \
-  obj/src/tests/unit/schema.v1.Fixture.cpp \
-  obj/src/tests/unit/schema.v1.Compiler.cpp \
-  obj/src/tests/unit/schema.v2.Fixture.cpp \
-  obj/src/tests/unit/schema.v2.Compiler.cpp \
-  obj/src/tests/unit/storage.Fixture.cpp \
-  obj/src/tests/unit/temporary.Prototype.cpp \
-  obj/src/tests/unit/temporary.Directory.declaration.cpp \
-  obj/src/tests/unit/temporary.Directory.FILES.cpp \
-  obj/src/tests/unit/temporary.Directory.LEVELDB.cpp \
-  obj/src/tests/unit/temporary.Directory.SQLITE.cpp \
-  obj/src/tests/unit/temporary.Directory.cpp \
-  obj/src/tests/unit/uri.Fixture.cpp \
-  obj/src/tests/unit/uri.Parser.cpp \
-  obj/src/tests/unit/want.Fixture.cpp \
-  obj/src/tests/unit/want.rigging.exception.Fixture.cpp \
-  $(end)
-#
-$(scold_cxxdir)/tests/unit/dependencies.mk: $(check_bin_unit_SOURCES)
-$(check_bin_unit_SOURCES) : obj/src/%.cpp : src/%.xcpp
-	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
-	$(TF_V_DONE) test -e $@
-$(scold_cxxdir)/tests/unit/dependencies.mk:
-	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
-	$(TF_V_DONE) test -e $@
-include $(scold_cxxdir)/tests/unit/dependencies.mk
-clean-local::
-	rm -f $(scold_cxxdir)/tests/unit/dependencies.mk

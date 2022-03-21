@@ -7,10 +7,9 @@
 namespace tests::unit::engine { class Fixture; }
 #endiv
 #divert <hpp>
-class tests::unit::engine::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::engine::Fixture : public rigging::suite::Fixture {
   auto test_something() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -19,12 +18,11 @@ auto tests::unit::engine::Fixture::test_something() -> void {
 }
 #import tunitas.apanolio.storage.Engine
 #import tests.unit.engine.Engine
-auto tests::unit::engine::Fixture::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("engine");
+auto tests::unit::engine::Fixture::suite() -> Suite {
+  auto series = Stream{"engine"sv};
   namespace testing = tests::unit::engine;
   namespace subject = ::tunitas::apanolio::storage::engine;
-  series << call("something", &Fixture::test_something)
+  series << add("something", &Fixture::test_something)
          << add<testing::Engine<subject::NONE>>()
          << add<testing::Engine<subject::MEMORY>>()
          << add<testing::Engine<subject::FILES>>()
@@ -35,7 +33,7 @@ auto tests::unit::engine::Fixture::suite() -> cppunit::Test * {
          << add<testing::Engine<subject::RAMCLOUD>>()
          << add<testing::Engine<subject::FABRIC>>()
          << add<testing::Engine<subject::SCARPET>>()
-    ;
-  return finalize(series);
+         << END;
+  return settle(series);
 }
 #endiv

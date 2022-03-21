@@ -8,8 +8,7 @@ namespace tests::unit::uri { class Parser; }
 #endiv
 #divert <hpp>
 #import tunitas.apanolio.uri.Parser
-class tests::unit::uri::Parser : public cppunit::test::Fixture {
-public:
+struct tests::unit::uri::Parser : public rigging::suite::Fixture {
   using Subject = ::tunitas::apanolio::uri::Parser;
   auto test_empty() -> void;
   auto test_slash() -> void;
@@ -28,7 +27,7 @@ public:
   auto test_bad_identifier_1_with_slash() -> void;
   auto test_bad_identifier_2_with_slash() -> void;
   auto test_bad_identifier_3_not_isidentifier() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -133,27 +132,26 @@ auto tests::unit::uri::Parser::test_bad_identifier_3_not_isidentifier() -> void 
   { auto u = parser("/prefix/|/home/you"); // <--- malformed identifier (with slash)
     CPPUNIT_ASSERT(!ok(u)); }
 }
-auto tests::unit::uri::Parser::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("Parser");
-  series << call("empty", &Parser::test_empty)
-         << call("slash", &Parser::test_slash)
-         << call("more", &Parser::test_more)
-         << call("slash2", &Parser::test_slash2)
-         << call("slash2_prefix", &Parser::test_slash2_prefix)
-         << call("slash2_identifier", &Parser::test_slash2_identifier)
-         << call("slashprefix_empty", &Parser::test_slashprefix_empty)
-         << call("slashprefix_slash", &Parser::test_slashprefix_slash)
-         << call("slashprefix_perfidy", &Parser::test_slashprefix_perfidy)
-         << call("slashprefix_same", &Parser::test_slashprefix_same)
-         << call("slashprefix_trailing_slash", &Parser::test_slashprefix_trailing_slash)
-         << call("slashprefix_two_ok", &Parser::test_slashprefix_two_ok)
-         << call("slashprefix_two_prefix", &Parser::test_slashprefix_two_prefix)
-         << call("slashprefix_two_identifier", &Parser::test_slashprefix_two_identifier)
-         << call("bad_identifier_1_with_slash", &Parser::test_bad_identifier_1_with_slash)
-         << call("bad_identifier_2_with_slash", &Parser::test_bad_identifier_2_with_slash)
-         << call("bad_identifier_3_not_identifier", &Parser::test_bad_identifier_3_not_isidentifier)
-    ;
-  return finalize(series);
+auto tests::unit::uri::Parser::suite() -> Suite {
+  auto series = Stream{"Parser"sv};
+  series << add("empty", &Parser::test_empty)
+         << add("slash", &Parser::test_slash)
+         << add("more", &Parser::test_more)
+         << add("slash2", &Parser::test_slash2)
+         << add("slash2_prefix", &Parser::test_slash2_prefix)
+         << add("slash2_identifier", &Parser::test_slash2_identifier)
+         << add("slashprefix_empty", &Parser::test_slashprefix_empty)
+         << add("slashprefix_slash", &Parser::test_slashprefix_slash)
+         << add("slashprefix_perfidy", &Parser::test_slashprefix_perfidy)
+         << add("slashprefix_same", &Parser::test_slashprefix_same)
+         << add("slashprefix_trailing_slash", &Parser::test_slashprefix_trailing_slash)
+         << add("slashprefix_two_ok", &Parser::test_slashprefix_two_ok)
+         << add("slashprefix_two_prefix", &Parser::test_slashprefix_two_prefix)
+         << add("slashprefix_two_identifier", &Parser::test_slashprefix_two_identifier)
+         << add("bad_identifier_1_with_slash", &Parser::test_bad_identifier_1_with_slash)
+         << add("bad_identifier_2_with_slash", &Parser::test_bad_identifier_2_with_slash)
+         << add("bad_identifier_3_not_identifier", &Parser::test_bad_identifier_3_not_isidentifier)
+         << END;
+  return settle(series);
 }
 #endiv

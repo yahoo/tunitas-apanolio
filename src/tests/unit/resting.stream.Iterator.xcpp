@@ -7,8 +7,7 @@
 namespace tests::unit::resting::stream { class Iterator; }
 #endiv
 #divert <hpp>
-class tests::unit::resting::stream::Iterator : public cppunit::test::Fixture {
-public:
+struct tests::unit::resting::stream::Iterator : public rigging::suite::Fixture {
   auto test_constructor_default() -> void;
   auto test_constructor_begin() -> void;
   auto test_constructor_end() -> void;
@@ -18,7 +17,7 @@ public:
   auto test_operator_inc() -> void;
   auto test_capacity() -> void;
   auto test_reserve() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 protected:
   static constexpr auto ITERATION_LIMIT = 99;
 };
@@ -32,7 +31,7 @@ auto tests::unit::resting::stream::Iterator::test_constructor_default() -> void 
   CPPUNIT_ASSERT( !(i != j) );
 }
 auto tests::unit::resting::stream::Iterator::test_constructor_begin() -> void {
-  ::tunitas::apanolio::resting::stream::Stream nuul("/dev/null");
+  ::tunitas::apanolio::resting::stream::Stream nuul{"/dev/null"};
   auto opened = nuul.open();
   CPPUNIT_ASSERT(ok(opened));
   ::tunitas::apanolio::resting::stream::Iterator b = nuul.begin();
@@ -46,7 +45,7 @@ auto tests::unit::resting::stream::Iterator::test_constructor_begin() -> void {
 #import tests.unit.resting.constants
 auto tests::unit::resting::stream::Iterator::test_constructor_end() -> void {
   // Any stream at all so long as it is not zero length
-  ::tunitas::apanolio::resting::stream::Stream rel(SPECIMEN_LONG_FILE);
+  ::tunitas::apanolio::resting::stream::Stream rel{SPECIMEN_LONG_FILE};
   auto opened = rel.open();
   CPPUNIT_ASSERT(ok(opened));
   ::tunitas::apanolio::resting::stream::Iterator b1 = rel.begin();
@@ -61,7 +60,7 @@ auto tests::unit::resting::stream::Iterator::test_constructor_end() -> void {
 }
 auto tests::unit::resting::stream::Iterator::test_operator_eq() -> void {
   // Any stream at all so long as it is not zero length
-  ::tunitas::apanolio::resting::stream::Stream rel(SPECIMEN_LONG_FILE);
+  ::tunitas::apanolio::resting::stream::Stream rel{SPECIMEN_LONG_FILE};
   auto opened = rel.open();
   CPPUNIT_ASSERT(ok(opened));
   ::tunitas::apanolio::resting::stream::Iterator b = rel.begin();
@@ -72,7 +71,7 @@ auto tests::unit::resting::stream::Iterator::test_operator_eq() -> void {
 }
 auto tests::unit::resting::stream::Iterator::test_read() -> void {
   // Any stream at all so long as it is not zero length
-  ::tunitas::apanolio::resting::stream::Stream rel(SPECIMEN_LONG_FILE);
+  ::tunitas::apanolio::resting::stream::Stream rel{SPECIMEN_LONG_FILE};
   auto opened = rel.open();
   CPPUNIT_ASSERT(ok(opened));
   ::tunitas::apanolio::resting::stream::Iterator b = rel.begin();
@@ -90,7 +89,7 @@ auto tests::unit::resting::stream::Iterator::test_read() -> void {
 }
 auto tests::unit::resting::stream::Iterator::test_operator_indirect() -> void {
   // Any stream at all so long as it is not zero length
-  ::tunitas::apanolio::resting::stream::Stream rel(SPECIMEN_LONG_FILE);
+  ::tunitas::apanolio::resting::stream::Stream rel{SPECIMEN_LONG_FILE};
   auto opened = rel.open();
   CPPUNIT_ASSERT(ok(opened));
   ::tunitas::apanolio::resting::stream::Iterator b = rel.begin();
@@ -115,7 +114,7 @@ auto tests::unit::resting::stream::Iterator::test_operator_inc() -> void {
 }
 auto tests::unit::resting::stream::Iterator::test_capacity() -> void {
   // Any stream at all so long as it is not zero length
-  ::tunitas::apanolio::resting::stream::Stream rel(SPECIMEN_LONG_FILE);
+  ::tunitas::apanolio::resting::stream::Stream rel{SPECIMEN_LONG_FILE};
   auto opened = rel.open();
   CPPUNIT_ASSERT(ok(opened));
   ::tunitas::apanolio::resting::stream::Iterator b = rel.begin();
@@ -123,27 +122,26 @@ auto tests::unit::resting::stream::Iterator::test_capacity() -> void {
 }
 auto tests::unit::resting::stream::Iterator::test_reserve() -> void {
   // Any stream at all so long as it is not zero length
-  ::tunitas::apanolio::resting::stream::Stream rel(SPECIMEN_LONG_FILE);
+  ::tunitas::apanolio::resting::stream::Stream rel{SPECIMEN_LONG_FILE};
   auto opened = rel.open();
   CPPUNIT_ASSERT(ok(opened));
   ::tunitas::apanolio::resting::stream::Iterator b = rel.begin();
   b.reserve(2000); // anything bigger than 512, the default size
   CPPUNIT_ASSERT(2000 == b.capacity());
 }
-auto tests::unit::resting::stream::Iterator::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
+auto tests::unit::resting::stream::Iterator::suite() -> Suite {
   namespace suite = ::rigging::suite;
-  suite::Stream series("Iterator");
-  series << call("constructor-read", &Iterator::test_constructor_default)
-    << call("constructor-begin", &Iterator::test_constructor_begin)
-    << call("constructor-end", &Iterator::test_constructor_end)
-    << call("operator_eq", &Iterator::test_operator_eq)
-    << call("read", &Iterator::test_read)
-    << call("operator*", &Iterator::test_operator_indirect)
-    << call("operator++", &Iterator::test_operator_inc)
-    << call("capacity", &Iterator::test_capacity)
-    << call("reserve", &Iterator::test_reserve)
-    ;
-  return finalize(series);
+  auto series = Stream{"Iterator"sv};
+  series << add("constructor-read", &Iterator::test_constructor_default)
+    << add("constructor-begin", &Iterator::test_constructor_begin)
+    << add("constructor-end", &Iterator::test_constructor_end)
+    << add("operator_eq", &Iterator::test_operator_eq)
+    << add("read", &Iterator::test_read)
+    << add("operator*", &Iterator::test_operator_indirect)
+    << add("operator++", &Iterator::test_operator_inc)
+    << add("capacity", &Iterator::test_capacity)
+    << add("reserve", &Iterator::test_reserve)
+         << END;
+  return settle(series);
 }
 #endiv

@@ -54,10 +54,10 @@ tunitas::apanolio::exception::Version::Version(std::string const &NAME)
 #endiv
 #divert <cpp>
 #import std.ostringstream
-#include "config.h"  // [[FIXTHIS]] #import autotools.autoconfig.Config.tunitas.apanolio.CONFIG
+#import autotools.autoconf.Config.tunitas.apanolio.CONFIG
 auto tunitas::apanolio::exception::Version::format(std::string const &NAME) -> std::string {
   std::ostringstream buf;
-  auto const vstring = PACKAGE_VERSION; // [[FIXTHIS]] to acquire the version from configure.ac; a.k.a. config.h, autotools::autoconf::Config<CONFIG>::version_string()
+  auto const vstring = autotools::autoconf::Config<CONFIG>::package_version_string();
   buf << "version: " << NAME << " " << vstring;
   return buf.str();
 }

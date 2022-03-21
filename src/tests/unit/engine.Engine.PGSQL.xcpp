@@ -11,7 +11,7 @@ namespace tests::unit::engine { template<> class Engine<PGSQL>; }
 #import tunitas.apanolio.storage.engine.configuration.Configuration.PGSQL
 #import tunitas.apanolio.storage.engine.Engine.PGSQL
 namespace tests::unit::engine {
-  template<> class Engine<PGSQL> : public cppunit::test::Fixture {
+  template<> class Engine<PGSQL> : public rigging::suite::Fixture {
   public:
     using Configuration = ::tunitas::apanolio::storage::engine::configuration::Configuration<PGSQL>;
     using Subject = ::tunitas::apanolio::storage::engine::Engine<PGSQL>;
@@ -21,7 +21,7 @@ namespace tests::unit::engine {
     auto test_probe() -> void;
     auto test_get() -> void;
     auto test_set() -> void;
-    static auto suite() -> cppunit::Test *;
+    static auto suite() -> Suite;
   };
 }
 #endiv
@@ -88,17 +88,16 @@ namespace tests::unit::engine {
   }
 }
 namespace tests::unit::engine {
-  auto Engine<PGSQL>::suite() -> cppunit::Test * {
-    using namespace ::rigging::suite;
-    Stream series("Engine<PGSQL>");
-    series << call("constructor", &Engine::test_constructor)
-           << call("nocopy", &Engine::test_nocopy)
-           << call("nomove", &Engine::test_nomove)
-           << call("probe", &Engine::test_probe)
-           << call("get", &Engine::test_get)
-           << call("set", &Engine::test_set)
-      ;
-    return finalize(series);
+  auto Engine<PGSQL>::suite() -> Suite {
+    auto series = Stream{"Engine<PGSQL>"sv};
+    series << add("constructor", &Engine::test_constructor)
+           << add("nocopy", &Engine::test_nocopy)
+           << add("nomove", &Engine::test_nomove)
+           << add("probe", &Engine::test_probe)
+           << add("get", &Engine::test_get)
+           << add("set", &Engine::test_set)
+           << END;
+    return settle(series);
   }
 }
 #endiv

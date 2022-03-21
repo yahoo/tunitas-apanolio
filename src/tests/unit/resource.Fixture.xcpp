@@ -7,11 +7,10 @@
 namespace tests::unit::resource { class Fixture; }
 #endiv
 #divert <hpp>
-class tests::unit::resource::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::resource::Fixture : public rigging::suite::Fixture {
   auto test_usage_Identifier() -> void;
   auto test_usage_Record() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -30,19 +29,18 @@ auto tests::unit::resource::Fixture::test_usage_Record() -> void {
 }
 #import tests.unit.resource.Identifier
 #import tests.unit.resource.Record
-auto tests::unit::resource::Fixture::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("resource");
+auto tests::unit::resource::Fixture::suite() -> Suite {
+  auto series = Stream{"resource"sv};
   {
-    Stream use("usage");
-    use << call("Identifier", &Fixture::test_usage_Identifier)
-        << call("Record", &Fixture::test_usage_Record)
-      ;
+    auto use = Stream{"usage"sv};
+    use << add("Identifier", &Fixture::test_usage_Identifier)
+        << add("Record", &Fixture::test_usage_Record)
+        << END;
     series << move(use);
   }
   series << add<Identifier>()
          << add<Record>()
-    ;
-  return finalize(series);
+         << END;
+  return settle(series);
 }
 #endiv

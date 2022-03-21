@@ -7,12 +7,11 @@
 namespace tests::unit::compiler { class Fixture; }
 #endiv
 #divert <hpp>
-class tests::unit::compiler::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::compiler::Fixture : public rigging::suite::Fixture {
   auto test_Interface() -> void;
   auto test_Interface_Guard() -> void;
   auto test_Log() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 protected:
   struct Recompiler;
   struct Relog;
@@ -54,13 +53,12 @@ auto tests::unit::compiler::Fixture::test_Log() -> void {
   Relog relog;
   CPPUNIT_ASSERT(true);
 }
-auto tests::unit::compiler::Fixture::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("compiler");
-  series << call("Interface", &Fixture::test_Interface)
-         << call("Interface::Guard", &Fixture::test_Interface_Guard)
-         << call("Log", &Fixture::test_Log)
-    ;
-  return finalize(series);
+auto tests::unit::compiler::Fixture::suite() -> Suite {
+  auto series = Stream{"compiler"sv};
+  series << add("Interface", &Fixture::test_Interface)
+         << add("Interface::Guard", &Fixture::test_Interface_Guard)
+         << add("Log", &Fixture::test_Log)
+         << END;
+  return settle(series);
 }
 #endiv

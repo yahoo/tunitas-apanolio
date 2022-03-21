@@ -1,0 +1,13 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc. 2022
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#
+# REMEMBER - there is no -version-info C:R:A here because this will become an Apache HTTPd module.
+# As such, it won't have an exceptional soname, but rather has an embedded 'struct :module'
+#
+lib_libmod_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+lib_libmod_apanolio_la_LIBADD = noinst/lib/libmod_apanolio.la
+lib_libmod_apanolio_la_MODULES = $(none)
+lib_libmod_apanolio_la_SOURCES = $(none)

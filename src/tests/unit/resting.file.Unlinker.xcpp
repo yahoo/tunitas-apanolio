@@ -8,8 +8,7 @@ namespace tests::unit::resting::file { class Unlinker; }
 #endiv
 #divert <hpp>
 #import std.string
-class tests::unit::resting::file::Unlinker {
-public:
+struct tests::unit::resting::file::Unlinker {
   inline explicit Unlinker(std::string const &filename);
   inline ~Unlinker();
   Unlinker(Unlinker const &) = delete;
@@ -20,9 +19,8 @@ protected:
 #endiv
 #divert <ipp>
 tests::unit::resting::file::Unlinker::Unlinker(std::string const &arg_filename)
-  : filename(arg_filename) {
-  ;
-}
+  : filename(arg_filename)
+{ }
 
 #import sys.posix.unlink
 tests::unit::resting::file::Unlinker::~Unlinker() {

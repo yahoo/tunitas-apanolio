@@ -1,0 +1,22 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc. 2022
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+#
+noinst_lib_libtunitas_apanolio_schema_la_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
+noinst_lib_libtunitas_apanolio_schema_la_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
+noinst_lib_libtunitas_apanolio_schema_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+noinst_lib_libtunitas_apanolio_schema_la_LIBADD = -ljson++ -lnonstd++
+noinst_lib_libtunitas_apanolio_schema_la_MODULES = $(call TF_SOURCEStoMODULES, $(noinst_lib_libtunitas_apanolio_schema_la_SOURCES))
+noinst_lib_libtunitas_apanolio_schema_la_SOURCES = $(tunitas_apanolio_schema_SUBSOURCES)
+include src/tunitas/apanolio/schema/Makefrag.am
+$(noinst_lib_libtunitas_apanolio_schema_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
+	$(TF_V_DONE) test -e $@
+$(tf_noinst_mkdir)/libtunitas-apanolio-schema.mk: $(noinst_lib_libtunitas_apanolio_schema_la_SOURCES)
+$(tf_noinst_mkdir)/libtunitas-apanolio-schema.mk:
+	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
+	$(TF_V_DONE) test -e $@
+include $(tf_noinst_mkdir)/libtunitas-apanolio-schema.mk
+clean-dependencies:: ; rm -f $(tf_noinst_mkdir)/libtunitas-apanolio-schema.mk

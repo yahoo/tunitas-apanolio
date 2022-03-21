@@ -7,14 +7,13 @@
 namespace tests::unit::concurrent { class Fixture; }
 #endiv
 #divert <hpp>
-class tests::unit::concurrent::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::concurrent::Fixture : public rigging::suite::Fixture {
   auto test_usage_Conditions() -> void;
   auto test_usage_Guardian_readable() -> void;
   auto test_usage_Guardian_writable() -> void;
   auto test_usage_Guardian_many() -> void;
   auto test_usage_Operation() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -56,24 +55,24 @@ auto tests::unit::concurrent::Fixture::test_usage_Operation() -> void {
   // We already tested this in usage_Guardian
   CPPUNIT_ASSERT(true);
 }
-auto tests::unit::concurrent::Fixture::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("concurrent");
-  {
-    Stream use("usage");
-    use << call("Conditions", &Fixture::test_usage_Conditions)
-      ;
-    {
-      Stream gua("Guardian");
-      gua << call("readable", &Fixture::test_usage_Guardian_readable)
-          << call("writable", &Fixture::test_usage_Guardian_writable)
-          << call("many", &Fixture::test_usage_Guardian_many)
-        ;
-    }
-    series << call("Operation", &Fixture::test_usage_Operation)
-      ;
-    series << move(use);
-  }
-  return finalize(series);
+auto tests::unit::concurrent::Fixture::suite() -> Suite {
+  auto series = Stream{"concurrent"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Conditions", &Fixture::test_usage_Conditions)
+                  << []{
+                       auto gua = Stream{"Guardian"sv};
+                       gua << add("readable", &Fixture::test_usage_Guardian_readable)
+                           << add("writable", &Fixture::test_usage_Guardian_writable)
+                           << add("many", &Fixture::test_usage_Guardian_many)
+                           << END;
+                       return gua;
+                     }()
+                  << add("Operation", &Fixture::test_usage_Operation)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
 }
 #endiv

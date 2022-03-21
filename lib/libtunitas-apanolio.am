@@ -1,0 +1,39 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc. 2022
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
+# For terms, see the LICENSE file at the top of this repository.
+#
+lib_libtunitas_apanolio_la_CURRENT = 40
+lib_libtunitas_apanolio_la_REVISION = 1
+lib_libtunitas_apanolio_la_AGE = 0
+lib_libtunitas_apanolio_la_CRA = $(lib_libtunitas_apanolio_la_CURRENT):$(lib_libtunitas_apanolio_la_REVISION):$(lib_libtunitas_apanolio_la_AGE)
+lib_libtunitas_apanolio_la_VERSION_INFO = -version-info $(lib_libtunitas_apanolio_la_CRA)
+#
+lib_libtunitas_apanolio_la = $(error REMOVE)
+lib_libtunitas_apanolio_la_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
+lib_libtunitas_apanolio_la_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
+lib_libtunitas_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET) $(lib_libtunitas_apanolio_la_VERSION_INFO)
+lib_libtunitas_apanolio_la_LIBADD = noinst/lib/libtunitas-apanolio.la
+lib_libtunitas_apanolio_la_MODULES = $(none)
+lib_libtunitas_apanolio_la_SOURCES = $(none)
+#
+# DSO API versioning; see the README which is nearby.
+# else https://wiki.scold-lang.org/page/DSO
+#
+#   CURRENT <= CURRENT+1 if any interfaces were added
+#           <= CURRENT+1 if any interfaces were removed
+#           <= CURRENT+1 if any interfaces were changed
+#           <= CURRENT   if no interface change, but any other (source code) change
+#
+#   REVISION <= 0          if any interfaces were added
+#            <= 0          if any interfaces were removed
+#            <= 0          if any interfaces were changed
+#            <= REVISION+1 if no interface change, but any other (source code) change
+#
+#   AGE <= AGE+1 if any interaces were added
+#       <= 0     if any interfaces were removed
+#       <= 0     if any interfaces were changed
+#       <= AGE   if no interface change, but any other (source code) change
+#

@@ -7,7 +7,8 @@
 namespace tests::unit::resting::stream { class Stream; }
 #endiv
 #divert <hpp>
-class tests::unit::resting::stream::Stream : public cppunit::test::Fixture {
+class tests::unit::resting::stream::Stream : public rigging::suite::Fixture {
+  using Ancestor = rigging::suite::Fixture;
 public:
   auto test_constructor() -> void;
   auto test_filename() -> void;
@@ -18,7 +19,7 @@ public:
   auto test_copy_idiom() -> void;
   auto setUp() -> void final;
   auto tearDown() -> void final;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
@@ -37,28 +38,28 @@ auto tests::unit::resting::stream::Stream::tearDown() -> void {
   // Never mind
 }
 auto tests::unit::resting::stream::Stream::test_constructor() -> void {
-  tunitas::apanolio::resting::stream::Stream rel(SPECIMEN_LONG_FILE);
+  tunitas::apanolio::resting::stream::Stream rel{SPECIMEN_LONG_FILE};
   CPPUNIT_ASSERT(true); // the constructor "worked"
 }
 auto tests::unit::resting::stream::Stream::test_filename() -> void {
   std::string filename = SPECIMEN_LONG_FILE;
-  tunitas::apanolio::resting::stream::Stream rel(filename);
+  tunitas::apanolio::resting::stream::Stream rel{filename};
   CPPUNIT_ASSERT_EQUAL(filename, rel.filename());
 }
 auto tests::unit::resting::stream::Stream::test_exists() -> void {
   std::string filename = SPECIMEN_LONG_FILE;
-  tunitas::apanolio::resting::stream::Stream rel(filename);
+  tunitas::apanolio::resting::stream::Stream rel{filename};
   CPPUNIT_ASSERT(rel.exists());
 }
 auto tests::unit::resting::stream::Stream::test_open_good() -> void {
   std::string filename = SPECIMEN_LONG_FILE;
-  tunitas::apanolio::resting::stream::Stream rel(filename);
+  tunitas::apanolio::resting::stream::Stream rel{filename};
   auto opened = rel.open();
   CPPUNIT_ASSERT(ok(opened));
 }
 auto tests::unit::resting::stream::Stream::test_open_bad() -> void {
   std::string filename = "/FAIL-FAIL-FAIL/share/dict/words";
-  tunitas::apanolio::resting::stream::Stream rel(filename);
+  tunitas::apanolio::resting::stream::Stream rel{filename};
   auto opened = rel.open();
   CPPUNIT_ASSERT(!ok(opened));
   auto ec = error_code(opened);
@@ -67,7 +68,7 @@ auto tests::unit::resting::stream::Stream::test_open_bad() -> void {
 #import std.ofstream
 auto tests::unit::resting::stream::Stream::test_begin_end() -> void {
   std::string filename = SPECIMEN_SHORT_FILE;
-  tunitas::apanolio::resting::stream::Stream rel(filename);
+  tunitas::apanolio::resting::stream::Stream rel{filename};
   auto opened = rel.open();
   CPPUNIT_ASSERT(ok(opened));
   std::ofstream nullity("/dev/null");
@@ -86,7 +87,7 @@ auto tests::unit::resting::stream::Stream::test_begin_end() -> void {
 #import std.ostream_iterator.basic_buffer
 auto tests::unit::resting::stream::Stream::test_copy_idiom() -> void {
   std::string filename = SPECIMEN_LONG_FILE;
-  tunitas::apanolio::resting::stream::Stream rel(filename);
+  tunitas::apanolio::resting::stream::Stream rel{filename};
   auto opened = rel.open();
   CPPUNIT_ASSERT(ok(opened));
   std::ostringstream sink;
@@ -95,17 +96,16 @@ auto tests::unit::resting::stream::Stream::test_copy_idiom() -> void {
   std::string result = sink.str();
   CPPUNIT_ASSERT(100000 < result.size());
 }
-auto tests::unit::resting::stream::Stream::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
+auto tests::unit::resting::stream::Stream::suite() -> Suite {
   namespace suite = ::rigging::suite; // because nearby Stream occludes it
-  suite::Stream series("Stream");
-  series << call("constructor", &Stream::test_constructor)
-         << call("exists", &Stream::test_exists)
-         << call("open-good", &Stream::test_open_good)
-         << call("open-bad", &Stream::test_open_bad)
-         << call("begin_end", &Stream::test_begin_end)
-         << call("copy_idiom", &Stream::test_copy_idiom)
-    ;
-  return finalize(series);
+  auto series = Ancestor::Stream{"Stream"sv};
+  series << add("constructor", &Stream::test_constructor)
+         << add("exists", &Stream::test_exists)
+         << add("open-good", &Stream::test_open_good)
+         << add("open-bad", &Stream::test_open_bad)
+         << add("begin_end", &Stream::test_begin_end)
+         << add("copy_idiom", &Stream::test_copy_idiom)
+         << END;
+  return settle(series);
 }
 #endiv

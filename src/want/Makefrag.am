@@ -4,26 +4,10 @@
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #
-lib_libwant_la = lib/libwant.la
-lib_libwant_la_LIBADD = $(nothing)
-lib_libwant_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
-lib_libwant_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libwant_la_SOURCES))
-lib_libwant_la_SOURCES = \
+want_SUBSOURCES = \
   obj/src/want/namespace.cpp \
   obj/src/want/rigging/exception/namespace.cpp \
   obj/src/want/rigging/exception/Aspect.cpp \
   obj/src/want/rigging/exception/SetUp.cpp \
   obj/src/want/rigging/exception/TearDown.cpp \
   $(end)
-#
-$(scold_cxxdir)/want/dependencies.mk: $(lib_libwant_la_SOURCES)
-$(lib_libwant_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
-	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
-	$(TF_V_DONE) test -e $@
-$(scold_cxxdir)/want/dependencies.mk:
-	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
-	$(TF_V_DONE) test -e $@
-include $(scold_cxxdir)/want/dependencies.mk
-clean-local::
-	rm -f $(scold_cxxdir)/want/dependencies.mk
-#end

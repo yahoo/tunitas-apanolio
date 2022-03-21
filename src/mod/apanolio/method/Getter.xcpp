@@ -34,7 +34,7 @@ private:
 };
 #endiv
 #divert <cpp>
-#import autotools.autoconf.Config.mod.apanolio.CONFIG
+#import autotools.autoconf.Config.tunitas.apanolio.CONFIG
 #import tunitas.apanolio.resource.identifier.construct
 #import rabinpoly.fingerprint
 #import std.string
@@ -66,12 +66,12 @@ auto mod::apanolio::method::Getter::operator()() -> apache::httpd::status::Code 
   return HANDLER::OK; // not HTTP::OK
 }
 #import apache.httpd.io.keywords
-#import autotools.autoconf.Config.mod.apanolio.CONFIG
+#import autotools.autoconf.Config.tunitas.apanolio.CONFIG
 auto mod::apanolio::method::Getter::banner_failure(std::string const &identifier, std::string const &reasons) -> void {
   using namespace io::keywords;
   ap_set_content_type(this->req, "text/html"); // [[FIXTHIS]] as ap::set_content_type(...)
   rs << html << br
-     << head << autotools::autoconf::Config<CONFIG>::package_name() << _head << br
+     << head << autotools::autoconf::Config<tunitas::apanolio::CONFIG>::package_name() << _head << br
      << body << p << "unable to recover the identifier "
      << identifier
      << " because "

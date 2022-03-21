@@ -5,7 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #divert <hpp>
 #import tunitas.apanolio.resource.Identifier
-#import uuid.generate.random
+#import uuid.Container
+static_assert(sizeof (uuid::Container));
 namespace tunitas::apanolio::resource::identifier {
   inline auto construct(Fingerprint) -> Identifier;
   inline auto construct(uuid::Container) -> Identifier;

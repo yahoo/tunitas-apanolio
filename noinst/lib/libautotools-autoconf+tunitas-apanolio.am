@@ -1,0 +1,27 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+noinst_lib_libautotools_autoconf_tunitas_apanolio_la_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
+noinst_lib_libautotools_autoconf_tunitas_apanolio_la_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
+noinst_lib_libautotools_autoconf_tunitas_apanolio_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+noinst_lib_libautotools_autoconf_tunitas_apanolio_la_LIBADD = $(none)
+noinst_lib_libautotools_autoconf_tunitas_apanolio_la_MODULES = $(call HT_SOURCEStoMODULES, $(noinst_lib_libautotools_autoconf_tunitas_apanolio_la_SOURCES))
+noinst_lib_libautotools_autoconf_tunitas_apanolio_la_SOURCES = noinst/obj/src/autotools/autoconf/Config/tunitas/apanolio/CONFIG.cpp
+autotools_autoconf_IMPORT = tunitas.apanolio
+include src/autotools/autoconf/Makefrag.am
+#
+$(noinst_lib_libautotools_autoconf_tunitas_apanolio_la_SOURCES) : DISCOFLAGS+=--no-insert-namespace
+$(noinst_lib_libautotools_autoconf_tunitas_apanolio_la_SOURCES) : DC_FLAGS+=$(DISCOFLAGS)
+$(noinst_lib_libautotools_autoconf_tunitas_apanolio_la_SOURCES) : bbDC_FLAGS+=$(DISCOFLAGS)
+#
+$(noinst_lib_libautotools_autoconf_tunitas_apanolio_la_SOURCES) : disco_objdir=noinst/obj
+$(noinst_lib_libautotools_autoconf_tunitas_apanolio_la_SOURCES) : disco_srcdir=noinst/obj/src
+$(noinst_lib_libautotools_autoconf_tunitas_apanolio_la_SOURCES) : %.cpp : %.xcpp
+	$(HT_DISCO)
+	@test -e $@
+$(scold_noinst_mkdir)/libautotools-autoconf+tunitas-apanolio.mk: $(noinst_lib_libautotools_autoconf_tunitas_apanolio_la_SOURCES)
+$(scold_noinst_mkdir)/libautotools-autoconf+tunitas-apanolio.mk:
+	$(V_BOTH) $(call HT_DEPENDENCIES, $^)
+	@test -e $@
+include $(scold_noinst_mkdir)/libautotools-autoconf+tunitas-apanolio.mk
+clean-dependencies:: ; rm -f $(scold_noinst_mkdir)/libautotools-autoconf+tunitas-apanolio.mk

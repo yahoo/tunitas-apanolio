@@ -4,30 +4,36 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 #divert <fpp>
-#import std.string
-#import std.string_view
+#import tunitas.string
+#import tunitas.string.literals
 namespace tests::unit {
-  using std::string;
-  using std::string_view;
+  namespace string = tunitas::string;
+  using namespace tunitas::string::literals;
 }
 #endiv
 #divert <hpp>
 // Because all test fixtures will need these
-#import tests.cppunit.Test
-#import tests.cppunit.test.Fixture
-#import tests.cppunit.ASSERT
+//
+// The deprecating v1-series API
+#import tests.cppunit.Test // ................ the (deprecating) v1-series API shims
+#import tests.cppunit.test.Fixture // ........ ibidem.
+#import tests.cppunit.ASSERT // .............. ibidem
+//
+// The current v2-series API
+#import rigging.suite.Fixture // ............. the current v2-series API
+#import rigging.ASSERTION
+namespace tests::unit {
+  using rigging::ASSERTION; // so that ADL will find require(ASSERTION, condition, ...) and impossible(ASSERTION, condition, ...)
+}
 //
 // Because starting and stopping the Apache HTTPd runtime is a required part of almost all tests
 #import rigging.httpd.fixture.Runtime
 #import rigging.httpd.Dummy
 #endiv
 #divert <ipp>
-#import std.string_literals
-#import std.string_view_literals
+#import std.cout
+#import std.clog
 #import std.cerr
-namespace tests::unit {
-  using namespace std::string_literals;
-  using namespace std::string_view_literals;
-}
-#import rigging.suite.io
+#import rigging.suite.io // ........ the (deprecating) v1-series
+#import rigging.io // .............. the current v2-series
 #endiv

@@ -1,8 +1,8 @@
 #!/bin/bash -p
 # Copyright Yahoo Inc, 2021.
 # Licensed under the terms of the Apache-2.0 license.
-# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-montara/blob/master/LICENSE
-# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/montara/tree/LICENSE
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-apanolio/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/apanolio/tree/LICENSE
 : ${with_build:=/build}
 : ${with_worktrees:=${with_build?}/worktrees}
 : ${TAG:=CURRENT}
@@ -55,7 +55,9 @@ with_module_rabinpoly=${with_module_rabinpoly:-${with_worktrees?}/rabinpoly/v0.$
 with_module_shell=${with_module_shell:-${with_worktrees?}/shell/v2.${TAG?}} \
 with_module_sqlite=${with_module_sqlite:-${with_worktrees?}/sqlite/v0.${TAG?}} \
 with_module_sys=${with_module_sys:-${with_worktrees?}/sys/v2.${TAG?}} \
-with_module_uuid=${with_module_uuid:-${with_worktrees?}/uuid/v0.${TAG?}} \
+\
+with_module_uuid=${with_module_uuid:-no} \
+NOT_with_module_uuid=${with_module_uuid:-${with_worktrees?}/uuid/v0.${TAG?}} \
 \
 with_module_cli_core=${with_module_cli_core?} \
 with_module_options=${with_module_options?} \

@@ -31,7 +31,7 @@ template<> auto tests::unit::resting::file::generate<std::string>() -> Pair<std:
     tmpdir = value(got);
   }
   // FIXME ... add more static uniqueness?  now() perhaps?
-  auto pattern = finalize(path::filename::workbench() * tmpdir / "t99.tests.unit.resting.file.XXXXXX");
+  auto pattern = finalize(path::filename::workbench() * tmpdir / "t99.tests.unit.resting.file.XXXXXX"s);
   using sys::posix::mktemp;
   auto t1 = mktemp(pattern);
   auto t2 = mktemp(pattern);
@@ -42,7 +42,7 @@ template<> auto tests::unit::resting::file::generate<std::string>() -> Pair<std:
     unlink(value(t1));
     unlink(value(t2));
     auto b1 = ok(t1);
-    auto ec       = !b1 ? std_system_error_code(t1) : std_system_error_code(t2);
+    auto ec      = !b1 ? std_system_error_code(t1) : std_system_error_code(t2);
     auto message = "could not mktemp from " + pattern;
     throw tunitas::apanolio::exception::System{ec, message};
   }

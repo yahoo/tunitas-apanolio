@@ -7,14 +7,14 @@
 namespace tests::unit::resting::buffer { class Gulp; }
 #endiv
 #divert <hpp>
-struct tests::unit::resting::buffer::Gulp : public cppunit::test::Fixture, private rigging::httpd::fixture::Runtime {
+struct tests::unit::resting::buffer::Gulp : public rigging::suite::Fixture, private rigging::httpd::fixture::Runtime {
   auto setUp() -> void override final    { Runtime::setUp(); }
   auto tearDown() -> void override final { Runtime::tearDown(); }
   auto test_constructor() -> void;
   auto test_operator_call() -> void;
   auto test_accessors() -> void;
 
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 protected:
 protected:
   static constexpr auto GENERATED_CONTENT_SIZE_LIMIT = 21566u; // some random magic value
@@ -56,13 +56,12 @@ auto tests::unit::resting::buffer::Gulp::test_accessors() -> void {
   // There are no accessors
   CPPUNIT_ASSERT(true);
 }
-auto tests::unit::resting::buffer::Gulp::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("Gulp");
-  series << call("constructor", &Gulp::test_constructor)
-         << call("operator()", &Gulp::test_operator_call)
-         << call("accessors", &Gulp::test_accessors)
-    ;
-  return finalize(series);
+auto tests::unit::resting::buffer::Gulp::suite() -> Suite {
+  auto series = Stream{"Gulp"sv};
+  series << add("constructor", &Gulp::test_constructor)
+         << add("operator()", &Gulp::test_operator_call)
+         << add("accessors", &Gulp::test_accessors)
+         << END;
+  return settle(series);
 }
 #endiv

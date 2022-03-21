@@ -67,9 +67,8 @@ namespace tunitas::apanolio::resting {
 namespace tunitas::apanolio::resting::stream {
   Iterator::Iterator()
     : buf()
-    , owner(nullptr) {
-    ;
-  }
+    , owner(nullptr)
+  { }
   Iterator::Iterator(Stream *arg_owner, Position position)
     : buf()
     , owner(arg_owner) {

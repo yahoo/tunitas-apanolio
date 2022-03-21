@@ -9,11 +9,10 @@ namespace tests::unit::resting { class Validate; }
 #divert <hpp>
 #import tunitas.apanolio.resource.Record
 #import std.string
-class tests::unit::resting::Validate : public cppunit::test::Fixture {
-public:
+struct tests::unit::resting::Validate : public rigging::suite::Fixture {
   template<unsigned> auto test_good() -> void;
   template<unsigned> auto test_fail() -> void;
-  static auto suite() -> cppunit::Test *;
+  static auto suite() -> Suite;
 protected:
   static auto actualize(tunitas::apanolio::resource::Record const &) -> std::string;
 };
@@ -172,27 +171,28 @@ namespace tests::unit::resting {
     CPPUNIT_ASSERT(true);
   }
 }
-auto tests::unit::resting::Validate::suite() -> cppunit::Test * {
-  using namespace ::rigging::suite;
-  Stream series("validate");
-  {
-    Stream goo("good");
-    goo << call("0", &Validate::test_good<0>)
-        << call("1", &Validate::test_good<1>)
-        << call("2", &Validate::test_good<2>)
-      ;
-    series << move(goo);
-  } {
-    Stream fai("fail");
-    fai << call("0", &Validate::test_fail<0>)
-        << call("1", &Validate::test_fail<1>)
-        << call("2", &Validate::test_fail<2>)
-        << call("3", &Validate::test_fail<3>)
-        << call("4", &Validate::test_fail<4>)
-        << call("5", &Validate::test_fail<5>)
-      ;
-    series << move(fai);
-  }
-  return finalize(series);
+auto tests::unit::resting::Validate::suite() -> Suite {
+  auto series = Stream{"validate"sv};
+  series << []{
+              auto goo = Stream{"good"sv};
+              goo << add("0", &Validate::test_good<0>)
+                  << add("1", &Validate::test_good<1>)
+                  << add("2", &Validate::test_good<2>)
+                  << END;
+              return goo;
+            }()
+         << []{
+              auto fai = Stream{"fail"sv};
+              fai << add("0", &Validate::test_fail<0>)
+                  << add("1", &Validate::test_fail<1>)
+                  << add("2", &Validate::test_fail<2>)
+                  << add("3", &Validate::test_fail<3>)
+                  << add("4", &Validate::test_fail<4>)
+                  << add("5", &Validate::test_fail<5>)
+                  << END;
+              return fai;
+            }()
+         << END;
+  return settle(series);
 }
 #endiv

@@ -7,12 +7,12 @@
 namespace tests::unit::engine {
   //
   // Generate some records with some stuff in them.
-  // Descendants only; this is a mixin; specifically to be mixed in against the cppunit::test::Fixture
+  // Descendants only; this is a mixin; specifically to be mixed in against the rigging::suite::Fixture
   // (Hipster) Ipsum Lorem
   //
   // Usage:
   //
-  //    class my::Fixture : public cppunit::test::Fixture, private Record_Generator {
+  //    class my::Fixture : public rigging::suite::Fixture, private Record_Generator {
   //      auto test_something() -> void {
   //        auto record = generate_record();
   //      }
@@ -25,8 +25,7 @@ namespace tests::unit::engine {
 #import tunitas.apanolio.resource.Record
 #import std.string
 #import std.size_t
-class tests::unit::engine::Record_Generator {
-protected:
+struct tests::unit::engine::Record_Generator {
   ~Record_Generator() = default;
   inline Record_Generator();
 public:

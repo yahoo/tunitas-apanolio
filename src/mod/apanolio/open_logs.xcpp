@@ -67,7 +67,7 @@ namespace mod::apanolio {
 //
 #import apache.httpd.log // APLOG_MARK is from <httpd/http_log.h>
 #import apache.httpd.module_config.get
-#import autotools.autoconf.Config.mod.apanolio.CONFIG
+#import autotools.autoconf.Config.tunitas.apanolio.CONFIG
 #import mod.apanolio.module // presents the global variable ::apanolio_module and enables ap_log_error(...)
 #import std.exception
 auto mod::apanolio::open_logs(apache::runtime::pool_t *config, apache::runtime::pool_t *logging, apache::runtime::pool_t *temporary, apache::httpd::server_rec *s) noexcept -> int try {
@@ -83,7 +83,7 @@ auto mod::apanolio::open_logs(apache::runtime::pool_t *config, apache::runtime::
   // If you don't protect in this manner then the second 'start' directive will fail
   static bool is_started = false;
   if (is_started != spec.is_started) {
-    ap_log_error(APLOG_MARK, APLOG_TRACE4, /*status*/0, s, "%s is_started is out of sync %d != %d", autotools::autoconf::Config<CONFIG>::package_name(), is_started, spec.is_started);
+    ap_log_error(APLOG_MARK, APLOG_TRACE4, /*status*/0, s, "%s is_started is out of sync %d != %d", autotools::autoconf::Config<tunitas::apanolio::CONFIG>::package_name(), is_started, spec.is_started);
   }
   if ( ! is_started ) {
     spec.is_started = is_started = true;
@@ -92,7 +92,7 @@ auto mod::apanolio::open_logs(apache::runtime::pool_t *config, apache::runtime::
   detail::choose_storage_engine(spec, s);
   return httpd::OK;
 } catch (std::exception const &e) {
-  ap_log_error(APLOG_MARK, APLOG_CRIT, /*status*/0, s, "could not start %s because %s", autotools::autoconf::Config<CONFIG>::package_name(), e.what());
+  ap_log_error(APLOG_MARK, APLOG_CRIT, /*status*/0, s, "could not start %s because %s", autotools::autoconf::Config<tunitas::apanolio::CONFIG>::package_name(), e.what());
   return httpd::INTERNAL_SERVER_ERROR;
 }
 #import sys.posix.stat
@@ -104,13 +104,13 @@ auto mod::apanolio::open_logs(apache::runtime::pool_t *config, apache::runtime::
 #import tunitas.apanolio.storage.engine.Configuration
 namespace mod::apanolio {
   auto detail::validate_storage_directory(Specification const &spec, apache::httpd::server_rec *s) -> void {
-    ap_log_error(APLOG_MARK, APLOG_TRACE4, /*status*/0, s, "the %s upload storage directory is declared as %s", autotools::autoconf::Config<CONFIG>::package_name(), spec.storage_directory.value.data());
+    ap_log_error(APLOG_MARK, APLOG_TRACE4, /*status*/0, s, "the %s upload storage directory is declared as %s", autotools::autoconf::Config<tunitas::apanolio::CONFIG>::package_name(), spec.storage_directory.value.data());
     auto statted = sys::posix::stat(spec.storage_directory.value);
     if (!ok(statted)) {
-      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, s, "the %s upload storage directory %s is missing", autotools::autoconf::Config<CONFIG>::package_name(), spec.storage_directory.value.data());
+      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, s, "the %s upload storage directory %s is missing", autotools::autoconf::Config<tunitas::apanolio::CONFIG>::package_name(), spec.storage_directory.value.data());
       // but try to continue to OK (maybe the directory will show up later)
     } else if (!sys::posix::isdir(value(statted))) {
-      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, s, "the %s upload storage directory %s is not a directory", autotools::autoconf::Config<CONFIG>::package_name(), spec.storage_directory.value.data());
+      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, s, "the %s upload storage directory %s is not a directory", autotools::autoconf::Config<tunitas::apanolio::CONFIG>::package_name(), spec.storage_directory.value.data());
       // but try to continue to OK (maybe the directory will show up later)
     }
   }
@@ -120,7 +120,7 @@ namespace mod::apanolio {
     auto const &storage_engine = spec.storage_engine.value;
     if (storage_engine.empty()) {
       // This error message is likely the only thing that will clue you in thta StorageEngine was unset.  make it good.
-      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, server, "undefined %s storage engine (try using 'StorageEngine none')", autotools::autoconf::Config<CONFIG>::package_name());
+      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, server, "undefined %s storage engine (try using 'StorageEngine none')", autotools::autoconf::Config<tunitas::apanolio::CONFIG>::package_name());
       throw tunitas::apanolio::exception::Argument{storage_engine};
     } else if ("none"s == storage_engine ||"null"s == storage_engine) {
       spec.storage = storage::open<storage::engine::NONE>();
@@ -151,7 +151,7 @@ namespace mod::apanolio {
         printable = "(empty)"s;
       }
       // This error message is likely the only thing that will clue you in thta StorageEngine was unset.  make it good.
-      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, server, "invalid %s storage engine %s (try using 'StorageEngine none')", autotools::autoconf::Config<CONFIG>::package_name(), c::str(printable));
+      ap_log_error(APLOG_MARK, APLOG_ERR, /*status*/0, server, "invalid %s storage engine %s (try using 'StorageEngine none')", autotools::autoconf::Config<tunitas::apanolio::CONFIG>::package_name(), c::str(printable));
       throw tunitas::apanolio::exception::Argument{storage_engine};
     }
   }
